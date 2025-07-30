@@ -1,0 +1,55 @@
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+
+## 🔹 Build results
+bin/
+obj/
+
+## 🔹 Rider files
+.idea/
+*.sln.iml
+
+## 🔹 User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## 🔹 Logs and database
+*.log
+*.db
+*.sqlite
+*.db-shm
+*.db-wal
+
+## 🔹 ASP.NET Identity secrets
+appsettings.Development.json
+secrets.json
+
+## 🔹 Visual Studio Code
+.vscode/
+
+## 🔹 Dotnet artifacts
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## 🔹 Published output
+wwwroot/dist/
+wwwroot/node_modules/
+wwwroot/lib/
+
+## 🔹 OS-specific
+.DS_Store
+Thumbs.db
+
+## 🔹 Node/npm (якщо буде фронтенд)
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+
+## 🔹 Environment variables
+.env
+.env.*
