@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AspNetFinalProject.Data;
+using AspNetFinalProject.Repositories.Implementations;
+using AspNetFinalProject.Repositories.Interfaces;
+using AspNetFinalProject.Services.Implementations;
+using AspNetFinalProject.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +18,18 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IWorkSpaceRepository, WorkSpaceRepository>();
+builder.Services.AddScoped<IWorkSpaceService, WorkSpaceService>();
+
+builder.Services.AddScoped<IBoardRepository, BoardRepository>();
+builder.Services.AddScoped<IBoardService, BoardService>();
+
+builder.Services.AddScoped<IBoardListRepository, BoardListRepository>();
+builder.Services.AddScoped<IBoardListService, BoardListService>();
+
+builder.Services.AddScoped<ICardRepository, CardRepository>();
+builder.Services.AddScoped<ICardService, CardService>();
 
 var app = builder.Build();
 
