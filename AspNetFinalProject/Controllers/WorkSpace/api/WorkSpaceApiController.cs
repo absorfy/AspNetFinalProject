@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Services.Implementations;
+using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,20 +12,23 @@ namespace AspNetFinalProject.Controllers.WorkSpace.api;
 [Authorize]
 public class WorkSpaceApiController : ControllerBase
 {
-    private readonly WorkSpaceService _workSpaceService;
+    private readonly IWorkSpaceService _workSpaceService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public WorkSpaceApiController(WorkSpaceService workSpaceService)
+    public WorkSpaceApiController(IWorkSpaceService workSpaceService,
+                                  ICurrentUserService currentUserService)
     {
         _workSpaceService = workSpaceService;
+        _currentUserService = currentUserService;
     }
     
     [HttpGet]
     public async Task<ActionResult<IEnumerable<WorkSpaceDto>>> GetMyWorkspaces()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null) return Unauthorized();
+        var user = await _currentUserService.GetUserProfileAsync();
+        if (user == null) return Unauthorized();
 
-        var workspaces = await _workSpaceService.GetUserWorkSpacesAsync(userId);
+        var workspaces = await _workSpaceService.GetUserWorkSpacesAsync(user.IdentityId);
 
         var result = workspaces.Select(w => new WorkSpaceDto
         {
@@ -44,10 +48,10 @@ public class WorkSpaceApiController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null) return Unauthorized();
+        var user = await _currentUserService.GetUserProfileAsync();
+        if (user == null) return Unauthorized();
 
-        var workspace = await _workSpaceService.CreateAsync(dto.Title, userId, dto.Description);
+        var workspace = await _workSpaceService.CreateAsync(dto.Title, user.IdentityId, dto.Description);
 
         return CreatedAtAction(nameof(GetMyWorkspaces), new { id = workspace.Id }, new WorkSpaceDto
         {
@@ -74,10 +78,10 @@ public class WorkSpaceApiController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteWorkspace(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null) return Unauthorized();
+        var user = await _currentUserService.GetUserProfileAsync();
+        if (user == null) return Unauthorized();
 
-        var deleted = await _workSpaceService.DeleteAsync(id, userId);
+        var deleted = await _workSpaceService.DeleteAsync(id, user.IdentityId);
         if (!deleted) return NotFound();
 
         return NoContent();

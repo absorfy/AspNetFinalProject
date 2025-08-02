@@ -31,6 +31,11 @@ builder.Services.AddScoped<IBoardListService, BoardListService>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<ICardService, CardService>();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+builder.Services.AddScoped<IWorkSpaceParticipantRepository, WorkSpaceParticipantRepository>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
