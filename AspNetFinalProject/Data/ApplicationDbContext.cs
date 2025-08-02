@@ -33,12 +33,15 @@ public class ApplicationDbContext : IdentityDbContext
     {
         base.OnModelCreating(modelBuilder);
         
-        // Унікальний індекс для Subscription
+        modelBuilder.Entity<UserProfile>()
+            .HasOne(u => u.IdentityUser)
+            .WithOne()
+            .HasForeignKey<UserProfile>(u => u.IdentityId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         modelBuilder.Entity<Subscription>()
-            .HasIndex(s => new { s.UserProfileId, s.EntityName, s.EntityId })
-            .IsUnique();
-
-        // Composite ключі
+            .HasKey(s => new { s.UserProfileId, s.EntityName, s.EntityId });
+        
         modelBuilder.Entity<WorkSpaceParticipant>()
             .HasKey(x => new { x.WorkSpaceId, x.UserProfileId });
 
@@ -50,50 +53,43 @@ public class ApplicationDbContext : IdentityDbContext
         
         modelBuilder.Entity<TagCard>()
             .HasKey(tc => new { tc.TagId, tc.CardId });
-
-        // WorkSpace: Author
+        
         modelBuilder.Entity<WorkSpace>()
             .HasOne(w => w.Author)
             .WithMany(u => u.CreatedWorkspaces)
             .HasForeignKey(w => w.AuthorId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        // WorkSpace: DeletedByUser
+        
         modelBuilder.Entity<WorkSpace>()
             .HasOne(w => w.DeletedByUser)
             .WithMany(u => u.DeletedWorkspaces)
             .HasForeignKey(w => w.DeletedByUserId)
             .OnDelete(DeleteBehavior.SetNull);
-
-        // Board: Author
+        
         modelBuilder.Entity<Board>()
             .HasOne(b => b.Author)
             .WithMany(u => u.CreatedBoards)
             .HasForeignKey(b => b.AuthorId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        // Board: DeletedByUser
+        
         modelBuilder.Entity<Board>()
             .HasOne(b => b.DeletedByUser)
             .WithMany(u => u.DeletedBoards)
             .HasForeignKey(b => b.DeletedByUserId)
             .OnDelete(DeleteBehavior.SetNull);
-
-        // BoardList: Author
+        
         modelBuilder.Entity<BoardList>()
             .HasOne(l => l.Author)
             .WithMany(u => u.CreatedLists)
             .HasForeignKey(l => l.AuthorId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        // BoardList: DeletedByUser
+        
         modelBuilder.Entity<BoardList>()
             .HasOne(l => l.DeletedByUser)
             .WithMany(u => u.DeletedLists)
             .HasForeignKey(l => l.DeletedByUserId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        // UserActionLog: UserProfile
         modelBuilder.Entity<UserActionLog>()
             .HasOne(x => x.UserProfile)
             .WithMany(u => u.ActionLogs)
