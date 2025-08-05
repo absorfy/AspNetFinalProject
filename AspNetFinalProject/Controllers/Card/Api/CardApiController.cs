@@ -50,7 +50,7 @@ public class CardApiController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
-        var card = await _cardService.CreateAsync(dto.BoardListId, dto.Title, userId, dto.Description, dto.Color, dto.Deadline);
+        var card = await _cardService.CreateAsync(dto);
 
         return CreatedAtAction(nameof(GetCardsByList), new { boardListId = dto.BoardListId }, new CardDto
         {
@@ -71,7 +71,7 @@ public class CardApiController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var updated = await _cardService.UpdateAsync(id, dto.Title, dto.Description, dto.Color, dto.Deadline);
+        var updated = await _cardService.UpdateAsync(id, dto);
         if (!updated) return NotFound();
 
         return NoContent();

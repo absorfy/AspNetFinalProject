@@ -1,4 +1,5 @@
 ﻿@page
+@using AspNetFinalProject.Enums
 @model IndexModel
 @{
     ViewData["Title"] = "Profile";
@@ -12,15 +13,55 @@
     <div class="col-md-6">
         <form id="profile-form" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+            <!-- Username -->
             <div class="form-floating mb-3">
-                <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
-                <label asp-for="Username" class="form-label"></label>
+                <input asp-for="Input.Username" class="form-control" placeholder="Enter username" />
+                <label asp-for="Input.Username" class="form-label"></label>
             </div>
+
+            <!-- First Name -->
             <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/>
+                <input asp-for="Input.Name" class="form-control" placeholder="Enter first name" />
+                <label asp-for="Input.Name" class="form-label"></label>
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+
+            <!-- Last Name -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Surname" class="form-control" placeholder="Enter last name" />
+                <label asp-for="Input.Surname" class="form-label"></label>
+                <span asp-validation-for="Input.Surname" class="text-danger"></span>
+            </div>
+
+            <!-- Birth Date -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.BirthDate" class="form-control" type="date" />
+                <label asp-for="Input.BirthDate" class="form-label"></label>
+                <span asp-validation-for="Input.BirthDate" class="text-danger"></span>
+            </div>
+
+            <!-- Gender -->
+            <div class="form-floating mb-3">
+                <select asp-for="Input.Gender" class="form-select" asp-items="Html.GetEnumSelectList<GenderType>()"></select>
+                <label asp-for="Input.Gender" class="form-label"></label>
+                <span asp-validation-for="Input.Gender" class="text-danger"></span>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Enter phone number" />
                 <label asp-for="Input.PhoneNumber" class="form-label"></label>
                 <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
             </div>
+
+            <!-- About -->
+            <div class="form-floating mb-3">
+                <textarea asp-for="Input.About" class="form-control" style="height: 100px" placeholder="Tell something about yourself"></textarea>
+                <label asp-for="Input.About" class="form-label"></label>
+                <span asp-validation-for="Input.About" class="text-danger"></span>
+            </div>
+
             <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
         </form>
     </div>

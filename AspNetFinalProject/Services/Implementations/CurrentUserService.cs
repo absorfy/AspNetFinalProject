@@ -1,6 +1,9 @@
 ﻿using System.Security.Claims;
 using AspNetFinalProject.Data;
+using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Entities;
+using AspNetFinalProject.Mappers;
+using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,12 +12,12 @@ namespace AspNetFinalProject.Services.Implementations;
 public class CurrentUserService : ICurrentUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ApplicationDbContext _context;
+    private readonly IUserProfileRepository _repository;
 
-    public CurrentUserService(IHttpContextAccessor httpContextAccessor, ApplicationDbContext context)
+    public CurrentUserService(IHttpContextAccessor httpContextAccessor, IUserProfileRepository repository)
     {
         _httpContextAccessor = httpContextAccessor;
-        _context = context;
+        _repository = repository;
     }
 
     public string? GetIdentityId()
@@ -26,9 +29,15 @@ public class CurrentUserService : ICurrentUserService
     {
         var identityId = GetIdentityId();
         if (identityId == null) return null;
-
-        return await _context.UserProfiles
-            .Include(u => u.IdentityUser)
-            .FirstOrDefaultAsync(u => u.IdentityId == identityId);
+        return await _repository.GetByIdentityId(identityId);
+    }
+    
+    public async Task<bool> UpdateAsync(UpdateUserProfileDto updateDto)
+    {
+        var userProfile = await GetUserProfileAsync();
+        if (userProfile == null) return false;
+        UserProfileMapper.UpdateEntity(userProfile, updateDto);
+        await _repository.SaveChangesAsync();
+        return true;
     }
 }

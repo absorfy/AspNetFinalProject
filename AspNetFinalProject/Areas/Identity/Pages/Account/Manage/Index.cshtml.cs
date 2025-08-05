@@ -6,9 +6,14 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Enums;
+using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace AspNetFinalProject.Areas.Identity.Pages.Account.Manage
 {
@@ -16,13 +21,16 @@ namespace AspNetFinalProject.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ICurrentUserService _currentUserService;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            ICurrentUserService currentUserService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _currentUserService = currentUserService;
         }
 
         /// <summary>
@@ -55,21 +63,57 @@ namespace AspNetFinalProject.Areas.Identity.Pages.Account.Manage
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            
+            [Required]
+            [MaxLength(50)]
+            [MinLength(3)]
+            [Display(Name = "Username")]
+            public string Username { get; set; }
+            
+            [MaxLength(50)]
+            [Display(Name = "First Name")]
+            public string Name { get; set; }
+
+            [MaxLength(50)]
+            [Display(Name = "Last Name")]
+            public string Surname { get; set; }
+            
+            [Display(Name = "Birth Date")]
+            [DataType(DataType.Date)]
+            public DateTime? BirthDate { get; set; }
+
+            [Display(Name = "Gender")]
+            public GenderType Gender { get; set; }
+            
             [Phone]
+            [MaxLength(20)]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+            
+            [MaxLength(500)]
+            [Display(Name = "About")]
+            public string About { get; set; }
         }
 
         private async Task LoadAsync(IdentityUser user)
         {
-            var userName = await _userManager.GetUserNameAsync(user);
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-
-            Username = userName;
+            var profile = await _currentUserService.GetUserProfileAsync();
+            if (profile == null)
+            {
+                throw new InvalidOperationException("Unable to load user profile.");
+            }
+            
+            Username = profile.Username;
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                Username = profile.Username,
+                Name = profile.PersonalInfo?.Name,
+                Surname = profile.PersonalInfo?.Surname,
+                BirthDate = profile.PersonalInfo?.BirthDate,
+                Gender = profile.PersonalInfo?.Gender ?? GenderType.None,
+                PhoneNumber = profile.PersonalInfo?.PhoneNumber,
+                About = profile.PersonalInfo?.About,
             };
         }
 
@@ -99,17 +143,22 @@ namespace AspNetFinalProject.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input.PhoneNumber != phoneNumber)
+            var dto = new UpdateUserProfileDto
             {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
+                Username = Input.Username,
+                PersonalInfo = new UpdatePersonalInfoDto
                 {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
-                    return RedirectToPage();
+                    Name = Input.Name,
+                    Surname = Input.Surname,
+                    BirthDate = Input.BirthDate,
+                    Gender = Input.Gender,
+                    PhoneNumber = Input.PhoneNumber,
+                    About = Input.About
                 }
-            }
+            };
 
+            await _currentUserService.UpdateAsync(dto);
+  
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();

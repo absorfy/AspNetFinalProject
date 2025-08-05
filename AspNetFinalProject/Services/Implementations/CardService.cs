@@ -1,4 +1,6 @@
-﻿using AspNetFinalProject.Entities;
+﻿using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Entities;
+using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Interfaces;
 
@@ -23,33 +25,18 @@ public class CardService : ICardService
         return await _repository.GetByIdAsync(id);
     }
     
-    public async Task<bool> UpdateAsync(int id, string title, string? description, string? color, DateTime? deadline)
+    public async Task<bool> UpdateAsync(int id, UpdateCardDto updateDto)
     {
         var card = await _repository.GetByIdAsync(id);
         if (card == null) return false;
-
-        card.Title = title;
-        card.Description = description;
-        card.Color = color;
-        card.Deadline = deadline;
-
+        CardMapper.UpdateEntity(card, updateDto);
         await _repository.SaveChangesAsync();
         return true;
     }
 
-    public async Task<Card> CreateAsync(int boardListId, string title, string authorId, string? description = null, string? color = null, DateTime? deadline = null)
+    public async Task<Card> CreateAsync(CreateCardDto createDto)
     {
-        var card = new Card
-        {
-            BoardListId = boardListId,
-            Title = title,
-            AuthorId = authorId,
-            Description = description,
-            Color = color,
-            Deadline = deadline,
-            CreatingTimestamp = DateTime.UtcNow
-        };
-
+        var card = CardMapper.ToEntityFromCreateDto(createDto);
         await _repository.AddAsync(card);
         await _repository.SaveChangesAsync();
 
