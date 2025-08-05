@@ -1,70 +1,65 @@
-﻿document.addEventListener("DOMContentLoaded", loadWorkspaces);
+﻿import {createWorkspaceAjax, fetchWorkspacesAjax} from "../api/workspaces.js";
+
+document.addEventListener("DOMContentLoaded", loadWorkspaces);
+const listContainer = document.getElementById("workspaceList");
+
+const createModalWindow = {
+  title: document.getElementById("workspaceTitle"),
+  description: document.getElementById("workspaceDescription"),
+  modalWindow: bootstrap.Modal.getOrCreateInstance(document.getElementById("createWorkspaceModal"))
+}
+createModalWindow.clearInputs = function() {
+  this.title.value = "";
+  this.description.value = "";
+}
+
+function loadWorkspace(workspace, container) {
+  const div = document.createElement("div");
+  div.classList.add("border", "p-2", "mb-2");
+  div.innerHTML = `
+                <strong>${workspace.title}</strong><br/>
+                ${workspace.description ?? ""}<br/>
+                <small>Author: ${workspace.authorName}</small> | 
+                <small>Participants: ${workspace.participantsCount}</small>
+            `;
+  container.appendChild(div);
+}
 
 async function loadWorkspaces() {
-  const response = await fetch("/api/workspaces");
-  if (!response.ok) {
-    document.getElementById("workspaceList").innerText = "Failed to load workspaces.";
-    return;
+  try {
+    listContainer.innerHTML = "Завантаження робочих просторів...";
+    const workspaces = await fetchWorkspacesAjax();
+    listContainer.innerHTML = "";
+    if (workspaces.length === 0) {
+      listContainer.innerHTML = "<p>No workspaces yet. Create one!</p>";
+      return;
+    }
+    workspaces.forEach(ws => loadWorkspace(ws, listContainer));
   }
-
-  const workspaces = await response.json();
-  const listContainer = document.getElementById("workspaceList");
-  listContainer.innerHTML = "";
-
-  if (workspaces.length === 0) {
-    listContainer.innerHTML = "<p>No workspaces yet. Create one!</p>";
-    return;
+  catch (error) {
+    document.getElementById("workspaceList").innerText = "Failed to load workspaces. Please try again later.";
+    console.error(error.message);
   }
-
-  workspaces.forEach(ws => {
-    const div = document.createElement("div");
-    div.classList.add("border", "p-2", "mb-2");
-    div.innerHTML = `
-                <strong>${ws.title}</strong><br/>
-                ${ws.description ?? ""}<br/>
-                <small>Author: ${ws.authorName}</small> | 
-                <small>Participants: ${ws.participantsCount}</small>
-            `;
-    listContainer.appendChild(div);
-  });
 }
 
 async function createWorkspace() {
-  const title = document.getElementById("workspaceTitle").value;
-  const description = document.getElementById("workspaceDescription").value;
-
-  const response = await fetch("/api/workspaces", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ title, description })
-  });
-
-  if (response.ok) {
-    const newWorkspace = await response.json();
-
-    // Додаємо новий workspace у список без перезавантаження
-    const listContainer = document.getElementById("workspaceList");
-    const div = document.createElement("div");
-    div.classList.add("border", "p-2", "mb-2");
-    div.innerHTML = `
-                    <strong>${newWorkspace.title}</strong><br/>
-                    ${newWorkspace.description ?? ""}<br/>
-                    <small>Author: ${newWorkspace.authorName}</small> | 
-                    <small>Participants: ${newWorkspace.participantsCount}</small>
-                `;
-    listContainer.appendChild(div);
-
-    // Очищення форми
-    document.getElementById("workspaceTitle").value = "";
-    document.getElementById("workspaceDescription").value = "";
-
-    // Закриваємо модальне вікно Bootstrap
-    const modalElement = document.getElementById("createWorkspaceModal");
-    const modal = bootstrap.Modal.getInstance(modalElement);
-    modal.hide();
-  } else {
+  
+  try {
+    const newWorkspace = await createWorkspaceAjax({ 
+      title: createModalWindow.title.value, 
+      description: createModalWindow.description.value 
+    });
+    loadWorkspace(newWorkspace, listContainer);
+    createModalWindow.modalWindow.hide();
+  }
+  catch (error) {
+    console.error(error.message);
     alert("Failed to create workspace");
   }
+  finally {
+    createModalWindow.clearInputs();
+  }
 }
+
+window.createWorkspace = createWorkspace;
+
