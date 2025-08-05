@@ -57,7 +57,7 @@ public class BoardApiController : ControllerBase
             Title = board.Title,
             Description = board.Description,
             Visibility = board.Visibility,
-            AuthorName = board.Author.Username ?? board.Author.IdentityUser.UserName ?? "Unknown",
+            AuthorName = board.Author?.Username ?? board.Author?.IdentityUser.UserName ?? "Unknown",
             ParticipantsCount = board.Participants.Count
         });
     }

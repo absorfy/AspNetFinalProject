@@ -50,8 +50,8 @@ public class BoardService : IBoardService
 
         await _repository.AddAsync(board);
         await _repository.SaveChangesAsync();
-
-        return board;
+        
+        return await _repository.GetByIdAsync(board.Id) ?? board;
     }
 
     public async Task<bool> DeleteAsync(int id, string deletedByUserId)

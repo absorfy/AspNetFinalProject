@@ -1,20 +1,70 @@
 ﻿import {createWorkspaceAjax, fetchWorkspacesAjax} from "../api/workspaces.js";
+import {createBoardAjax, fetchBoardsAjax} from "../api/boards.js";
 
 document.addEventListener("DOMContentLoaded", loadWorkspaces);
-const listContainer = document.getElementById("workspaceList");
+const workspaceListContainer = document.getElementById("workspaceList");
+const boardListContainer = document.getElementById("boardList");
 
-const createModalWindow = {
-  title: document.getElementById("workspaceTitle"),
-  description: document.getElementById("workspaceDescription"),
+const createWorkspaceModalWindow = {
+  title: document.getElementById("createWorkspaceTitle"),
+  description: document.getElementById("createWorkspaceDescription"),
   modalWindow: bootstrap.Modal.getOrCreateInstance(document.getElementById("createWorkspaceModal"))
 }
-createModalWindow.clearInputs = function() {
+createWorkspaceModalWindow.clearInputs = function() {
   this.title.value = "";
   this.description.value = "";
 }
 
-function loadWorkspace(workspace, container) {
+const createBoardModalWindow = {
+  title: document.getElementById("createBoardTitle"),
+  description: document.getElementById("createBoardDescription"),
+  workspaceId: null, // This will be set when a workspace is selected
+  modalWindow: bootstrap.Modal.getOrCreateInstance(document.getElementById("createBoardModal"))
+}
+createBoardModalWindow.clearInputs = function() {
+  this.title.value = "";
+  this.description.value = "";
+}
+
+async function selectWorkspace(workspace) {
+  const title = document.getElementById("workspaceTitle");
+  title.innerText = `Boards in Workspace ${workspace.title}`;
+  createBoardModalWindow.workspaceId = workspace.id;
+  await loadBoardsWithWorkspaceId(workspace.id);
+}
+
+async function loadBoardsWithWorkspaceId(workspaceId) {
+  try {
+    boardListContainer.innerHTML = "Завантаження дошок...";
+    const boards = await fetchBoardsAjax(workspaceId);
+    boardListContainer.innerHTML = "";
+    if (boards.length === 0) {
+      boardListContainer.innerHTML = "<p>Жодної дошки. Створіть першу!</p>";
+      return;
+    }
+    boards.forEach(b => showBoard(b, boardListContainer));
+  }
+  catch (error) {
+    console.error(error.message);
+    alert("Failed to load boards. Please try again later.");
+  }
+}
+
+function showBoard(board, container) {
   const div = document.createElement("div");
+  div.classList.add("border", "p-2", "mb-2");
+  div.innerHTML = `
+                <strong>${board.title}</strong><br/>
+                ${board.description ?? ""}<br/>
+                <small>Author: ${board.authorName}</small> | 
+                <small>Participants: ${board.participantsCount}</small>
+            `;
+  container.appendChild(div);
+}
+
+function showWorkspace(workspace, container) {
+  const div = document.createElement("div");
+  div.addEventListener("click", () => selectWorkspace(workspace));
   div.classList.add("border", "p-2", "mb-2");
   div.innerHTML = `
                 <strong>${workspace.title}</strong><br/>
@@ -27,14 +77,14 @@ function loadWorkspace(workspace, container) {
 
 async function loadWorkspaces() {
   try {
-    listContainer.innerHTML = "Завантаження робочих просторів...";
+    workspaceListContainer.innerHTML = "Завантаження робочих просторів...";
     const workspaces = await fetchWorkspacesAjax();
-    listContainer.innerHTML = "";
+    workspaceListContainer.innerHTML = "";
     if (workspaces.length === 0) {
-      listContainer.innerHTML = "<p>No workspaces yet. Create one!</p>";
+      workspaceListContainer.innerHTML = "<p>Жодного робочого простору. Створіть перший!</p>";
       return;
     }
-    workspaces.forEach(ws => loadWorkspace(ws, listContainer));
+    workspaces.forEach(ws => showWorkspace(ws, workspaceListContainer));
   }
   catch (error) {
     document.getElementById("workspaceList").innerText = "Failed to load workspaces. Please try again later.";
@@ -45,21 +95,42 @@ async function loadWorkspaces() {
 async function createWorkspace() {
   
   try {
-    const newWorkspace = await createWorkspaceAjax({ 
-      title: createModalWindow.title.value, 
-      description: createModalWindow.description.value 
+    const newWorkspace = await createWorkspaceAjax({
+      title: createWorkspaceModalWindow.title.value, 
+      description: createWorkspaceModalWindow.description.value 
     });
-    loadWorkspace(newWorkspace, listContainer);
-    createModalWindow.modalWindow.hide();
+    showWorkspace(newWorkspace, workspaceListContainer);
+    createWorkspaceModalWindow.modalWindow.hide();
   }
   catch (error) {
     console.error(error.message);
     alert("Failed to create workspace");
   }
   finally {
-    createModalWindow.clearInputs();
+    createWorkspaceModalWindow.clearInputs();
+  }
+}
+
+async function createBoard() {
+
+  try {
+    const newBoard = await createBoardAjax({
+      workspaceId: createBoardModalWindow.workspaceId,
+      title: createBoardModalWindow.title.value,
+      description: createBoardModalWindow.description.value
+    });
+    showBoard(newBoard, boardListContainer);
+    createBoardModalWindow.modalWindow.hide();
+  }
+  catch (error) {
+    console.error(error.message);
+    alert("Failed to create board");
+  }
+  finally {
+    createBoardModalWindow.clearInputs();
   }
 }
 
 window.createWorkspace = createWorkspace;
+window.createBoard = createBoard;
 
