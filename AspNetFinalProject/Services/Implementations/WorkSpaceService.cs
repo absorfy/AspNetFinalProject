@@ -1,5 +1,7 @@
-﻿using AspNetFinalProject.Entities;
+﻿using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Entities;
 using AspNetFinalProject.Enums;
+using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Interfaces;
 
@@ -9,11 +11,15 @@ public class WorkSpaceService : IWorkSpaceService
 {
     private readonly IWorkSpaceRepository _workSpaceRepository;
     private readonly IWorkSpaceParticipantRepository _participantRepository;
+    private readonly WorkSpaceMapper _mapper;
 
-    public WorkSpaceService(IWorkSpaceRepository workSpaceRepository, IWorkSpaceParticipantRepository participantRepository)
+    public WorkSpaceService(IWorkSpaceRepository workSpaceRepository, 
+                            IWorkSpaceParticipantRepository participantRepository, 
+                            WorkSpaceMapper mapper)
     {
         _workSpaceRepository = workSpaceRepository;
         _participantRepository = participantRepository;
+        _mapper = mapper;
     }
 
 
@@ -27,29 +33,18 @@ public class WorkSpaceService : IWorkSpaceService
         return await _workSpaceRepository.GetByIdAsync(id);
     }
     
-    public async Task<bool> UpdateAsync(int id, string title, string? description, WorkSpaceVisibility visibility)
+    public async Task<bool> UpdateAsync(int id, UpdateWorkSpaceDto dto)
     {
         var workspace = await _workSpaceRepository.GetByIdAsync(id);
         if (workspace == null) return false;
-
-        workspace.Title = title;
-        workspace.Description = description;
-        workspace.Visibility = visibility;
-
+        _mapper.UpdateEntity(workspace, dto);
         await _workSpaceRepository.SaveChangesAsync();
         return true;
     }
 
-    public async Task<WorkSpace> CreateAsync(string title, string authorId, string? description = null)
+    public async Task<WorkSpace> CreateAsync(string authorId, CreateWorkSpaceDto dto)
     {
-        var workspace = new WorkSpace
-        {
-            Title = title,
-            AuthorId = authorId,
-            Description = description,
-            CreatingTimestamp = DateTime.UtcNow
-        };
-
+        var workspace = _mapper.CreateEntity(authorId, dto);
         await _workSpaceRepository.AddAsync(workspace);
         await _workSpaceRepository.SaveChangesAsync();
 
@@ -60,6 +55,7 @@ public class WorkSpaceService : IWorkSpaceService
             Role = WorkSpaceRole.Admin,
             JoiningTimestamp = DateTime.UtcNow
         };
+        
         await _participantRepository.AddAsync(admin);
         await _participantRepository.SaveChangesAsync();
         

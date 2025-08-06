@@ -20,9 +20,6 @@ public class CreateCardDto
 {
     [Required]
     public int BoardListId { get; set; }
-    
-    [Required]
-    public string AuthorId { get; set; }
 
     [Required]
     [MaxLength(100)]

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AspNetFinalProject.Data;
+using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Repositories.Implementations;
 using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Implementations;
@@ -36,9 +37,15 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddScoped<IWorkSpaceParticipantRepository, WorkSpaceParticipantRepository>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+builder.Services.AddScoped<IBoardParticipantRepository, BoardParticipantRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddSingleton<WorkSpaceMapper>();
+builder.Services.AddSingleton<BoardMapper>();
+builder.Services.AddSingleton<BoardListMapper>();
+builder.Services.AddSingleton<CardMapper>();
 
 var app = builder.Build();
 

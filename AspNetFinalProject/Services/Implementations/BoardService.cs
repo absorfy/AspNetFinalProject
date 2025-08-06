@@ -1,5 +1,7 @@
-﻿using AspNetFinalProject.Entities;
+﻿using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Entities;
 using AspNetFinalProject.Enums;
+using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Interfaces;
 
@@ -7,61 +9,66 @@ namespace AspNetFinalProject.Services.Implementations;
 
 public class BoardService : IBoardService
 {
-    private readonly IBoardRepository _repository;
+    private readonly IBoardRepository _boardRepository;
+    private readonly IBoardParticipantRepository _participantRepository;
+    private readonly BoardMapper _mapper;
 
-    public BoardService(IBoardRepository repository)
+    public BoardService(IBoardRepository boardRepository,
+                        BoardMapper mapper, 
+                        IBoardParticipantRepository participantRepository)
     {
-        _repository = repository;
+        _boardRepository = boardRepository;
+        _mapper = mapper;
+        _participantRepository = participantRepository;
     }
 
     public async Task<IEnumerable<Board>> GetBoardsByWorkSpaceAsync(int workSpaceId, string userId)
     {
-        return await _repository.GetBoardsByWorkSpaceAsync(workSpaceId, userId);
+        return await _boardRepository.GetBoardsByWorkSpaceAsync(workSpaceId, userId);
     }
 
     public async Task<Board?> GetByIdAsync(int id)
     {
-        return await _repository.GetByIdAsync(id);
+        return await _boardRepository.GetByIdAsync(id);
     }
     
-    public async Task<bool> UpdateAsync(int id, string title, string? description, BoardVisibility visibility)
+    public async Task<bool> UpdateAsync(int id, UpdateBoardDto dto)
     {
-        var board = await _repository.GetByIdAsync(id);
+        var board = await _boardRepository.GetByIdAsync(id);
         if (board == null) return false;
-
-        board.Title = title;
-        board.Description = description;
-        board.Visibility = visibility;
-
-        await _repository.SaveChangesAsync();
+        _mapper.UpdateEntity(board, dto);
+        await _boardRepository.SaveChangesAsync();
         return true;
     }
 
-    public async Task<Board> CreateAsync(int workSpaceId, string title, string authorId, string? description = null)
+    public async Task<Board> CreateAsync(string authorId, CreateBoardDto dto)
     {
-        var board = new Board
+        var board = _mapper.CreateEntity(authorId, dto);
+        await _boardRepository.AddAsync(board);
+        await _boardRepository.SaveChangesAsync();
+
+        var admin = new BoardParticipant
         {
-            WorkSpaceId = workSpaceId,
-            Title = title,
-            AuthorId = authorId,
-            Description = description,
-            CreatingTimestamp = DateTime.UtcNow
+            UserProfileId = authorId,
+            BoardId = board.Id,
+            Role = BoardRole.Admin,
+            JoiningTimestamp = DateTime.UtcNow
         };
 
-        await _repository.AddAsync(board);
-        await _repository.SaveChangesAsync();
+        await _participantRepository.AddAsync(admin);
+        await _participantRepository.SaveChangesAsync();
         
-        return await _repository.GetByIdAsync(board.Id) ?? board;
+        return await _boardRepository.GetByIdAsync(board.Id) ?? board;
     }
 
     public async Task<bool> DeleteAsync(int id, string deletedByUserId)
     {
-        var board = await _repository.GetByIdAsync(id);
+        var board = await _boardRepository.GetByIdAsync(id);
         if (board == null) return false;
 
         board.DeletedByUserId = deletedByUserId;
-        await _repository.DeleteAsync(board);
-        await _repository.SaveChangesAsync();
+        await _boardRepository.DeleteAsync(board);
+        await _boardRepository.SaveChangesAsync();
 
         return true;
     }

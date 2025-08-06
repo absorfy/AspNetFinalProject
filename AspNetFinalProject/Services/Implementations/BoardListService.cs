@@ -1,4 +1,6 @@
-﻿using AspNetFinalProject.Entities;
+﻿using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Entities;
+using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Interfaces;
 
@@ -7,10 +9,12 @@ namespace AspNetFinalProject.Services.Implementations;
 public class BoardListService : IBoardListService
 {
     private readonly IBoardListRepository _repository;
+    private readonly BoardListMapper _mapper;
 
-    public BoardListService(IBoardListRepository repository)
+    public BoardListService(IBoardListRepository repository, BoardListMapper mapper)
     {
         _repository = repository;
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<BoardList>> GetListsByBoardAsync(int boardId, string userId)
@@ -23,30 +27,20 @@ public class BoardListService : IBoardListService
         return await _repository.GetByIdAsync(id);
     }
     
-    public async Task<bool> UpdateAsync(int id, string title)
+    public async Task<bool> UpdateAsync(int id, UpdateBoardListDto dto)
     {
         var list = await _repository.GetByIdAsync(id);
         if (list == null) return false;
-
-        list.Title = title;
-
+        _mapper.UpdateEntity(list, dto);
         await _repository.SaveChangesAsync();
         return true;
     }
 
-    public async Task<BoardList> CreateAsync(int boardId, string title, string authorId)
+    public async Task<BoardList> CreateAsync(string authorId, CreateBoardListDto dto)
     {
-        var list = new BoardList
-        {
-            BoardId = boardId,
-            Title = title,
-            AuthorId = authorId,
-            CreatingTimestamp = DateTime.UtcNow
-        };
-
+        var list = _mapper.CreateEntity(authorId, dto);
         await _repository.AddAsync(list);
         await _repository.SaveChangesAsync();
-
         return list;
     }
 

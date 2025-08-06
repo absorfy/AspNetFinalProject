@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Services.Implementations;
 using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -14,12 +15,15 @@ public class WorkSpaceApiController : ControllerBase
 {
     private readonly IWorkSpaceService _workSpaceService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly WorkSpaceMapper _mapper;
 
     public WorkSpaceApiController(IWorkSpaceService workSpaceService,
-                                  ICurrentUserService currentUserService)
+                                  ICurrentUserService currentUserService,
+                                  WorkSpaceMapper mapper)
     {
         _workSpaceService = workSpaceService;
         _currentUserService = currentUserService;
+        _mapper = mapper;
     }
     
     [HttpGet]
@@ -27,49 +31,27 @@ public class WorkSpaceApiController : ControllerBase
     {
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
-
         var workspaces = await _workSpaceService.GetUserWorkSpacesAsync(user.IdentityId);
-
-        var result = workspaces.Select(w => new WorkSpaceDto
-        {
-            Id = w.Id,
-            Title = w.Title,
-            Description = w.Description,
-            Visibility = w.Visibility,
-            AuthorName = w.Author.Username ?? w.Author.IdentityUser.UserName ?? "Unknown",
-            ParticipantsCount = w.Participants.Count
-        });
-
+        var result = workspaces.Select(_mapper.ToDto);
         return Ok(result);
     }
     
     [HttpPost]
-    public async Task<ActionResult<WorkSpaceDto>> CreateWorkspace([FromBody] CreateWorkspaceDto dto)
+    public async Task<ActionResult<WorkSpaceDto>> CreateWorkspace([FromBody] CreateWorkSpaceDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
-
-        var workspace = await _workSpaceService.CreateAsync(dto.Title, user.IdentityId, dto.Description);
-
-        return CreatedAtAction(nameof(GetMyWorkspaces), new { id = workspace.Id }, new WorkSpaceDto
-        {
-            Id = workspace.Id,
-            Title = workspace.Title,
-            Description = workspace.Description,
-            Visibility = workspace.Visibility,
-            AuthorName = workspace.Author.Username ?? workspace.Author.IdentityUser.UserName ?? "Unknown",
-            ParticipantsCount = workspace.Participants.Count
-        });
+        var workspace = await _workSpaceService.CreateAsync(user.IdentityId, dto);
+        return CreatedAtAction(nameof(GetMyWorkspaces), new { id = workspace.Id }, _mapper.ToDto(workspace));
     }
     
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateWorkspace(int id, [FromBody] UpdateWorkspaceDto dto)
+    public async Task<ActionResult> UpdateWorkspace(int id, [FromBody] UpdateWorkSpaceDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var updated = await _workSpaceService.UpdateAsync(id, dto.Title, dto.Description, dto.Visibility);
+        var updated = await _workSpaceService.UpdateAsync(id, dto);
         if (!updated) return NotFound();
 
         return NoContent();

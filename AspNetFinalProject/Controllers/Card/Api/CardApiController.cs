@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,12 @@ namespace AspNetFinalProject.Controllers.Card.Api;
 public class CardApiController : ControllerBase
 {
     private readonly ICardService _cardService;
+    private readonly CardMapper _mapper;
 
-    public CardApiController(ICardService cardService)
+    public CardApiController(ICardService cardService, CardMapper mapper)
     {
         _cardService = cardService;
+        _mapper = mapper;
     }
     
     [HttpGet("list/{boardListId}")]
@@ -23,22 +26,8 @@ public class CardApiController : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
-
         var cards = await _cardService.GetCardsByListAsync(boardListId, userId);
-
-        var result = cards.Select(c => new CardDto
-        {
-            Id = c.Id,
-            BoardListId = c.BoardListId,
-            Title = c.Title,
-            Description = c.Description,
-            Color = c.Color,
-            Deadline = c.Deadline,
-            AuthorName = c.Author.Username ?? c.Author.IdentityUser.UserName ?? "Unknown",
-            ParticipantsCount = c.Participants.Count,
-            CommentsCount = c.Comments.Count
-        });
-
+        var result = cards.Select(_mapper.ToDto);
         return Ok(result);
     }
     
@@ -50,20 +39,9 @@ public class CardApiController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
-        var card = await _cardService.CreateAsync(dto);
+        var card = await _cardService.CreateAsync(userId, dto);
 
-        return CreatedAtAction(nameof(GetCardsByList), new { boardListId = dto.BoardListId }, new CardDto
-        {
-            Id = card.Id,
-            BoardListId = card.BoardListId,
-            Title = card.Title,
-            Description = card.Description,
-            Color = card.Color,
-            Deadline = card.Deadline,
-            AuthorName = card.Author.Username ?? card.Author.IdentityUser.UserName ?? "Unknown",
-            ParticipantsCount = card.Participants.Count,
-            CommentsCount = card.Comments.Count
-        });
+        return CreatedAtAction(nameof(GetCardsByList), new { boardListId = dto.BoardListId }, _mapper.ToDto(card));
     }
     
     [HttpPut("{id}")]

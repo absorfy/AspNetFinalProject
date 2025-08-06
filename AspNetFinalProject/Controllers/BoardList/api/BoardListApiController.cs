@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +12,13 @@ namespace AspNetFinalProject.Controllers.BoardList.api;
 [Authorize]
 public class BoardListApiController : ControllerBase
 {
-    private readonly IBoardListService _boardListService;
+    private readonly IBoardListService _service;
+    private readonly BoardListMapper _mapper;
 
-    public BoardListApiController(IBoardListService boardListService)
+    public BoardListApiController(IBoardListService service, BoardListMapper mapper)
     {
-        _boardListService = boardListService;
+        _service = service;
+        _mapper = mapper;
     }
     
     [HttpGet("board/{boardId}")]
@@ -24,16 +27,9 @@ public class BoardListApiController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
-        var lists = await _boardListService.GetListsByBoardAsync(boardId, userId);
+        var lists = await _service.GetListsByBoardAsync(boardId, userId);
 
-        var result = lists.Select(l => new BoardListDto
-        {
-            Id = l.Id,
-            BoardId = l.BoardId,
-            Title = l.Title,
-            AuthorName = l.Author.Username ?? l.Author.IdentityUser.UserName ?? "Unknown",
-            CardsCount = l.Cards.Count
-        });
+        var result = lists.Select(_mapper.ToDto);
 
         return Ok(result);
     }
@@ -46,16 +42,9 @@ public class BoardListApiController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
-        var list = await _boardListService.CreateAsync(dto.BoardId, dto.Title, userId);
+        var list = await _service.CreateAsync(userId, dto);
 
-        return CreatedAtAction(nameof(GetListsByBoard), new { boardId = dto.BoardId }, new BoardListDto
-        {
-            Id = list.Id,
-            BoardId = list.BoardId,
-            Title = list.Title,
-            AuthorName = list.Author.Username ?? list.Author.IdentityUser.UserName ?? "Unknown",
-            CardsCount = list.Cards.Count
-        });
+        return CreatedAtAction(nameof(GetListsByBoard), new { boardId = dto.BoardId }, _mapper.ToDto(list));
     }
     
     [HttpPut("{id}")]
@@ -63,7 +52,7 @@ public class BoardListApiController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var updated = await _boardListService.UpdateAsync(id, dto.Title);
+        var updated = await _service.UpdateAsync(id, dto);
         if (!updated) return NotFound();
 
         return NoContent();
@@ -75,7 +64,7 @@ public class BoardListApiController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
-        var deleted = await _boardListService.DeleteAsync(id, userId);
+        var deleted = await _service.DeleteAsync(id, userId);
         if (!deleted) return NotFound();
 
         return NoContent();

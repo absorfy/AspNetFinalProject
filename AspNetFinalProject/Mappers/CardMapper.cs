@@ -3,27 +3,40 @@ using AspNetFinalProject.Entities;
 
 namespace AspNetFinalProject.Mappers;
 
-public static class CardMapper
+public class CardMapper : EntityMapper<Card, CreateCardDto, UpdateCardDto, CardDto>
 {
-    public static void UpdateEntity(Card card, UpdateCardDto updateDto)
-    {
-        ArgumentNullException.ThrowIfNull(card);
-        ArgumentNullException.ThrowIfNull(updateDto);
 
-        card.Title = updateDto.Title;
-        card.Description = updateDto.Description;
-        card.Color = updateDto.Color;
-        card.Deadline = updateDto.Deadline;
+    protected override CardDto MapToDto(Card entity)
+    {
+        return new CardDto
+        {
+            Id = entity.Id,
+            BoardListId = entity.BoardListId,
+            Title = entity.Title,
+            Description = entity.Description,
+            Color = entity.Color,
+            Deadline = entity.Deadline,
+            AuthorName = entity.Author?.Username ?? entity.Author?.IdentityUser.UserName ?? "Unknown",
+            ParticipantsCount = entity.Participants.Count,
+            CommentsCount = entity.Comments.Count
+        };
     }
 
-    public static Card ToEntityFromCreateDto(CreateCardDto createDto)
+    protected override void MapToEntity(Card entity, UpdateCardDto updateDto)
     {
-        ArgumentNullException.ThrowIfNull(createDto);
+        entity.Title = updateDto.Title;
+        entity.Description = updateDto.Description;
+        entity.Color = updateDto.Color;
+        entity.Deadline = updateDto.Deadline;
+    }
+
+    protected override Card MapToEntity(string authorId, CreateCardDto createDto)
+    {
         return new Card
         {
             BoardListId = createDto.BoardListId,
             Title = createDto.Title,
-            AuthorId = createDto.AuthorId,
+            AuthorId = authorId,
             Description = createDto.Description,
             Color = createDto.Color,
             Deadline = createDto.Deadline,

@@ -12,9 +12,10 @@ public class WorkSpaceDto
     
     public string AuthorName { get; set; }
     public int ParticipantsCount { get; set; }
+    public int BoardsCount { get; set; }
 }
 
-public class CreateWorkspaceDto
+public class CreateWorkSpaceDto
 {
     [Required]
     [MaxLength(100)]
@@ -26,7 +27,7 @@ public class CreateWorkspaceDto
     public WorkSpaceVisibility Visibility { get; set; } = WorkSpaceVisibility.Private;
 }
 
-public class UpdateWorkspaceDto
+public class UpdateWorkSpaceDto
 {
     [Required]
     [MaxLength(100)]

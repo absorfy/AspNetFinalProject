@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +12,13 @@ namespace AspNetFinalProject.Controllers.Board.api;
 [Authorize]
 public class BoardApiController : ControllerBase
 {
-    private readonly IBoardService _boardService;
+    private readonly IBoardService _service;
+    private readonly BoardMapper _mapper;
     
-    public BoardApiController(IBoardService boardService)
+    public BoardApiController(IBoardService service, BoardMapper mapper)
     {
-        _boardService = boardService;
+        _service = service;
+        _mapper = mapper;
     }
     
     [HttpGet("workspace/{workspaceId}")]
@@ -23,20 +26,8 @@ public class BoardApiController : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
-
-        var boards = await _boardService.GetBoardsByWorkSpaceAsync(workspaceId, userId);
-
-        var result = boards.Select(b => new BoardDto
-        {
-            Id = b.Id,
-            WorkSpaceId = b.WorkSpaceId,
-            Title = b.Title,
-            Description = b.Description,
-            Visibility = b.Visibility,
-            AuthorName = b.Author.Username ?? b.Author.IdentityUser.UserName ?? "Unknown",
-            ParticipantsCount = b.Participants.Count
-        });
-
+        var boards = await _service.GetBoardsByWorkSpaceAsync(workspaceId, userId);
+        var result = boards.Select(_mapper.ToDto);
         return Ok(result);
     }
     
@@ -44,22 +35,15 @@ public class BoardApiController : ControllerBase
     public async Task<ActionResult<BoardDto>> CreateBoard([FromBody] CreateBoardDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
+        var board = await _service.CreateAsync(userId, dto);
 
-        var board = await _boardService.CreateAsync(dto.WorkSpaceId, dto.Title, userId, dto.Description);
-
-        return CreatedAtAction(nameof(GetBoardsByWorkspace), new { workspaceId = dto.WorkSpaceId }, new BoardDto
-        {
-            Id = board.Id,
-            WorkSpaceId = board.WorkSpaceId,
-            Title = board.Title,
-            Description = board.Description,
-            Visibility = board.Visibility,
-            AuthorName = board.Author?.Username ?? board.Author?.IdentityUser.UserName ?? "Unknown",
-            ParticipantsCount = board.Participants.Count
-        });
+        return CreatedAtAction(
+            nameof(GetBoardsByWorkspace), 
+            new { workspaceId = dto.WorkSpaceId }, 
+            _mapper.ToDto(board)
+            );
     }
     
     [HttpPut("{id}")]
@@ -67,7 +51,7 @@ public class BoardApiController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var updated = await _boardService.UpdateAsync(id, dto.Title, dto.Description, dto.Visibility);
+        var updated = await _service.UpdateAsync(id, dto);
         if (!updated) return NotFound();
 
         return NoContent();
@@ -79,7 +63,7 @@ public class BoardApiController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
-        var deleted = await _boardService.DeleteAsync(id, userId);
+        var deleted = await _service.DeleteAsync(id, userId);
         if (!deleted) return NotFound();
 
         return NoContent();

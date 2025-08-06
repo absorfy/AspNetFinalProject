@@ -1,5 +1,5 @@
-﻿import {createWorkspaceAjax, fetchWorkspacesAjax} from "../api/workspaces.js";
-import {createBoardAjax, fetchBoardsAjax} from "../api/boards.js";
+﻿import {createWorkspaceAjax, fetchWorkspacesAjax} from "./api/workspaces.js";
+import {createBoardAjax, fetchBoardsAjax} from "./api/boards.js";
 
 document.addEventListener("DOMContentLoaded", loadWorkspaces);
 const workspaceListContainer = document.getElementById("workspaceList");
@@ -10,6 +10,7 @@ const createWorkspaceModalWindow = {
   description: document.getElementById("createWorkspaceDescription"),
   modalWindow: bootstrap.Modal.getOrCreateInstance(document.getElementById("createWorkspaceModal"))
 }
+
 createWorkspaceModalWindow.clearInputs = function() {
   this.title.value = "";
   this.description.value = "";
@@ -59,6 +60,11 @@ function showBoard(board, container) {
                 <small>Author: ${board.authorName}</small> | 
                 <small>Participants: ${board.participantsCount}</small>
             `;
+  
+  div.addEventListener("click", () => {
+    window.location.href = `/Boards/Dashboard/${board.id}`;
+  });
+  
   container.appendChild(div);
 }
 

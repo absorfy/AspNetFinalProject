@@ -10,6 +10,9 @@ export async function createWorkspaceAjax(data) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
   })
-  if(!response.ok) throw new Error("Failed to create workspace.");
+  if(!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to create workspace. Server response: ${errorText}`);
+  }
   return await response.json();
 }
