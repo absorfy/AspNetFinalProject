@@ -14,7 +14,7 @@ public class BoardListMapper
             BoardId = entity.BoardId,
             Title = entity.Title,
             AuthorName = entity.Author?.Username ?? entity.Author?.IdentityUser.UserName ?? "Unknown",
-            CardsCount = entity.Cards.Count
+            CardsIds = entity.Cards.Select(card => card.Id).ToList(),
         };
     }
 

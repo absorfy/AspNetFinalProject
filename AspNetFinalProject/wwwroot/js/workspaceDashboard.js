@@ -1,36 +1,22 @@
 ﻿import {createWorkspaceAjax, fetchWorkspacesAjax} from "./api/workspaces.js";
 import {createBoardAjax, fetchBoardsAjax} from "./api/boards.js";
 
+const createWorkspaceForm = document.getElementById("createWorkspaceForm");
+const createWorkspaceModal = bootstrap.Modal.getOrCreateInstance(document.getElementById("createWorkspaceModal"));
+
+const createBoardForm = document.getElementById("createBoardForm");
+const createBoardModal = bootstrap.Modal.getOrCreateInstance(document.getElementById("createBoardModal"));
+let selectedWorkspaceId = null;
+
 document.addEventListener("DOMContentLoaded", loadWorkspaces);
+
 const workspaceListContainer = document.getElementById("workspaceList");
 const boardListContainer = document.getElementById("boardList");
-
-const createWorkspaceModalWindow = {
-  title: document.getElementById("createWorkspaceTitle"),
-  description: document.getElementById("createWorkspaceDescription"),
-  modalWindow: bootstrap.Modal.getOrCreateInstance(document.getElementById("createWorkspaceModal"))
-}
-
-createWorkspaceModalWindow.clearInputs = function() {
-  this.title.value = "";
-  this.description.value = "";
-}
-
-const createBoardModalWindow = {
-  title: document.getElementById("createBoardTitle"),
-  description: document.getElementById("createBoardDescription"),
-  workspaceId: null, // This will be set when a workspace is selected
-  modalWindow: bootstrap.Modal.getOrCreateInstance(document.getElementById("createBoardModal"))
-}
-createBoardModalWindow.clearInputs = function() {
-  this.title.value = "";
-  this.description.value = "";
-}
 
 async function selectWorkspace(workspace) {
   const title = document.getElementById("workspaceTitle");
   title.innerText = `Boards in Workspace ${workspace.title}`;
-  createBoardModalWindow.workspaceId = workspace.id;
+  selectedWorkspaceId = workspace.id;
   await loadBoardsWithWorkspaceId(workspace.id);
 }
 
@@ -98,45 +84,39 @@ async function loadWorkspaces() {
   }
 }
 
-async function createWorkspace() {
+createWorkspaceForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  
+  const formData = new FormData(createWorkspaceForm);
+  const title = formData.get("title");
+  const description = formData.get("description");
   
   try {
-    const newWorkspace = await createWorkspaceAjax({
-      title: createWorkspaceModalWindow.title.value, 
-      description: createWorkspaceModalWindow.description.value 
-    });
+    const newWorkspace = await createWorkspaceAjax({ title, description });
     showWorkspace(newWorkspace, workspaceListContainer);
-    createWorkspaceModalWindow.modalWindow.hide();
+    createWorkspaceModal.hide();
+    createWorkspaceForm.reset();
+  } catch (error) {
+    console.error(error);
+    alert("Не вдалося створити робочий простір.");
   }
-  catch (error) {
-    console.error(error.message);
-    alert("Failed to create workspace");
-  }
-  finally {
-    createWorkspaceModalWindow.clearInputs();
-  }
-}
+});
 
-async function createBoard() {
-
+createBoardForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  
+  const formData = new FormData(createBoardForm);
+  const title = formData.get("title");
+  const description = formData.get("description");
+  
   try {
-    const newBoard = await createBoardAjax({
-      workspaceId: createBoardModalWindow.workspaceId,
-      title: createBoardModalWindow.title.value,
-      description: createBoardModalWindow.description.value
-    });
+    const newBoard = await createBoardAjax({workspaceId: selectedWorkspaceId, title, description});
     showBoard(newBoard, boardListContainer);
-    createBoardModalWindow.modalWindow.hide();
+    createBoardModal.hide();
+    createBoardForm.reset();
+  } catch (error) {
+    console.error(error);
+    alert("Не вдалося створити дошку.");
   }
-  catch (error) {
-    console.error(error.message);
-    alert("Failed to create board");
-  }
-  finally {
-    createBoardModalWindow.clearInputs();
-  }
-}
-
-window.createWorkspace = createWorkspace;
-window.createBoard = createBoard;
+});
 

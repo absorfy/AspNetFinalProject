@@ -8,7 +8,7 @@ public class BoardListDto
     public int BoardId { get; set; }
     public string Title { get; set; }
     public string AuthorName { get; set; }
-    public int CardsCount { get; set; }
+    public ICollection<int> CardsIds { get; set; } = new List<int>();
 }
 
 public class CreateBoardListDto

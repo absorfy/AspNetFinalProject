@@ -15,7 +15,8 @@ public class BoardMapper : EntityMapper<Board, CreateBoardDto, UpdateBoardDto, B
             Description = entity.Description,
             Visibility = entity.Visibility,
             AuthorName = entity.Author?.Username ?? entity.Author?.IdentityUser.UserName ?? "Unknown",
-            ParticipantsCount = entity.Participants.Count
+            ParticipantsCount = entity.Participants.Count,
+            ListsIds = entity.Lists.Select(l => l.Id).ToList(),
         };
     }
 

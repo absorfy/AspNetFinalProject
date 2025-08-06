@@ -1,18 +1,18 @@
 ﻿<div class="modal fade" id="createBoardModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <form id="createBoardForm" class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Create Board</h5>
+                <h5 class="modal-title" id="createBoardLabel">Create Board</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <input id="createBoardTitle" type="text" class="form-control mb-2" placeholder="Title" />
-                <textarea id="createBoardDescription" class="form-control" placeholder="Description"></textarea>
+                <input max="100" name="title" type="text" class="form-control mb-2" placeholder="Назва дошки" />
+                <textarea maxlength="1000" name="description" class="form-control" placeholder="Опис дошки (необов'язково)"></textarea>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-primary" onclick="createBoard()">Create</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="submit" class="btn btn-primary">Створити</button>
             </div>
-        </div>
+        </form>
     </div>
 </div>

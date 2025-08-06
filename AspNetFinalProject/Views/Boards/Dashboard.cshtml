@@ -1,4 +1,26 @@
 ﻿@model AspNetFinalProject.DTOs.BoardDto
+@{
+    ViewData["Title"] = Model.Title;
+}
 
 <h2>@Model.Title</h2>
 <p>@Model.Description</p>
+
+<div class="d-flex flex-row gap-3 mt-4" id="boardListsContainer">
+    <!-- Списки будуть завантажуватися через JS -->
+</div>
+
+<!-- Кнопка для створення нового списку -->
+<button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#createBoardListModal">
+    + Додати список
+</button>
+
+@await Html.PartialAsync("_CreateBoardListModal")
+@await Html.PartialAsync("_CreateCardModal")
+
+<script>
+    const boardId = @Model.Id;
+</script>
+@section Scripts {
+    <script type="module" src="~/js/boardDashboard.js"></script>
+}

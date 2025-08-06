@@ -13,6 +13,7 @@ public class BoardDto
     
     public string AuthorName { get; set; }
     public int ParticipantsCount { get; set; }
+    public ICollection<int> ListsIds { get; set; } = new List<int>();
 }
 
 public class CreateBoardDto
