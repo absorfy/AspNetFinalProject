@@ -5,7 +5,7 @@ import {
   boardListContainer
 } from "../dom.js";
 
-import { showBoard } from "../ui/showBoard.js";
+import { showBoard } from "../../shared/ui/showBoard.js";
 import { getSelectedWorkspaceId } from "../load/loadBoards.js";
 
 export function handleCreateBoardSubmit() {
