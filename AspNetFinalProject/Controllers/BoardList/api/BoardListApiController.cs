@@ -13,12 +13,10 @@ namespace AspNetFinalProject.Controllers.BoardList.api;
 public class BoardListApiController : ControllerBase
 {
     private readonly IBoardListService _service;
-    private readonly BoardListMapper _mapper;
 
-    public BoardListApiController(IBoardListService service, BoardListMapper mapper)
+    public BoardListApiController(IBoardListService service)
     {
         _service = service;
-        _mapper = mapper;
     }
     
     [HttpGet("board/{boardId}")]
@@ -29,7 +27,7 @@ public class BoardListApiController : ControllerBase
 
         var lists = await _service.GetListsByBoardAsync(boardId, userId);
 
-        var result = lists.Select(_mapper.ToDto);
+        var result = lists.Select(BoardListMapper.CreateDto);
 
         return Ok(result);
     }
@@ -44,7 +42,7 @@ public class BoardListApiController : ControllerBase
 
         var list = await _service.CreateAsync(userId, dto);
 
-        return CreatedAtAction(nameof(GetListsByBoard), new { boardId = dto.BoardId }, _mapper.ToDto(list));
+        return CreatedAtAction(nameof(GetListsByBoard), new { boardId = dto.BoardId }, BoardListMapper.CreateDto(list));
     }
     
     [HttpPut("{id}")]

@@ -11,15 +11,15 @@ public class WorkSpaceService : IWorkSpaceService
 {
     private readonly IWorkSpaceRepository _workSpaceRepository;
     private readonly IWorkSpaceParticipantRepository _participantRepository;
-    private readonly WorkSpaceMapper _mapper;
+    private readonly ISubscriptionService _subscriptionService;
 
     public WorkSpaceService(IWorkSpaceRepository workSpaceRepository, 
                             IWorkSpaceParticipantRepository participantRepository, 
-                            WorkSpaceMapper mapper)
+                            ISubscriptionService subscriptionService)
     {
         _workSpaceRepository = workSpaceRepository;
         _participantRepository = participantRepository;
-        _mapper = mapper;
+        _subscriptionService = subscriptionService;
     }
 
 
@@ -37,14 +37,14 @@ public class WorkSpaceService : IWorkSpaceService
     {
         var workspace = await _workSpaceRepository.GetByIdAsync(id);
         if (workspace == null) return false;
-        _mapper.UpdateEntity(workspace, dto);
+        WorkSpaceMapper.UpdateEntity(workspace, dto);
         await _workSpaceRepository.SaveChangesAsync();
         return true;
     }
 
     public async Task<WorkSpace> CreateAsync(string authorId, CreateWorkSpaceDto dto)
     {
-        var workspace = _mapper.CreateEntity(authorId, dto);
+        var workspace = WorkSpaceMapper.CreateEntity(authorId, dto);
         await _workSpaceRepository.AddAsync(workspace);
         await _workSpaceRepository.SaveChangesAsync();
 
@@ -72,5 +72,26 @@ public class WorkSpaceService : IWorkSpaceService
         await _workSpaceRepository.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<bool> SubscribeAsync(int id, string userId)
+    {
+        var workspace = await _workSpaceRepository.GetByIdAsync(id);
+        if (workspace == null) return false;
+
+        return await _subscriptionService.SubscribeAsync(userId, nameof(WorkSpace), id.ToString());
+    }
+
+    public async Task<bool> UnsubscribeAsync(int id, string userId)
+    {
+        var workspace = await _workSpaceRepository.GetByIdAsync(id);
+        if (workspace == null) return false;
+
+        return await _subscriptionService.UnsubscribeAsync(userId, nameof(WorkSpace), id.ToString());
+    }
+
+    public Task<bool> IsSubscribedAsync(int id, string userId)
+    {
+        return _subscriptionService.IsSubscribedAsync(userId, nameof(WorkSpace), id.ToString());
     }
 }

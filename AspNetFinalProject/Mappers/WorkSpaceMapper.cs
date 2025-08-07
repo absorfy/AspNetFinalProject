@@ -1,12 +1,12 @@
 ﻿using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Entities;
+using AspNetFinalProject.Enums;
 
 namespace AspNetFinalProject.Mappers;
 
-public class WorkSpaceMapper 
-    : EntityMapper<WorkSpace, CreateWorkSpaceDto, UpdateWorkSpaceDto, WorkSpaceDto>
+public static class WorkSpaceMapper
 {
-    protected override WorkSpaceDto MapToDto(WorkSpace entity)
+    public static WorkSpaceDto CreateDto(WorkSpace entity, bool isSubscribed = false)
     {
         return new WorkSpaceDto
         {
@@ -15,26 +15,28 @@ public class WorkSpaceMapper
             Description = entity.Description,
             Visibility = entity.Visibility,
             AuthorName = entity.Author?.Username ?? entity.Author?.IdentityUser.UserName ?? "Unknown",
-            ParticipantsCount = entity.Participants.Count,
-            BoardsCount = entity.Boards.Count
+            isSubscribed = isSubscribed,
+            CreatingTimestamp = entity.CreatingTimestamp,
+            BoardsCount = entity.Boards.Count,
+            ParticipantIds = entity.Participants.Select(p => p.UserProfileId).ToList()
         };
     }
 
-    protected override void MapToEntity(WorkSpace entity, UpdateWorkSpaceDto updateDto)
+    public static void UpdateEntity(WorkSpace entity, UpdateWorkSpaceDto updateDto)
     {
         entity.Title = updateDto.Title;
         entity.Description = updateDto.Description;
-        entity.Visibility = updateDto.Visibility;
+        entity.Visibility = (WorkSpaceVisibility)updateDto.Visibility;
     }
 
-    protected override WorkSpace MapToEntity(string authorId, CreateWorkSpaceDto createDto)
+    public static WorkSpace CreateEntity(string authorId, CreateWorkSpaceDto createDto)
     {
         return new WorkSpace
         {
             AuthorId = authorId,
             Title = createDto.Title,
             Description = createDto.Description,
-            Visibility = createDto.Visibility,
+            Visibility = (WorkSpaceVisibility)createDto.Visibility,
             CreatingTimestamp = DateTime.UtcNow
         };
     }

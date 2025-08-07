@@ -10,15 +10,12 @@ namespace AspNetFinalProject.Controllers.Board;
 public class BoardsController : Controller
 {
     private readonly IBoardService _boardService;
-    private readonly BoardMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
     
     public BoardsController(IBoardService boardService, 
-                            BoardMapper mapper,
                             ICurrentUserService currentUserService)
     {
         _boardService = boardService;
-        _mapper = mapper;
         _currentUserService = currentUserService;
     }
     
@@ -38,6 +35,6 @@ public class BoardsController : Controller
         if(!isAuthor && !isParticipant)
             return Forbid();
         
-        return View(_mapper.ToDto(board));
+        return View(BoardMapper.CreateDto(board));
     }
 }

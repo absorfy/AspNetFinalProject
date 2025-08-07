@@ -1,0 +1,52 @@
+﻿@using AspNetFinalProject.Enums
+@model AspNetFinalProject.DTOs.WorkSpaceDto
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<h2>Налаштування: @Model.Title</h2>
+
+<ul class="nav nav-tabs mb-3" id="settingsTabs">
+    <li class="nav-item">
+        <a class="nav-link active" data-tab="general" href="#">Загальні</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-tab="boards" href="#">Дошки</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-tab="participants" href="#">Учасники</a>
+    </li>
+</ul>
+
+<div id="tabContent">
+    <div id="tab-general">
+        <form id="workspaceSettingsForm">
+            <div class="mb-3">
+                <label class="form-label">Назва</label>
+                <input type="text" max="100" min="3" class="form-control" name="title" value="@Model.Title">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Опис</label>
+                <textarea class="form-control" maxlength="1000" name="description">@Model.Description</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Видимість</label>
+                <select class="form-select" name="visibility">
+                    <option value="0" selected="@(Model.Visibility == WorkSpaceVisibility.Private)">Приватна</option>
+                    <option value="1" selected="@(Model.Visibility == WorkSpaceVisibility.Public)">Публічна</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Зберегти</button>
+        </form>
+    </div>
+
+    <div id="tab-boards" class="d-none">Завантаження дошок...</div>
+    <div id="tab-participants" class="d-none">Завантаження учасників...</div>
+</div>
+
+@section Scripts {
+    <script>
+        const workspaceId = @Model.Id;
+    </script>
+    <script type="module" src="~/js/workspaceSettings.js"></script>
+}

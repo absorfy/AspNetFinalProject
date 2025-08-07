@@ -9,12 +9,10 @@ namespace AspNetFinalProject.Services.Implementations;
 public class BoardListService : IBoardListService
 {
     private readonly IBoardListRepository _repository;
-    private readonly BoardListMapper _mapper;
 
-    public BoardListService(IBoardListRepository repository, BoardListMapper mapper)
+    public BoardListService(IBoardListRepository repository)
     {
         _repository = repository;
-        _mapper = mapper;
     }
 
     public async Task<IEnumerable<BoardList>> GetListsByBoardAsync(int boardId, string userId)
@@ -31,14 +29,14 @@ public class BoardListService : IBoardListService
     {
         var list = await _repository.GetByIdAsync(id);
         if (list == null) return false;
-        _mapper.UpdateEntity(list, dto);
+        BoardListMapper.UpdateEntity(list, dto);
         await _repository.SaveChangesAsync();
         return true;
     }
 
     public async Task<BoardList> CreateAsync(string authorId, CreateBoardListDto dto)
     {
-        var list = _mapper.CreateEntity(authorId, dto);
+        var list = BoardListMapper.CreateEntity(authorId, dto);
         await _repository.AddAsync(list);
         await _repository.SaveChangesAsync();
         return list;

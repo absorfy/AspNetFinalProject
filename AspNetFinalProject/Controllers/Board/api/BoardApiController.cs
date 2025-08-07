@@ -13,12 +13,10 @@ namespace AspNetFinalProject.Controllers.Board.api;
 public class BoardApiController : ControllerBase
 {
     private readonly IBoardService _service;
-    private readonly BoardMapper _mapper;
     
-    public BoardApiController(IBoardService service, BoardMapper mapper)
+    public BoardApiController(IBoardService service)
     {
         _service = service;
-        _mapper = mapper;
     }
     
     [HttpGet("workspace/{workspaceId}")]
@@ -27,7 +25,7 @@ public class BoardApiController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
         var boards = await _service.GetBoardsByWorkSpaceAsync(workspaceId, userId);
-        var result = boards.Select(_mapper.ToDto);
+        var result = boards.Select(BoardMapper.CreateDto);
         return Ok(result);
     }
     
@@ -42,7 +40,7 @@ public class BoardApiController : ControllerBase
         return CreatedAtAction(
             nameof(GetBoardsByWorkspace), 
             new { workspaceId = dto.WorkSpaceId }, 
-            _mapper.ToDto(board)
+            BoardMapper.CreateDto(board)
             );
     }
     

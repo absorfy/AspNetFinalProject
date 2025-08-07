@@ -9,10 +9,14 @@ public class WorkSpaceDto
     public string Title { get; set; }
     public string? Description { get; set; }
     public WorkSpaceVisibility Visibility { get; set; }
+    public DateTime CreatingTimestamp { get; set; }
     
     public string AuthorName { get; set; }
-    public int ParticipantsCount { get; set; }
+    public bool isSubscribed { get; set; }
+    
     public int BoardsCount { get; set; }
+    public List<string> ParticipantIds { get; set; }
+    //public List<string> JoinRequestIds { get; set; }
 }
 
 public class CreateWorkSpaceDto
@@ -24,7 +28,7 @@ public class CreateWorkSpaceDto
     [MaxLength(1000)]
     public string? Description { get; set; }
 
-    public WorkSpaceVisibility Visibility { get; set; } = WorkSpaceVisibility.Private;
+    public int Visibility { get; set; } = (int)WorkSpaceVisibility.Private;
 }
 
 public class UpdateWorkSpaceDto
@@ -37,5 +41,5 @@ public class UpdateWorkSpaceDto
     public string? Description { get; set; }
 
     [Required]
-    public WorkSpaceVisibility Visibility { get; set; }
+    public int Visibility { get; set; }
 }

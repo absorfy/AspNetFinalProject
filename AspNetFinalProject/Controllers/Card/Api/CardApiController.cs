@@ -13,12 +13,10 @@ namespace AspNetFinalProject.Controllers.Card.Api;
 public class CardApiController : ControllerBase
 {
     private readonly ICardService _cardService;
-    private readonly CardMapper _mapper;
 
-    public CardApiController(ICardService cardService, CardMapper mapper)
+    public CardApiController(ICardService cardService)
     {
         _cardService = cardService;
-        _mapper = mapper;
     }
     
     [HttpGet("list/{boardListId}")]
@@ -27,7 +25,7 @@ public class CardApiController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
         var cards = await _cardService.GetCardsByListAsync(boardListId, userId);
-        var result = cards.Select(_mapper.ToDto);
+        var result = cards.Select(CardMapper.CreateDto);
         return Ok(result);
     }
     
@@ -41,7 +39,7 @@ public class CardApiController : ControllerBase
 
         var card = await _cardService.CreateAsync(userId, dto);
 
-        return CreatedAtAction(nameof(GetCardsByList), new { boardListId = dto.BoardListId }, _mapper.ToDto(card));
+        return CreatedAtAction(nameof(GetCardsByList), new { boardListId = dto.BoardListId }, CardMapper.CreateDto(card));
     }
     
     [HttpPut("{id}")]

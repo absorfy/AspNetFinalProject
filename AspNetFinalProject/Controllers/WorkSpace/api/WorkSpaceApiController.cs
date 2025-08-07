@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Mappers;
+using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Implementations;
 using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -15,15 +16,15 @@ public class WorkSpaceApiController : ControllerBase
 {
     private readonly IWorkSpaceService _workSpaceService;
     private readonly ICurrentUserService _currentUserService;
-    private readonly WorkSpaceMapper _mapper;
+    private readonly IWorkSpaceParticipantRepository _participantRepository;
 
     public WorkSpaceApiController(IWorkSpaceService workSpaceService,
                                   ICurrentUserService currentUserService,
-                                  WorkSpaceMapper mapper)
+                                  IWorkSpaceParticipantRepository participantRepository)
     {
         _workSpaceService = workSpaceService;
         _currentUserService = currentUserService;
-        _mapper = mapper;
+        _participantRepository = participantRepository;
     }
     
     [HttpGet]
@@ -31,8 +32,16 @@ public class WorkSpaceApiController : ControllerBase
     {
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
+
         var workspaces = await _workSpaceService.GetUserWorkSpacesAsync(user.IdentityId);
-        var result = workspaces.Select(_mapper.ToDto);
+
+        var resultTasks = workspaces.Select(async ws =>
+        {
+            var isSubscribed = await _workSpaceService.IsSubscribedAsync(ws.Id, user.IdentityId);
+            return WorkSpaceMapper.CreateDto(ws, isSubscribed);
+        });
+
+        var result = await Task.WhenAll(resultTasks);
         return Ok(result);
     }
     
@@ -43,7 +52,7 @@ public class WorkSpaceApiController : ControllerBase
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
         var workspace = await _workSpaceService.CreateAsync(user.IdentityId, dto);
-        return CreatedAtAction(nameof(GetMyWorkspaces), new { id = workspace.Id }, _mapper.ToDto(workspace));
+        return CreatedAtAction(nameof(GetMyWorkspaces), new { id = workspace.Id }, WorkSpaceMapper.CreateDto(workspace));
     }
     
     [HttpPut("{id}")]
@@ -57,6 +66,28 @@ public class WorkSpaceApiController : ControllerBase
         return NoContent();
     }
     
+    [HttpPost("{id}/subscribe")]
+    public async Task<ActionResult> SubscribeToWorkspace(int id)
+    {
+        var user = await _currentUserService.GetUserProfileAsync();
+        if (user == null) return Unauthorized();
+
+        var subscribed = await _workSpaceService.SubscribeAsync(id, user.IdentityId);
+        if (!subscribed) return NotFound();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}/subscribe")]
+    public async Task<ActionResult> UnsubscribeFromWorkspace(int id)
+    {
+        var user = await _currentUserService.GetUserProfileAsync();
+        if (user == null) return Unauthorized();
+        var unsubscribed = await _workSpaceService.UnsubscribeAsync(id, user.IdentityId);
+        if (!unsubscribed) return NotFound();
+        return NoContent();
+    }
+    
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteWorkspace(int id)
     {
@@ -67,5 +98,17 @@ public class WorkSpaceApiController : ControllerBase
         if (!deleted) return NotFound();
 
         return NoContent();
+    }
+
+    [HttpGet("{id}/participants")]
+    public async Task<ActionResult<IEnumerable<WorkSpaceParticipantDto>>> GetWorkspacesParticipants(int id)
+    {
+        var user = await _currentUserService.GetUserProfileAsync();
+        if (user == null) return Unauthorized();
+        
+        var workspace = await _workSpaceService.GetByIdAsync(id);
+        if (workspace == null) return NotFound();
+        
+        return Ok(workspace.Participants.Select(WorkSpaceParticipantMapper.CreateDto));
     }
 }

@@ -3,10 +3,10 @@ using AspNetFinalProject.Entities;
 
 namespace AspNetFinalProject.Mappers;
 
-public class CardMapper : EntityMapper<Card, CreateCardDto, UpdateCardDto, CardDto>
+public static class CardMapper
 {
 
-    protected override CardDto MapToDto(Card entity)
+    public static CardDto CreateDto(Card entity)
     {
         return new CardDto
         {
@@ -22,7 +22,7 @@ public class CardMapper : EntityMapper<Card, CreateCardDto, UpdateCardDto, CardD
         };
     }
 
-    protected override void MapToEntity(Card entity, UpdateCardDto updateDto)
+    public static void UpdateEntity(Card entity, UpdateCardDto updateDto)
     {
         entity.Title = updateDto.Title;
         entity.Description = updateDto.Description;
@@ -30,7 +30,7 @@ public class CardMapper : EntityMapper<Card, CreateCardDto, UpdateCardDto, CardD
         entity.Deadline = updateDto.Deadline;
     }
 
-    protected override Card MapToEntity(string authorId, CreateCardDto createDto)
+    public static Card CreateEntity(string authorId, CreateCardDto createDto)
     {
         return new Card
         {

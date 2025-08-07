@@ -3,9 +3,9 @@ using AspNetFinalProject.Entities;
 
 namespace AspNetFinalProject.Mappers;
 
-public class BoardMapper : EntityMapper<Board, CreateBoardDto, UpdateBoardDto, BoardDto>
+public static class BoardMapper
 {
-    protected override BoardDto MapToDto(Board entity)
+    public static BoardDto CreateDto(Board entity)
     {
         return new BoardDto
         {
@@ -20,14 +20,14 @@ public class BoardMapper : EntityMapper<Board, CreateBoardDto, UpdateBoardDto, B
         };
     }
 
-    protected override void MapToEntity(Board entity, UpdateBoardDto updateDto)
+    public static void UpdateEntity(Board entity, UpdateBoardDto updateDto)
     {
         entity.Title = updateDto.Title;
         entity.Description = updateDto.Description;
         entity.Visibility = updateDto.Visibility;
     }
 
-    protected override Board MapToEntity(string authorId, CreateBoardDto createDto)
+    public static Board CreateEntity(string authorId, CreateBoardDto createDto)
     {
         return new Board
         {

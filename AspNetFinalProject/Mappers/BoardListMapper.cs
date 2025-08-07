@@ -3,10 +3,9 @@ using AspNetFinalProject.Entities;
 
 namespace AspNetFinalProject.Mappers;
 
-public class BoardListMapper 
-    : EntityMapper<BoardList, CreateBoardListDto, UpdateBoardListDto, BoardListDto>
+public static class BoardListMapper
 {
-    protected override BoardListDto MapToDto(BoardList entity)
+    public static BoardListDto CreateDto(BoardList entity)
     {
         return new BoardListDto
         {
@@ -18,12 +17,12 @@ public class BoardListMapper
         };
     }
 
-    protected override void MapToEntity(BoardList entity, UpdateBoardListDto updateDto)
+    public static void UpdateEntity(BoardList entity, UpdateBoardListDto updateDto)
     {
         entity.Title = updateDto.Title;
     }
 
-    protected override BoardList MapToEntity(string authorId, CreateBoardListDto createDto)
+    public static BoardList CreateEntity(string authorId, CreateBoardListDto createDto)
     {
         return new BoardList
         {

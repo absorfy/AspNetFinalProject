@@ -11,4 +11,7 @@ public interface IWorkSpaceService
     Task<bool> UpdateAsync(int id, UpdateWorkSpaceDto dto);
     Task<WorkSpace> CreateAsync(string authorId, CreateWorkSpaceDto dto);
     Task<bool> DeleteAsync(int id, string deletedByUserId);
+    Task<bool> SubscribeAsync(int id, string userId);
+    Task<bool> UnsubscribeAsync(int id, string userId);
+    Task<bool> IsSubscribedAsync(int id, string userId);
 }

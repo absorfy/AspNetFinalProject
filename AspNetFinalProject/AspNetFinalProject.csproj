@@ -21,4 +21,9 @@
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.3" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\js\ui\boardRenderer.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\ui\workspaceRenderer.js" />
+    </ItemGroup>
+
 </Project>

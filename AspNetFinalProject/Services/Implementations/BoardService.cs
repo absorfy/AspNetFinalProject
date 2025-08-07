@@ -11,14 +11,11 @@ public class BoardService : IBoardService
 {
     private readonly IBoardRepository _boardRepository;
     private readonly IBoardParticipantRepository _participantRepository;
-    private readonly BoardMapper _mapper;
 
     public BoardService(IBoardRepository boardRepository,
-                        BoardMapper mapper, 
                         IBoardParticipantRepository participantRepository)
     {
         _boardRepository = boardRepository;
-        _mapper = mapper;
         _participantRepository = participantRepository;
     }
 
@@ -36,14 +33,14 @@ public class BoardService : IBoardService
     {
         var board = await _boardRepository.GetByIdAsync(id);
         if (board == null) return false;
-        _mapper.UpdateEntity(board, dto);
+        BoardMapper.UpdateEntity(board, dto);
         await _boardRepository.SaveChangesAsync();
         return true;
     }
 
     public async Task<Board> CreateAsync(string authorId, CreateBoardDto dto)
     {
-        var board = _mapper.CreateEntity(authorId, dto);
+        var board = BoardMapper.CreateEntity(authorId, dto);
         await _boardRepository.AddAsync(board);
         await _boardRepository.SaveChangesAsync();
 

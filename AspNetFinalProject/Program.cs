@@ -39,13 +39,11 @@ builder.Services.AddScoped<IWorkSpaceParticipantRepository, WorkSpaceParticipant
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddScoped<IBoardParticipantRepository, BoardParticipantRepository>();
 
+builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddSingleton<WorkSpaceMapper>();
-builder.Services.AddSingleton<BoardMapper>();
-builder.Services.AddSingleton<BoardListMapper>();
-builder.Services.AddSingleton<CardMapper>();
 
 var app = builder.Build();
 
