@@ -42,6 +42,9 @@ builder.Services.AddScoped<IBoardParticipantRepository, BoardParticipantReposito
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
