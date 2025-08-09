@@ -19,17 +19,17 @@ public class BoardService : IBoardService
         _participantRepository = participantRepository;
     }
 
-    public async Task<IEnumerable<Board>> GetBoardsByWorkSpaceAsync(int workSpaceId, string userId)
+    public async Task<IEnumerable<Board>> GetBoardsByWorkSpaceAsync(Guid workSpaceId, string userId)
     {
         return await _boardRepository.GetBoardsByWorkSpaceAsync(workSpaceId, userId);
     }
 
-    public async Task<Board?> GetByIdAsync(int id)
+    public async Task<Board?> GetByIdAsync(Guid id)
     {
         return await _boardRepository.GetByIdAsync(id);
     }
     
-    public async Task<bool> UpdateAsync(int id, UpdateBoardDto dto)
+    public async Task<bool> UpdateAsync(Guid id, UpdateBoardDto dto)
     {
         var board = await _boardRepository.GetByIdAsync(id);
         if (board == null) return false;
@@ -58,7 +58,7 @@ public class BoardService : IBoardService
         return await _boardRepository.GetByIdAsync(board.Id) ?? board;
     }
 
-    public async Task<bool> DeleteAsync(int id, string deletedByUserId)
+    public async Task<bool> DeleteAsync(Guid id, string deletedByUserId)
     {
         var board = await _boardRepository.GetByIdAsync(id);
         if (board == null) return false;

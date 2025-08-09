@@ -4,7 +4,7 @@ namespace AspNetFinalProject.Repositories.Interfaces;
 
 public interface IWorkSpaceParticipantRepository
 {
-    Task<IEnumerable<WorkSpaceParticipant>> GetByWorkSpaceIdAsync(int workSpaceId);
+    Task<IEnumerable<WorkSpaceParticipant>> GetByWorkSpaceIdAsync(Guid workSpaceId);
     Task AddAsync(WorkSpaceParticipant participant);
     Task SaveChangesAsync();
 }

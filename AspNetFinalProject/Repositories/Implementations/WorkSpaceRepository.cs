@@ -28,7 +28,7 @@ public class WorkSpaceRepository : IWorkSpaceRepository
     }
 
 
-    public async Task<WorkSpace?> GetByIdAsync(int workspaceId)
+    public async Task<WorkSpace?> GetByIdAsync(Guid workspaceId)
     {
         return await _context.WorkSpaces
             .Include(w => w.Author)

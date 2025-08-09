@@ -10,8 +10,8 @@ public static class CardMapper
     {
         return new CardDto
         {
-            Id = entity.Id,
-            BoardListId = entity.BoardListId,
+            Id = entity.Id.ToString(),
+            BoardListId = entity.BoardListId.ToString(),
             Title = entity.Title,
             Description = entity.Description,
             Color = entity.Color,
@@ -34,7 +34,7 @@ public static class CardMapper
     {
         return new Card
         {
-            BoardListId = createDto.BoardListId,
+            BoardListId = Guid.Parse(createDto.BoardListId),
             Title = createDto.Title,
             AuthorId = authorId,
             Description = createDto.Description,

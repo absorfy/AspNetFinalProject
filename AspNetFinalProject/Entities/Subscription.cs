@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using AspNetFinalProject.Enums;
 
 namespace AspNetFinalProject.Entities;
 
@@ -11,8 +12,7 @@ public class Subscription
     public UserProfile UserProfile { get; set; } = null!;
 
     [Required]
-    [MaxLength(50)]
-    public string EntityName { get; set; } = null!;
+    public EntityTargetType EntityType { get; set; }
     [Required]
     [MaxLength(36)]
     public string EntityId { get; set; } = null!;

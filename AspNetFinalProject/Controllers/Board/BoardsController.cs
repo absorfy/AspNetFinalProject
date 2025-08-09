@@ -19,13 +19,13 @@ public class BoardsController : Controller
         _currentUserService = currentUserService;
     }
     
-    public async Task<IActionResult> Dashboard(int id)
+    public async Task<IActionResult> Dashboard(string id)
     {
         var userId = _currentUserService.GetIdentityId();
         if(userId == null)
             return Unauthorized();
         
-        var board = await _boardService.GetByIdAsync(id);
+        var board = await _boardService.GetByIdAsync(Guid.Parse(id));
         if(board == null)
             return NotFound();
         

@@ -9,14 +9,14 @@ public static class BoardMapper
     {
         return new BoardDto
         {
-            Id = entity.Id,
-            WorkSpaceId = entity.WorkSpaceId,
+            Id = entity.Id.ToString(),
+            WorkSpaceId = entity.WorkSpaceId.ToString(),
             Title = entity.Title,
             Description = entity.Description,
             Visibility = entity.Visibility,
             AuthorName = entity.Author?.Username ?? entity.Author?.IdentityUser.UserName ?? "Unknown",
             ParticipantsCount = entity.Participants.Count,
-            ListsIds = entity.Lists.Select(l => l.Id).ToList(),
+            ListsIds = entity.Lists.Select(l => l.Id.ToString()).ToList(),
         };
     }
 
@@ -31,7 +31,7 @@ public static class BoardMapper
     {
         return new Board
         {
-            WorkSpaceId = createDto.WorkSpaceId,
+            WorkSpaceId = Guid.Parse(createDto.WorkSpaceId),
             Title = createDto.Title,
             AuthorId = authorId,
             Description = createDto.Description,

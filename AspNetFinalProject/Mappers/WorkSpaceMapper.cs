@@ -10,7 +10,7 @@ public static class WorkSpaceMapper
     {
         return new WorkSpaceDto
         {
-            Id = entity.Id,
+            Id = entity.Id.ToString(),
             Title = entity.Title,
             Description = entity.Description,
             Visibility = entity.Visibility,

@@ -5,9 +5,9 @@ namespace AspNetFinalProject.Services.Interfaces;
 
 public interface IBoardListService
 {
-    Task<IEnumerable<BoardList>> GetListsByBoardAsync(int boardId, string userId);
-    Task<BoardList?> GetByIdAsync(int id);
-    Task<bool> UpdateAsync(int id, UpdateBoardListDto dto);
+    Task<IEnumerable<BoardList>> GetListsByBoardAsync(Guid boardId, string userId);
+    Task<BoardList?> GetByIdAsync(Guid id);
+    Task<bool> UpdateAsync(Guid id, UpdateBoardListDto dto);
     Task<BoardList> CreateAsync(string authorId, CreateBoardListDto dto);
-    Task<bool> DeleteAsync(int id, string deletedByUserId);
+    Task<bool> DeleteAsync(Guid id, string deletedByUserId);
 }

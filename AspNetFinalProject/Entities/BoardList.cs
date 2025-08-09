@@ -6,9 +6,9 @@ namespace AspNetFinalProject.Entities;
 public class BoardList
 {
     [Key]
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
-    public int BoardId { get; set; }
+    public Guid BoardId { get; set; }
     [ForeignKey(nameof(BoardId))]
     public Board Board { get; set; } = null!;
 

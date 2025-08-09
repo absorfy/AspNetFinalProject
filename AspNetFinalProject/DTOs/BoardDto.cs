@@ -5,21 +5,21 @@ namespace AspNetFinalProject.DTOs;
 
 public class BoardDto
 {
-    public int Id { get; set; }
-    public int WorkSpaceId { get; set; }
+    public string Id { get; set; }
+    public string WorkSpaceId { get; set; }
     public string Title { get; set; }
     public string? Description { get; set; }
     public BoardVisibility Visibility { get; set; }
     
     public string AuthorName { get; set; }
     public int ParticipantsCount { get; set; }
-    public ICollection<int> ListsIds { get; set; } = new List<int>();
+    public ICollection<string> ListsIds { get; set; } = new List<string>();
 }
 
 public class CreateBoardDto
 {
     [Required]
-    public int WorkSpaceId { get; set; }
+    public string WorkSpaceId { get; set; }
 
     [Required]
     [MaxLength(100)]

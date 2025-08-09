@@ -56,57 +56,57 @@ public class WorkSpaceApiController : ControllerBase
     }
     
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateWorkspace(int id, [FromBody] UpdateWorkSpaceDto dto)
+    public async Task<ActionResult> UpdateWorkspace(string id, [FromBody] UpdateWorkSpaceDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var updated = await _workSpaceService.UpdateAsync(id, dto);
+        var updated = await _workSpaceService.UpdateAsync(Guid.Parse(id), dto);
         if (!updated) return NotFound();
 
         return NoContent();
     }
     
     [HttpPost("{id}/subscribe")]
-    public async Task<ActionResult> SubscribeToWorkspace(int id)
+    public async Task<ActionResult> SubscribeToWorkspace(string id)
     {
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
 
-        var subscribed = await _workSpaceService.SubscribeAsync(id, user.IdentityId);
+        var subscribed = await _workSpaceService.SubscribeAsync(Guid.Parse(id), user.IdentityId);
         if (!subscribed) return NotFound();
 
         return NoContent();
     }
 
     [HttpDelete("{id}/subscribe")]
-    public async Task<ActionResult> UnsubscribeFromWorkspace(int id)
+    public async Task<ActionResult> UnsubscribeFromWorkspace(string id)
     {
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
-        var unsubscribed = await _workSpaceService.UnsubscribeAsync(id, user.IdentityId);
+        var unsubscribed = await _workSpaceService.UnsubscribeAsync(Guid.Parse(id), user.IdentityId);
         if (!unsubscribed) return NotFound();
         return NoContent();
     }
     
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteWorkspace(int id)
+    public async Task<ActionResult> DeleteWorkspace(string id)
     {
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
 
-        var deleted = await _workSpaceService.DeleteAsync(id, user.IdentityId);
+        var deleted = await _workSpaceService.DeleteAsync(Guid.Parse(id), user.IdentityId);
         if (!deleted) return NotFound();
 
         return NoContent();
     }
 
     [HttpGet("{id}/participants")]
-    public async Task<ActionResult<IEnumerable<WorkSpaceParticipantDto>>> GetWorkspacesParticipants(int id)
+    public async Task<ActionResult<IEnumerable<WorkSpaceParticipantDto>>> GetWorkspacesParticipants(string id)
     {
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
         
-        var workspace = await _workSpaceService.GetByIdAsync(id);
+        var workspace = await _workSpaceService.GetByIdAsync(Guid.Parse(id));
         if (workspace == null) return NotFound();
         
         return Ok(workspace.Participants.Select(WorkSpaceParticipantMapper.CreateDto));

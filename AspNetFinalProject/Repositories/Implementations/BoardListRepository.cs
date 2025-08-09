@@ -14,7 +14,7 @@ public class BoardListRepository : IBoardListRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<BoardList>> GetListsByBoardAsync(int boardId, string userId)
+    public async Task<IEnumerable<BoardList>> GetListsByBoardAsync(Guid boardId, string userId)
     {
         return await _context.Lists
             .Include(l => l.Author)
@@ -25,7 +25,7 @@ public class BoardListRepository : IBoardListRepository
             .ToListAsync();
     }
 
-    public async Task<BoardList?> GetByIdAsync(int id)
+    public async Task<BoardList?> GetByIdAsync(Guid id)
     {
         return await _context.Lists
             .Include(l => l.Author)

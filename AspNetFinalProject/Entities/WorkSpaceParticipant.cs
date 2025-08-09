@@ -6,7 +6,7 @@ namespace AspNetFinalProject.Entities;
 
 public class WorkSpaceParticipant
 {
-    public int WorkSpaceId { get; set; }
+    public Guid WorkSpaceId { get; set; }
     [ForeignKey(nameof(WorkSpaceId))]
     public WorkSpace WorkSpace { get; set; } = null!;
     

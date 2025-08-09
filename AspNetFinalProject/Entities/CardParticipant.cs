@@ -4,7 +4,7 @@ namespace AspNetFinalProject.Entities;
 
 public class CardParticipant
 {
-    public int CardId { get; set; }
+    public Guid CardId { get; set; }
     [ForeignKey(nameof(CardId))]
     public Card Card { get; set; } = null!;
 

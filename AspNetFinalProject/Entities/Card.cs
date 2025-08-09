@@ -6,10 +6,10 @@ namespace AspNetFinalProject.Entities;
 public class Card
 {
     [Key]
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     
     [Required]
-    public int BoardListId { get; set; }
+    public Guid BoardListId { get; set; }
     [ForeignKey(nameof(BoardListId))]
     public BoardList BoardList { get; set; } = null!;
 

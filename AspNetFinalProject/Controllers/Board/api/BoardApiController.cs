@@ -20,11 +20,11 @@ public class BoardApiController : ControllerBase
     }
     
     [HttpGet("workspace/{workspaceId}")]
-    public async Task<ActionResult<IEnumerable<BoardDto>>> GetBoardsByWorkspace(int workspaceId)
+    public async Task<ActionResult<IEnumerable<BoardDto>>> GetBoardsByWorkspace(string workspaceId)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
-        var boards = await _service.GetBoardsByWorkSpaceAsync(workspaceId, userId);
+        var boards = await _service.GetBoardsByWorkSpaceAsync(Guid.Parse(workspaceId), userId);
         var result = boards.Select(BoardMapper.CreateDto);
         return Ok(result);
     }
@@ -45,23 +45,23 @@ public class BoardApiController : ControllerBase
     }
     
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateBoard(int id, [FromBody] UpdateBoardDto dto)
+    public async Task<ActionResult> UpdateBoard(string id, [FromBody] UpdateBoardDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var updated = await _service.UpdateAsync(id, dto);
+        var updated = await _service.UpdateAsync(Guid.Parse(id), dto);
         if (!updated) return NotFound();
 
         return NoContent();
     }
     
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteBoard(int id)
+    public async Task<ActionResult> DeleteBoard(string id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
-        var deleted = await _service.DeleteAsync(id, userId);
+        var deleted = await _service.DeleteAsync(Guid.Parse(id), userId);
         if (!deleted) return NotFound();
 
         return NoContent();

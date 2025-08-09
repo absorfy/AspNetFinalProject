@@ -28,12 +28,12 @@ public class WorkSpaceService : IWorkSpaceService
         return await _workSpaceRepository.GetUserWorkSpacesAsync(userId);
     }
 
-    public async Task<WorkSpace?> GetByIdAsync(int id)
+    public async Task<WorkSpace?> GetByIdAsync(Guid id)
     {
         return await _workSpaceRepository.GetByIdAsync(id);
     }
     
-    public async Task<bool> UpdateAsync(int id, UpdateWorkSpaceDto dto)
+    public async Task<bool> UpdateAsync(Guid id, UpdateWorkSpaceDto dto)
     {
         var workspace = await _workSpaceRepository.GetByIdAsync(id);
         if (workspace == null) return false;
@@ -62,7 +62,7 @@ public class WorkSpaceService : IWorkSpaceService
         return workspace;
     }
 
-    public async Task<bool> DeleteAsync(int id, string deletedByUserId)
+    public async Task<bool> DeleteAsync(Guid id, string deletedByUserId)
     {
         var workspace = await _workSpaceRepository.GetByIdAsync(id);
         if (workspace == null) return false;
@@ -74,24 +74,24 @@ public class WorkSpaceService : IWorkSpaceService
         return true;
     }
 
-    public async Task<bool> SubscribeAsync(int id, string userId)
+    public async Task<bool> SubscribeAsync(Guid id, string userId)
     {
         var workspace = await _workSpaceRepository.GetByIdAsync(id);
         if (workspace == null) return false;
 
-        return await _subscriptionService.SubscribeAsync(userId, nameof(WorkSpace), id.ToString());
+        return await _subscriptionService.SubscribeAsync(userId, EntityTargetType.Workspace, id.ToString());
     }
 
-    public async Task<bool> UnsubscribeAsync(int id, string userId)
+    public async Task<bool> UnsubscribeAsync(Guid id, string userId)
     {
         var workspace = await _workSpaceRepository.GetByIdAsync(id);
         if (workspace == null) return false;
 
-        return await _subscriptionService.UnsubscribeAsync(userId, nameof(WorkSpace), id.ToString());
+        return await _subscriptionService.UnsubscribeAsync(userId, EntityTargetType.Workspace, id.ToString());
     }
 
-    public Task<bool> IsSubscribedAsync(int id, string userId)
+    public Task<bool> IsSubscribedAsync(Guid id, string userId)
     {
-        return _subscriptionService.IsSubscribedAsync(userId, nameof(WorkSpace), id.ToString());
+        return _subscriptionService.IsSubscribedAsync(userId, EntityTargetType.Workspace, id.ToString());
     }
 }

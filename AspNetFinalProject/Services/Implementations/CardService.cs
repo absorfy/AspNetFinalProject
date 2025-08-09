@@ -15,17 +15,17 @@ public class CardService : ICardService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<Card>> GetCardsByListAsync(int boardListId, string userId)
+    public async Task<IEnumerable<Card>> GetCardsByListAsync(Guid boardListId, string userId)
     {
         return await _repository.GetCardsByListAsync(boardListId, userId);
     }
 
-    public async Task<Card?> GetByIdAsync(int id)
+    public async Task<Card?> GetByIdAsync(Guid id)
     {
         return await _repository.GetByIdAsync(id);
     }
     
-    public async Task<bool> UpdateAsync(int id, UpdateCardDto dto)
+    public async Task<bool> UpdateAsync(Guid id, UpdateCardDto dto)
     {
         var card = await _repository.GetByIdAsync(id);
         if (card == null) return false;
@@ -43,7 +43,7 @@ public class CardService : ICardService
         return card;
     }
 
-    public async Task<bool> DeleteAsync(int id, string deletedByUserId)
+    public async Task<bool> DeleteAsync(Guid id, string deletedByUserId)
     {
         var card = await _repository.GetByIdAsync(id);
         if (card == null) return false;

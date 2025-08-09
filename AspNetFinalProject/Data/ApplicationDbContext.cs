@@ -23,6 +23,7 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<TagCard> TagCards { get; set; } = null!;
     public DbSet<Comment> Comments { get; set; } = null!;
     public DbSet<CardAttachment> CardAttachments { get; set; } = null!;
+    public DbSet<Notification> Notifications { get; set; } = null!;
     
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -33,6 +34,20 @@ public class ApplicationDbContext : IdentityDbContext
     {
         base.OnModelCreating(modelBuilder);
         
+        modelBuilder.Entity<Notification>(e =>
+        {
+            e.HasIndex(x => new { x.UserProfileId, x.IsRead });
+            e.HasOne(x => x.UserProfile)
+                .WithMany()
+                .HasForeignKey(x => x.UserProfileId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(x => x.UserActionLog)
+                .WithMany()
+                .HasForeignKey(x => x.UserActionLogId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+        
         modelBuilder.Entity<UserProfile>()
             .HasOne(u => u.IdentityUser)
             .WithOne()
@@ -40,7 +55,7 @@ public class ApplicationDbContext : IdentityDbContext
             .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<Subscription>()
-            .HasKey(s => new { s.UserProfileId, s.EntityName, s.EntityId });
+            .HasKey(s => new { s.UserProfileId, s.EntityType, s.EntityId });
         
         modelBuilder.Entity<WorkSpaceParticipant>()
             .HasKey(x => new { x.WorkSpaceId, x.UserProfileId });

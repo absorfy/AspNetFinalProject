@@ -15,17 +15,17 @@ public class BoardListService : IBoardListService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<BoardList>> GetListsByBoardAsync(int boardId, string userId)
+    public async Task<IEnumerable<BoardList>> GetListsByBoardAsync(Guid boardId, string userId)
     {
         return await _repository.GetListsByBoardAsync(boardId, userId);
     }
 
-    public async Task<BoardList?> GetByIdAsync(int id)
+    public async Task<BoardList?> GetByIdAsync(Guid id)
     {
         return await _repository.GetByIdAsync(id);
     }
     
-    public async Task<bool> UpdateAsync(int id, UpdateBoardListDto dto)
+    public async Task<bool> UpdateAsync(Guid id, UpdateBoardListDto dto)
     {
         var list = await _repository.GetByIdAsync(id);
         if (list == null) return false;
@@ -42,7 +42,7 @@ public class BoardListService : IBoardListService
         return list;
     }
 
-    public async Task<bool> DeleteAsync(int id, string deletedByUserId)
+    public async Task<bool> DeleteAsync(Guid id, string deletedByUserId)
     {
         var list = await _repository.GetByIdAsync(id);
         if (list == null) return false;

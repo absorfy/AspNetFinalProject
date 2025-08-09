@@ -7,11 +7,11 @@ namespace AspNetFinalProject.Services.Interfaces;
 public interface IWorkSpaceService
 {
     Task<IEnumerable<WorkSpace>> GetUserWorkSpacesAsync(string userId);
-    Task<WorkSpace?> GetByIdAsync(int id);
-    Task<bool> UpdateAsync(int id, UpdateWorkSpaceDto dto);
+    Task<WorkSpace?> GetByIdAsync(Guid id);
+    Task<bool> UpdateAsync(Guid id, UpdateWorkSpaceDto dto);
     Task<WorkSpace> CreateAsync(string authorId, CreateWorkSpaceDto dto);
-    Task<bool> DeleteAsync(int id, string deletedByUserId);
-    Task<bool> SubscribeAsync(int id, string userId);
-    Task<bool> UnsubscribeAsync(int id, string userId);
-    Task<bool> IsSubscribedAsync(int id, string userId);
+    Task<bool> DeleteAsync(Guid id, string deletedByUserId);
+    Task<bool> SubscribeAsync(Guid id, string userId);
+    Task<bool> UnsubscribeAsync(Guid id, string userId);
+    Task<bool> IsSubscribedAsync(Guid id, string userId);
 }

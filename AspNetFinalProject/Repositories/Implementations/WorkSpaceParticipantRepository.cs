@@ -14,7 +14,7 @@ public class WorkSpaceParticipantRepository : IWorkSpaceParticipantRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<WorkSpaceParticipant>> GetByWorkSpaceIdAsync(int workSpaceId)
+    public async Task<IEnumerable<WorkSpaceParticipant>> GetByWorkSpaceIdAsync(Guid workSpaceId)
     {
         return await _context.WorkSpaceParticipants
             .Where(p => p.WorkSpaceId == workSpaceId)

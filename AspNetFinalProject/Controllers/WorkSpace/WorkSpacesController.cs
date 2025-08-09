@@ -21,13 +21,13 @@ public class WorkSpacesController : Controller
     }
     
     [HttpGet("{id}/settings")]
-    public async Task<IActionResult> Settings(int id)
+    public async Task<IActionResult> Settings(string id)
     {
         var userId = _currentUserService.GetIdentityId();
         if (userId == null)
             return Unauthorized();
         
-        var workspace = await _workSpaceService.GetByIdAsync(id);
+        var workspace = await _workSpaceService.GetByIdAsync(Guid.Parse(id));
         if (workspace == null)
             return NotFound();
         

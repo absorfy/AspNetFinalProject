@@ -5,7 +5,7 @@ namespace AspNetFinalProject.DTOs;
 
 public class WorkSpaceDto
 {
-    public int Id { get; set; }
+    public string Id { get; set; }
     public string Title { get; set; }
     public string? Description { get; set; }
     public WorkSpaceVisibility Visibility { get; set; }

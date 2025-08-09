@@ -9,11 +9,11 @@ public static class BoardListMapper
     {
         return new BoardListDto
         {
-            Id = entity.Id,
-            BoardId = entity.BoardId,
+            Id = entity.Id.ToString(),
+            BoardId = entity.BoardId.ToString(),
             Title = entity.Title,
             AuthorName = entity.Author?.Username ?? entity.Author?.IdentityUser.UserName ?? "Unknown",
-            CardsIds = entity.Cards.Select(card => card.Id).ToList(),
+            CardsIds = entity.Cards.Select(card => card.Id.ToString()).ToList(),
         };
     }
 
@@ -26,7 +26,7 @@ public static class BoardListMapper
     {
         return new BoardList
         {
-            BoardId = createDto.BoardId,
+            BoardId = Guid.Parse(createDto.BoardId),
             AuthorId = authorId,
             Title = createDto.Title,
             CreatingTimestamp = DateTime.UtcNow

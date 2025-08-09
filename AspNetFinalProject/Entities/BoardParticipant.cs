@@ -5,7 +5,7 @@ namespace AspNetFinalProject.Entities;
 
 public class BoardParticipant
 {
-    public int BoardId { get; set; }
+    public Guid BoardId { get; set; }
     [ForeignKey(nameof(BoardId))]
     public Board Board { get; set; } = null!;
     public string UserProfileId { get; set; } = null!;

@@ -14,7 +14,7 @@ public class CardRepository : ICardRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Card>> GetCardsByListAsync(int boardListId, string userId)
+    public async Task<IEnumerable<Card>> GetCardsByListAsync(Guid boardListId, string userId)
     {
         return await _context.Cards
             .Include(c => c.Author)
@@ -30,7 +30,7 @@ public class CardRepository : ICardRepository
             .ToListAsync();
     }
 
-    public async Task<Card?> GetByIdAsync(int id)
+    public async Task<Card?> GetByIdAsync(Guid id)
     {
         return await _context.Cards
             .Include(c => c.Author)

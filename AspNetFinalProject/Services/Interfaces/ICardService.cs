@@ -5,9 +5,9 @@ namespace AspNetFinalProject.Services.Interfaces;
 
 public interface ICardService
 {
-    Task<IEnumerable<Card>> GetCardsByListAsync(int boardListId, string userId);
-    Task<Card?> GetByIdAsync(int id);
-    Task<bool> UpdateAsync(int id, UpdateCardDto dto);
+    Task<IEnumerable<Card>> GetCardsByListAsync(Guid boardListId, string userId);
+    Task<Card?> GetByIdAsync(Guid id);
+    Task<bool> UpdateAsync(Guid id, UpdateCardDto dto);
     Task<Card> CreateAsync(string authorId, CreateCardDto dto);
-    Task<bool> DeleteAsync(int id, string deletedByUserId);
+    Task<bool> DeleteAsync(Guid id, string deletedByUserId);
 }

@@ -7,7 +7,7 @@ namespace AspNetFinalProject.Entities;
 public class UserActionLog
 {
     [Key]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     
     [Required]
     public string UserProfileId { get; set; } = null!;
@@ -15,8 +15,8 @@ public class UserActionLog
     public UserProfile UserProfile { get; set; } = null!;
     
     [Required]
-    [MaxLength(50)]
-    public string EntityName { get; set; } = null!;
+    public EntityTargetType EntityType { get; set; }
+    
     [Required]
     [MaxLength(36)]
     public string EntityId { get; set; } = null!;

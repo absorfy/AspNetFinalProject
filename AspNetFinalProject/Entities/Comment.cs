@@ -6,10 +6,10 @@ namespace AspNetFinalProject.Entities;
 public class Comment
 {
     [Key]
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     
     [Required]
-    public int CardId { get; set; }
+    public Guid CardId { get; set; }
     [ForeignKey(nameof(CardId))]
     public Card Card { get; set; } = null!;
     

@@ -5,7 +5,7 @@ namespace AspNetFinalProject.DTOs;
 
 public class UserProfileDto
 {
-    public int IdentityId { get; set; }
+    public string IdentityId { get; set; }
     public string Username { get; set; }
     //public string? AvatarUrl { get; set; }
     public PersonalInfoDto PersonalInfo { get; set; }

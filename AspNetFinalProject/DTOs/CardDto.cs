@@ -4,8 +4,8 @@ namespace AspNetFinalProject.DTOs;
 
 public class CardDto
 {
-    public int Id { get; set; }
-    public int BoardListId { get; set; }
+    public string Id { get; set; }
+    public string BoardListId { get; set; }
     public string Title { get; set; }
     public string? Description { get; set; }
     public string? Color { get; set; }
@@ -19,7 +19,7 @@ public class CardDto
 public class CreateCardDto
 {
     [Required]
-    public int BoardListId { get; set; }
+    public string BoardListId { get; set; }
 
     [Required]
     [MaxLength(100)]

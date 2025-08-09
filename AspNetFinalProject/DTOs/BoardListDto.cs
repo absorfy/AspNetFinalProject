@@ -4,17 +4,17 @@ namespace AspNetFinalProject.DTOs;
 
 public class BoardListDto
 {
-    public int Id { get; set; }
-    public int BoardId { get; set; }
+    public string Id { get; set; }
+    public string BoardId { get; set; }
     public string Title { get; set; }
     public string AuthorName { get; set; }
-    public ICollection<int> CardsIds { get; set; } = new List<int>();
+    public ICollection<string> CardsIds { get; set; } = new List<string>();
 }
 
 public class CreateBoardListDto
 {
     [Required]
-    public int BoardId { get; set; }
+    public string BoardId { get; set; }
 
     [Required]
     [MaxLength(50)]

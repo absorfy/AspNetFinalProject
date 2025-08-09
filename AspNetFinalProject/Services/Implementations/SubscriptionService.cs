@@ -1,4 +1,5 @@
 ﻿using AspNetFinalProject.Entities;
+using AspNetFinalProject.Enums;
 using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Interfaces;
 
@@ -13,15 +14,15 @@ public class SubscriptionService : ISubscriptionService
         _repository = repository;
     }
 
-    public async Task<bool> SubscribeAsync(string userId, string entityName, string entityId)
+    public async Task<bool> SubscribeAsync(string userId, EntityTargetType entityType, string entityId)
     {
-        var existing = await _repository.GetAsync(userId, entityName, entityId);
+        var existing = await _repository.GetAsync(userId, entityType, entityId);
         if (existing != null) return true;
 
         var subscription = new Subscription
         {
             UserProfileId = userId,
-            EntityName = entityName,
+            EntityType = entityType,
             EntityId = entityId,
             Timestamp = DateTime.UtcNow
         };
@@ -32,9 +33,9 @@ public class SubscriptionService : ISubscriptionService
         return true;
     }
 
-    public async Task<bool> UnsubscribeAsync(string userId, string entityName, string entityId)
+    public async Task<bool> UnsubscribeAsync(string userId, EntityTargetType entityType, string entityId)
     {
-        var existing = await _repository.GetAsync(userId, entityName, entityId);
+        var existing = await _repository.GetAsync(userId, entityType, entityId);
         if (existing == null) return false;
 
         await _repository.RemoveAsync(existing);
@@ -43,9 +44,9 @@ public class SubscriptionService : ISubscriptionService
         return true;
     }
 
-    public async Task<bool> IsSubscribedAsync(string userId, string entityName, string entityId)
+    public async Task<bool> IsSubscribedAsync(string userId, EntityTargetType entityType, string entityId)
     {
-        var existing = await _repository.GetAsync(userId, entityName, entityId);
+        var existing = await _repository.GetAsync(userId, entityType, entityId);
         return existing != null;
     }
 }

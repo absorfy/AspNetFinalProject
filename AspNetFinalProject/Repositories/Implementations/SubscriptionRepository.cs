@@ -1,5 +1,6 @@
 ﻿using AspNetFinalProject.Data;
 using AspNetFinalProject.Entities;
+using AspNetFinalProject.Enums;
 using AspNetFinalProject.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,15 +15,15 @@ public class SubscriptionRepository : ISubscriptionRepository
         _context = context;
     }
     
-    public async Task<Subscription?> GetAsync(string userId, string entityName, string entityId)
+    public async Task<Subscription?> GetAsync(string userId, EntityTargetType entityType, string entityId)
     {
-        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(entityName) || string.IsNullOrEmpty(entityId))
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(entityId))
         {
             throw new ArgumentException("User ID, entity name, and entity ID must be provided.");
         }
 
         return await _context.Subscriptions
-            .FirstOrDefaultAsync(s => s.UserProfileId == userId && s.EntityName == entityName && s.EntityId == entityId);
+            .FirstOrDefaultAsync(s => s.UserProfileId == userId && s.EntityType == entityType && s.EntityId == entityId);
     }
 
     public async Task AddAsync(Subscription subscription)
@@ -33,7 +34,6 @@ public class SubscriptionRepository : ISubscriptionRepository
         }
 
         if (string.IsNullOrEmpty(subscription.UserProfileId) || 
-            string.IsNullOrEmpty(subscription.EntityName) || 
             string.IsNullOrEmpty(subscription.EntityId))
         {
             throw new ArgumentException("User ID, entity name, and entity ID must be provided.");
