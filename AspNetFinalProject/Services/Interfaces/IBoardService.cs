@@ -5,7 +5,7 @@ namespace AspNetFinalProject.Services.Interfaces;
 
 public interface IBoardService
 {
-    Task<IEnumerable<Board>> GetBoardsByWorkSpaceAsync(Guid workSpaceId, string userId);
+    Task<IEnumerable<Board>> GetAllByWorkSpaceAsync(Guid workSpaceId, string userId);
     Task<Board?> GetByIdAsync(Guid id);
     Task<bool> UpdateAsync(Guid id, UpdateBoardDto dto);
     Task<Board> CreateAsync(string authorId, CreateBoardDto dto);

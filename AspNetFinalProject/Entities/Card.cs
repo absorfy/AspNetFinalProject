@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using AspNetFinalProject.Enums;
 
 namespace AspNetFinalProject.Entities;
 
-public class Card
+public class Card : ILogEntity
 {
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -46,4 +47,19 @@ public class Card
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     
     public ICollection<CardAttachment> Attachments { get; set; } = new List<CardAttachment>();
+
+    public EntityTargetType GetEntityType()
+    {
+        return EntityTargetType.Card;
+    }
+
+    public string GetName()
+    {
+        return Title;
+    }
+
+    public string GetId()
+    {
+        return Id.ToString();
+    }
 }

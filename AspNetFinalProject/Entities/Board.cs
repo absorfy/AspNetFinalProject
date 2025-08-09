@@ -4,7 +4,7 @@ using AspNetFinalProject.Enums;
 
 namespace AspNetFinalProject.Entities;
 
-public class Board
+public class Board : ILogEntity
 {
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -39,4 +39,18 @@ public class Board
     public ICollection<BoardParticipant> Participants { get; set; } = new List<BoardParticipant>();
     
     public ICollection<BoardList> Lists { get; set; } = new List<BoardList>();
+    public EntityTargetType GetEntityType()
+    {
+        return EntityTargetType.BoardList;
+    }
+
+    public string GetName()
+    {
+        return Title;
+    }
+
+    public string GetId()
+    {
+        return Id.ToString();
+    }
 }

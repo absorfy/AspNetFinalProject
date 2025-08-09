@@ -19,13 +19,13 @@ public class BoardListApiController : ControllerBase
         _service = service;
     }
     
-    [HttpGet("board/{boardId}")]
-    public async Task<ActionResult<IEnumerable<BoardListDto>>> GetListsByBoard(string boardId)
+    [HttpGet("board/{boardId:guid}")]
+    public async Task<ActionResult<IEnumerable<BoardListDto>>> GetListsByBoard(Guid boardId)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
-        var lists = await _service.GetListsByBoardAsync(Guid.Parse(boardId), userId);
+        var lists = await _service.GetListsByBoardAsync(boardId, userId);
 
         var result = lists.Select(BoardListMapper.CreateDto);
 
@@ -45,24 +45,24 @@ public class BoardListApiController : ControllerBase
         return CreatedAtAction(nameof(GetListsByBoard), new { boardId = dto.BoardId }, BoardListMapper.CreateDto(list));
     }
     
-    [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateBoardList(string id, [FromBody] UpdateBoardListDto dto)
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult> UpdateBoardList(Guid id, [FromBody] UpdateBoardListDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var updated = await _service.UpdateAsync(Guid.Parse(id), dto);
+        var updated = await _service.UpdateAsync(id, dto);
         if (!updated) return NotFound();
 
         return NoContent();
     }
     
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteBoardList(string id)
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> DeleteBoardList(Guid id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
-        var deleted = await _service.DeleteAsync(Guid.Parse(id), userId);
+        var deleted = await _service.DeleteAsync(id, userId);
         if (!deleted) return NotFound();
 
         return NoContent();

@@ -20,14 +20,14 @@ public class WorkSpacesController : Controller
         _currentUserService = currentUserService;
     }
     
-    [HttpGet("{id}/settings")]
-    public async Task<IActionResult> Settings(string id)
+    [HttpGet("{id:guid}/settings")]
+    public async Task<IActionResult> Settings(Guid id)
     {
         var userId = _currentUserService.GetIdentityId();
         if (userId == null)
             return Unauthorized();
         
-        var workspace = await _workSpaceService.GetByIdAsync(Guid.Parse(id));
+        var workspace = await _workSpaceService.GetByIdAsync(id);
         if (workspace == null)
             return NotFound();
         

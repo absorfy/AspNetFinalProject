@@ -11,15 +11,18 @@ public class BoardService : IBoardService
 {
     private readonly IBoardRepository _boardRepository;
     private readonly IBoardParticipantRepository _participantRepository;
+    private readonly IUserActionLogService _userActionLogService;
 
     public BoardService(IBoardRepository boardRepository,
-                        IBoardParticipantRepository participantRepository)
+                        IBoardParticipantRepository participantRepository,
+                        IUserActionLogService userActionLogService)
     {
         _boardRepository = boardRepository;
         _participantRepository = participantRepository;
+        _userActionLogService = userActionLogService;
     }
 
-    public async Task<IEnumerable<Board>> GetBoardsByWorkSpaceAsync(Guid workSpaceId, string userId)
+    public async Task<IEnumerable<Board>> GetAllByWorkSpaceAsync(Guid workSpaceId, string userId)
     {
         return await _boardRepository.GetBoardsByWorkSpaceAsync(workSpaceId, userId);
     }
@@ -44,6 +47,7 @@ public class BoardService : IBoardService
         await _boardRepository.AddAsync(board);
         await _boardRepository.SaveChangesAsync();
 
+        //Admin creating
         var admin = new BoardParticipant
         {
             UserProfileId = authorId,
@@ -51,10 +55,10 @@ public class BoardService : IBoardService
             Role = BoardRole.Admin,
             JoiningTimestamp = DateTime.UtcNow
         };
-
         await _participantRepository.AddAsync(admin);
         await _participantRepository.SaveChangesAsync();
-        
+
+        await _userActionLogService.LogCreating(authorId, board);
         return await _boardRepository.GetByIdAsync(board.Id) ?? board;
     }
 
@@ -67,6 +71,7 @@ public class BoardService : IBoardService
         await _boardRepository.DeleteAsync(board);
         await _boardRepository.SaveChangesAsync();
 
+        await _userActionLogService.LogDeleting(deletedByUserId, board);
         return true;
     }
 }
