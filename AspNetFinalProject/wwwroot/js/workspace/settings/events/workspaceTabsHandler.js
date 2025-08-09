@@ -1,4 +1,4 @@
-﻿import {boardListContainer, currentWorkspaceId} from "../dom.js";
+﻿import {boardListContainer, currentWorkspace} from "../dom.js";
 import {loadParticipants} from "../load/loadParticipants.js";
 import {loadBoardsWithWorkspaceId} from "../../shared/load/loadBoards.js";
 
@@ -29,7 +29,7 @@ export function handleWorkspaceTabs() {
       tabContent[selectedTab].classList.remove("d-none");
 
       if (selectedTab === "boards" && !loadedTabs.boards) {
-        await loadBoardsWithWorkspaceId(currentWorkspaceId, boardListContainer);
+        await loadBoardsWithWorkspaceId(currentWorkspace.id, boardListContainer);
         loadedTabs.boards = true;
       }
 

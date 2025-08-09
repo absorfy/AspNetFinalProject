@@ -1,12 +1,12 @@
 ﻿import {fetchWorkspaceParticipantsAjax} from "../../../api/workspaces.js";
-import {currentWorkspaceId, participantContainer} from "../dom.js";
+import {currentWorkspace, participantContainer} from "../dom.js";
 import {showParticipant} from "../ui/showParticipant.js";
 
 export async function loadParticipants() {
   participantContainer.innerHTML = "Завантаження...";
   
   try {
-    const participants = await fetchWorkspaceParticipantsAjax(currentWorkspaceId);
+    const participants = await fetchWorkspaceParticipantsAjax(currentWorkspace.id);
 
     if (participants.length === 0) {
       participantContainer.innerHTML = "<p>Немає учасників.</p>";

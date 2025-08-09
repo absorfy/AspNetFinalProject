@@ -24,6 +24,14 @@
     <ItemGroup>
       <_ContentIncludedByDefault Remove="wwwroot\js\ui\boardRenderer.js" />
       <_ContentIncludedByDefault Remove="wwwroot\js\ui\workspaceRenderer.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\board\load\loadBoardList.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\board\load\loadCard.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\board\ui\showBoardList.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\board\ui\showCard.js" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\js\workspace\dashboard\events\" />
     </ItemGroup>
 
 </Project>

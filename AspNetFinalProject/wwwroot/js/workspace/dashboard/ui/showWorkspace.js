@@ -1,17 +1,6 @@
-﻿import {
-  subscribeToWorkspaceAjax,
-  unsubscribeFromWorkspaceAjax
-} from "../../../api/workspaces.js";
-
-import {
-  deleteModal,
-  deleteModalText
-} from "../dom.js";
-
-import { selectWorkspace } from "../load/loadBoards.js";
-
-let workspaceIdToDelete = null;
-let divToDelete = null;
+﻿import { selectWorkspace } from "../load/loadBoards.js";
+import {handleSubscribeToggle} from "../../shared/events/subscribeHandler.js";
+import {handleDeleteButton} from "../../shared/events/deleteHandler.js";
 
 export function showWorkspace(workspace, container) {
   const div = document.createElement("div");
@@ -47,47 +36,14 @@ export function showWorkspace(workspace, container) {
     e.stopPropagation();
     window.location.href = `/workspaces/${workspace.id}/settings`;
   });
-
-  // кнопка видалення
-  div.querySelector(".delete-btn").addEventListener("click", (e) => {
-    e.stopPropagation();
-    workspaceIdToDelete = workspace.id;
-    divToDelete = div;
-    deleteModalText.textContent = `Ви дійсно хочете видалити робочу область "${workspace.title}"?`;
-    new bootstrap.Modal(deleteModal).show();
+  
+  const deleteBtn = div.querySelector(".delete-btn");
+  handleDeleteButton(deleteBtn, workspace, () => {
+    div.remove();
   });
-
-  // кнопка підписки
+  
   const subscribeBtn = div.querySelector(".subscribe-btn");
-  subscribeBtn.addEventListener("click", async (e) => {
-    e.stopPropagation();
-
-    try {
-      if (workspace.isSubscribed) {
-        await unsubscribeFromWorkspaceAjax(workspace.id);
-        workspace.isSubscribed = false;
-        subscribeBtn.classList.replace("btn-outline-secondary", "btn-outline-success");
-        subscribeBtn.textContent = "Підписатися";
-      } else {
-        await subscribeToWorkspaceAjax(workspace.id);
-        workspace.isSubscribed = true;
-        subscribeBtn.classList.replace("btn-outline-success", "btn-outline-secondary");
-        subscribeBtn.textContent = "Відписатися";
-      }
-    } catch (error) {
-      alert("Помилка під час підписки/відписки: " + error.message);
-    }
-  });
+  handleSubscribeToggle(subscribeBtn, workspace);
 
   container.appendChild(div);
-}
-
-// доступ до змінних з іншого модуля
-export function getDeleteTargets() {
-  return { workspaceIdToDelete, divToDelete };
-}
-
-export function resetDeleteTargets() {
-  workspaceIdToDelete = null;
-  divToDelete = null;
 }

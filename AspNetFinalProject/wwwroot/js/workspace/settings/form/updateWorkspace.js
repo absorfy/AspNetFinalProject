@@ -1,5 +1,5 @@
 ﻿import {updateWorkspaceAjax} from "../../../api/workspaces.js";
-import {currentWorkspaceId, workspaceSettingsForm} from "../dom.js";
+import {currentWorkspace, workspaceSettingsForm} from "../dom.js";
 
 export function handleUpdateWorkspaceSubmit() {
   workspaceSettingsForm.addEventListener("submit", async (e) => {
@@ -10,7 +10,7 @@ export function handleUpdateWorkspaceSubmit() {
     data.visibility = parseInt(data.visibility, 10);
     console.log(data);
     try {
-      await updateWorkspaceAjax(currentWorkspaceId, data);
+      await updateWorkspaceAjax(currentWorkspace.id, data);
     } catch (err) {
       console.error("Error updating workspace settings:", err);
       alert("Не вдалося оновити налаштування робочого простору.");

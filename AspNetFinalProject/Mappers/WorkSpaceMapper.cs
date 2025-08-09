@@ -15,7 +15,7 @@ public static class WorkSpaceMapper
             Description = entity.Description,
             Visibility = entity.Visibility,
             AuthorName = entity.Author?.Username ?? entity.Author?.IdentityUser.UserName ?? "Unknown",
-            isSubscribed = isSubscribed,
+            IsSubscribed = isSubscribed,
             CreatingTimestamp = entity.CreatingTimestamp,
             BoardsCount = entity.Boards.Count,
             ParticipantIds = entity.Participants.Select(p => p.UserProfileId).ToList()

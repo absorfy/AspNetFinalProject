@@ -12,7 +12,7 @@ public class WorkSpaceDto
     public DateTime CreatingTimestamp { get; set; }
     
     public string AuthorName { get; set; }
-    public bool isSubscribed { get; set; }
+    public bool IsSubscribed { get; set; }
     
     public int BoardsCount { get; set; }
     public List<string> ParticipantIds { get; set; }

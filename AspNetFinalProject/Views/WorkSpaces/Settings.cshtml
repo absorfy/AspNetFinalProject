@@ -23,7 +23,7 @@
         <form id="workspaceSettingsForm">
             <div class="mb-3">
                 <label class="form-label">Назва</label>
-                <input type="text" max="100" min="3" class="form-control" name="title" value="@Model.Title">
+                <input type="text" maxlength="100" minlength="3" class="form-control" name="title" value="@Model.Title">
             </div>
             <div class="mb-3">
                 <label class="form-label">Опис</label>
@@ -31,22 +31,34 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Видимість</label>
-                <select class="form-select" name="visibility">
-                    <option value="0" selected="@(Model.Visibility == WorkSpaceVisibility.Private)">Приватна</option>
-                    <option value="1" selected="@(Model.Visibility == WorkSpaceVisibility.Public)">Публічна</option>
+                <select class="form-select" name="visibility" asp-for="Visibility"
+                        asp-items="Html.GetEnumSelectList<WorkSpaceVisibility>()">
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Зберегти</button>
         </form>
+        
+        <button class="btn btn-sm @(Model.IsSubscribed ? "btn-outline-secondary" : "btn-outline-success")"
+                data-id="@Model.Id"
+                id="subscribe-btn">
+            @(Model.IsSubscribed ? "Відписатися" : "Підписатися")
+        </button>
+        
+        <button class="btn btn-sm btn-danger ms-2"
+                id="delete-btn"
+                data-id="@Model.Id"
+                data-name="@Model.Title">🗑</button>
     </div>
 
     <div id="tab-boards" class="d-none">Завантаження дошок...</div>
     <div id="tab-participants" class="d-none">Завантаження учасників...</div>
 </div>
 
+@await Html.PartialAsync("_ConfirmDeleteModal")
+
 @section Scripts {
     <script>
-        const workspaceId = @Model.Id;
+        const workspace = @Html.Raw(Json.Serialize(Model));
     </script>
     <script type="module" src="~/js/workspace/settings/main.js"></script>
 }

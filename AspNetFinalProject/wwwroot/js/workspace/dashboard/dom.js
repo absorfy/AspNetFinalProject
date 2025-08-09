@@ -10,5 +10,6 @@ export const createBoardModal = bootstrap.Modal.getOrCreateInstance(document.get
 export const deleteModal = document.getElementById("deleteModal");
 export const deleteModalText = document.getElementById("deleteModalText");
 export const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+export const subscribeBtn = document.getElementById("subscribeBtn");
 
 export const workspaceTitle = document.getElementById("workspaceTitle");
