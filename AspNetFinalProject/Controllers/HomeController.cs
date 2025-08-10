@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using AspNetFinalProject.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AspNetFinalProject.Controllers;
 
@@ -23,6 +24,7 @@ public class HomeController : Controller
         return View();
     }
     
+    [Authorize]
     public IActionResult Dashboard()
     {
         return View();

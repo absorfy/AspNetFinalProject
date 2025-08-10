@@ -1,16 +1,21 @@
 ﻿using AspNetFinalProject.Entities;
+using AspNetFinalProject.Hubs;
 using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 
 namespace AspNetFinalProject.Services.Implementations;
 
 public class NotificationService : INotificationService
 {
     private readonly INotificationRepository _notificationRepository;
+    private readonly IHubContext<NotificationsHub> _hub;
 
-    public NotificationService(INotificationRepository notificationRepository)
+    public NotificationService(INotificationRepository notificationRepository,
+                               IHubContext<NotificationsHub> hub)
     {
         _notificationRepository = notificationRepository;
+        _hub = hub;
     }
 
     public Task<IEnumerable<Notification>> GetAllByUserId(string userId, bool onlyUnread, int take)
@@ -29,10 +34,12 @@ public class NotificationService : INotificationService
         return true;
     }
 
-    public async Task CreateForRecipientsAsync(Guid userActionLogId, IEnumerable<string> userProfileIds)
+    public async Task CreateForSubscribersAsync(Guid userActionLogId, IEnumerable<string> subscriberIds)
     {
-        var now = DateTime.UtcNow;
-        var notifications = userProfileIds.Distinct().Select(uid => new Notification
+        var recipients = subscriberIds.Distinct().ToList();
+        if (recipients.Count == 0) return;
+        
+        var notifications = recipients.Select(uid => new Notification
         {
             UserActionLogId = userActionLogId,
             UserProfileId = uid,
@@ -42,5 +49,8 @@ public class NotificationService : INotificationService
 
         await _notificationRepository.AddRangeAsync(notifications);
         await _notificationRepository.SaveChangesAsync();
+
+        var groups = recipients.Select(uid => $"user:{uid}");
+        await _hub.Clients.Groups(groups).SendAsync("notificationCreated");
     }
 }

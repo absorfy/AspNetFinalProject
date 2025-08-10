@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/AspNetFinalProject.styles.css" asp-append-version="true"/>
 </head>
-<body>
+<body data-user-id="@User.FindFirst("sub")?.Value">
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
@@ -49,6 +49,38 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+
+<script>
+    let notifConn;
+
+    async function connectNotificationsHub(currentUserId) {
+        notifConn = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/notifications")
+            .withAutomaticReconnect()
+            .build();
+
+        notifConn.on("notificationCreated", () => {
+            console.log("Нове повідомлення отримано!");
+            loadNotifications();
+        });
+
+        await notifConn.start();
+        await notifConn.invoke("JoinMe", currentUserId);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentUserId = document.body.getAttribute('data-user-id');
+        if (currentUserId) {
+            connectNotificationsHub(currentUserId).catch(console.error);
+        }
+    });
+
+    function loadNotifications() {
+        
+        console.log("Оновлюємо список нотифікацій...");
+    }
+</script>
+
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

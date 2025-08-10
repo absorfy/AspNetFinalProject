@@ -26,6 +26,12 @@ public class SubscriptionRepository : ISubscriptionRepository
             .FirstOrDefaultAsync(s => s.UserProfileId == userId && s.EntityType == entityType && s.EntityId == entityId);
     }
 
+    public async Task<IEnumerable<string>> GetSubscribedIdsAsync(EntityTargetType entityType, string entityId)
+    {
+        return await _context.Subscriptions
+            .Where(s => s.EntityType == entityType && s.EntityId == entityId).Select(s => s.UserProfileId).ToListAsync();
+    }
+
     public async Task AddAsync(Subscription subscription)
     {
         if (subscription == null)

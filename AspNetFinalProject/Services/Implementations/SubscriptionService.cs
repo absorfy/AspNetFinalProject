@@ -14,6 +14,11 @@ public class SubscriptionService : ISubscriptionService
         _repository = repository;
     }
 
+    public async Task<IEnumerable<string>> GetSubscribedAsync(EntityTargetType entityTargetType, string entityId)
+    {
+        return await _repository.GetSubscribedIdsAsync(entityTargetType, entityId);
+    }
+
     public async Task<bool> SubscribeAsync(string userId, EntityTargetType entityType, string entityId)
     {
         var existing = await _repository.GetAsync(userId, entityType, entityId);

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AspNetFinalProject.Data;
+using AspNetFinalProject.Hubs;
 using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Repositories.Implementations;
 using AspNetFinalProject.Repositories.Interfaces;
@@ -51,7 +52,10 @@ builder.Services.AddScoped<IUserActionLogRepository, UserActionLogRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
+app.MapHub<NotificationsHub>("/hubs/notifications");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

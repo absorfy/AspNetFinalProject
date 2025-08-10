@@ -12,14 +12,20 @@ public class BoardService : IBoardService
     private readonly IBoardRepository _boardRepository;
     private readonly IBoardParticipantRepository _participantRepository;
     private readonly IUserActionLogService _userActionLogService;
+    private readonly ISubscriptionService _subscriptionService;
+    private readonly INotificationService _notificationService;
 
     public BoardService(IBoardRepository boardRepository,
                         IBoardParticipantRepository participantRepository,
-                        IUserActionLogService userActionLogService)
+                        IUserActionLogService userActionLogService,
+                        ISubscriptionService subscriptionService,
+                        INotificationService notificationService)
     {
         _boardRepository = boardRepository;
         _participantRepository = participantRepository;
         _userActionLogService = userActionLogService;
+        _subscriptionService = subscriptionService;
+        _notificationService = notificationService;
     }
 
     public async Task<IEnumerable<Board>> GetAllByWorkSpaceAsync(Guid workSpaceId, string userId)
@@ -58,7 +64,12 @@ public class BoardService : IBoardService
         await _participantRepository.AddAsync(admin);
         await _participantRepository.SaveChangesAsync();
 
-        await _userActionLogService.LogCreating(authorId, board);
+        var log = await _userActionLogService.LogCreating(authorId, board);
+        var wsSubs = await _subscriptionService.GetSubscribedAsync(EntityTargetType.Workspace, board.WorkSpaceId.ToString());
+        wsSubs = wsSubs.Where(uid => uid != authorId).Distinct().ToList();
+        if(wsSubs.Any())
+            await _notificationService.CreateForSubscribersAsync(log.Id, wsSubs);
+        
         return await _boardRepository.GetByIdAsync(board.Id) ?? board;
     }
 

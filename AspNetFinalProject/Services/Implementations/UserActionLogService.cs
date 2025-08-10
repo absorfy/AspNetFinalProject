@@ -1,34 +1,34 @@
 ﻿using AspNetFinalProject.Entities;
 using AspNetFinalProject.Enums;
-using AspNetFinalProject.Repositories.Implementations;
+using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Interfaces;
 
 namespace AspNetFinalProject.Services.Implementations;
 
 public class UserActionLogService : IUserActionLogService
 {
-    private readonly UserActionLogRepository _actionLogRepository;
+    private readonly IUserActionLogRepository _actionLogRepository;
 
-    public UserActionLogService(UserActionLogRepository actionLogRepository)
+    public UserActionLogService(IUserActionLogRepository actionLogRepository)
     {
         _actionLogRepository = actionLogRepository;
     }
     
-    public async Task LogDeleting(string userId, ILogEntity logEntity)
+    public async Task<UserActionLog> LogDeleting(string userId, ILogEntity logEntity)
     {
-        await LogAction(userId, logEntity, UserActionType.Delete,
+        return await LogAction(userId, logEntity, UserActionType.Delete,
             $"Видалено дошку «{logEntity.GetName()}» у воркспейсі.");
     }
 
     
 
-    public async Task LogCreating(string userId, ILogEntity logEntity)
+    public async Task<UserActionLog> LogCreating(string userId, ILogEntity logEntity)
     {
-        await LogAction(userId, logEntity, UserActionType.Create,
+        return await LogAction(userId, logEntity, UserActionType.Create,
             $"Створено дошку «{logEntity.GetName()}» у воркспейсі.");
     }
     
-    private async Task LogAction(string userId, ILogEntity logEntity, UserActionType actionType, string message)
+    private async Task<UserActionLog> LogAction(string userId, ILogEntity logEntity, UserActionType actionType, string message)
     {
         var log = new UserActionLog
         {
@@ -42,5 +42,6 @@ public class UserActionLogService : IUserActionLogService
         
         await _actionLogRepository.AddAsync(log);
         await _actionLogRepository.SaveChangesAsync();
+        return log;
     }
 }
