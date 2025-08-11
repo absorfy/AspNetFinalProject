@@ -5,6 +5,19 @@ namespace AspNetFinalProject.Mappers;
 
 public static class PersonalInfoMapper
 {
+    public static PersonalInfoDto CreateDto(PersonalInfo personalInfo)
+    {
+        return new PersonalInfoDto
+        {
+            Name = personalInfo.Name,
+            Surname = personalInfo.Surname,
+            BirthDate = personalInfo.BirthDate,
+            Gender = personalInfo.Gender,
+            PhoneNumber = personalInfo.PhoneNumber,
+            About = personalInfo.About,
+        };
+    }
+    
     public static void UpdateEntity(PersonalInfo personalInfo, UpdatePersonalInfoDto updateDto)
     {
         ArgumentNullException.ThrowIfNull(personalInfo);

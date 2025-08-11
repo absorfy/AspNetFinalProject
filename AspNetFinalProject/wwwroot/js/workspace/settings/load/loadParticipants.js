@@ -1,6 +1,6 @@
 ﻿import {fetchWorkspaceParticipantsAjax} from "../../../api/workspaces.js";
 import {currentWorkspace, participantContainer} from "../dom.js";
-import {showParticipant} from "../ui/showParticipant.js";
+import {showWorkspaceParticipant} from "../ui/showWorkspaceParticipant.js";
 
 export async function loadParticipants() {
   participantContainer.innerHTML = "Завантаження...";
@@ -15,7 +15,7 @@ export async function loadParticipants() {
 
     participantContainer.innerHTML = "";
     participants.forEach(p => {
-      showParticipant(p, participantContainer);
+      showWorkspaceParticipant(p, participantContainer);
     });
   } catch (err) {
     console.error("Error loading participants:", err);

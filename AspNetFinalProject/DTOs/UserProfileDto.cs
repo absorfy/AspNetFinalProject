@@ -7,6 +7,7 @@ public class UserProfileDto
 {
     public string IdentityId { get; set; }
     public string Username { get; set; }
+    public string Email { get; set; }
     //public string? AvatarUrl { get; set; }
     public PersonalInfoDto PersonalInfo { get; set; }
 }

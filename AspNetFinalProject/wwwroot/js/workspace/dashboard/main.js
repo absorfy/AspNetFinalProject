@@ -2,12 +2,12 @@
 import { handleCreateWorkspaceSubmit } from "./form/createWorkspace.js";
 import { handleCreateBoardSubmit } from "./form/createBoard.js";
 import {confirmDeleteBtn, deleteModal, deleteModalText} from "./dom.js";
-import {initDeleteHandlers} from "../shared/events/deleteHandler.js";
+import {initDeleteWorkspaceHandlers} from "../shared/events/deleteWorkspaceHandler.js";
 
 
 document.addEventListener("DOMContentLoaded", () => {
   loadWorkspaces();
-  initDeleteHandlers({confirmDeleteBtn, deleteModal, deleteModalText});
+  initDeleteWorkspaceHandlers({confirmDeleteBtn, deleteModal, deleteModalText});
   handleCreateWorkspaceSubmit();
   handleCreateBoardSubmit();
 });

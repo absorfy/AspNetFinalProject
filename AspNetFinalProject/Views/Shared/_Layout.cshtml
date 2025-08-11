@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using AspNetFinalProject.Services.Interfaces
+@inject ICurrentUserService CurrentUserService
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -9,7 +12,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/AspNetFinalProject.styles.css" asp-append-version="true"/>
 </head>
-<body data-user-id="@User.FindFirst("sub")?.Value">
+<body data-user-id="@CurrentUserService.GetIdentityId()">
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
@@ -30,6 +33,23 @@
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Dashboard">Dashboard</a>
                     </li>
                 </ul>
+                
+                <div class="dropdown">
+                    <button class="btn btn-light position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Повідомлення
+                        <!-- бейдж з кількістю -->
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifications-count">
+                            3
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" id="notifications-dropdown" aria-labelledby="notificationsDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                        
+                        @* <li> *@
+                        @*     <a class="dropdown-item text-center text-primary" href="/notifications">Переглянути всі</a> *@
+                        @* </li> *@
+                    </ul>
+                </div>
+                
                 <partial name="_LoginPartial"/>
             </div>
         </div>
@@ -48,38 +68,68 @@
 </footer>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
 
 <script>
-    let notifConn;
-
-    async function connectNotificationsHub(currentUserId) {
-        notifConn = new signalR.HubConnectionBuilder()
-            .withUrl("/hubs/notifications")
-            .withAutomaticReconnect()
-            .build();
-
-        notifConn.on("notificationCreated", () => {
-            console.log("Нове повідомлення отримано!");
-            loadNotifications();
-        });
-
-        await notifConn.start();
-        await notifConn.invoke("JoinMe", currentUserId);
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const currentUserId = document.body.getAttribute('data-user-id');
-        if (currentUserId) {
-            connectNotificationsHub(currentUserId).catch(console.error);
-        }
-    });
-
-    function loadNotifications() {
-        
-        console.log("Оновлюємо список нотифікацій...");
-    }
+    const userId = document.body.getAttribute("data-user-id");
 </script>
+<script type="module" src="~/js/notifications/main.js"></script>
+
+@* *@
+@* <script type="module"> *@
+@*     import {connectNotificationsHub} from "~/js/notifications/hub.js"; *@
+@* *@
+@*     const userId = document.body.getAttribute("data-user-id"); *@
+@*     if(userId) { *@
+@*         connectNotificationsHub(userId); *@
+@*     } *@
+@* </script>  *@
+
+@* <script> *@
+@*   let notifConn; *@
+@* *@
+@*   async function connectNotificationsHub(currentUserId) { *@
+@*     notifConn = new signalR.HubConnectionBuilder() *@
+@*       .withUrl("/hubs/notifications") *@
+@*       .withAutomaticReconnect() *@
+@*       .build(); *@
+@* *@
+@*     // Подія від сервера *@
+@*     notifConn.on("notificationCreated", () => { *@
+@*       console.log("Нове повідомлення отримано!"); *@
+@*       loadNotifications(); *@
+@*     }); *@
+@* *@
+@*     // Трохи діагностики *@
+@*     notifConn.onreconnecting(err => console.warn("Reconnecting...", err)); *@
+@*     notifConn.onreconnected(() => console.log("Reconnected")); *@
+@*     notifConn.onclose(err => console.warn("Connection closed", err)); *@
+@* *@
+@*     try { *@
+@*       await notifConn.start(); *@
+@*       await notifConn.invoke("JoinMe", currentUserId); *@
+@*       console.log("Connected to notifications hub"); *@
+@*     } catch (e) { *@
+@*       console.error("Failed to connect to notifications hub:", e); *@
+@*       setTimeout(() => connectNotificationsHub(currentUserId), 3000); *@
+@*     } *@
+@*   } *@
+@* *@
+@*   document.addEventListener('DOMContentLoaded', () => { *@
+@*     const currentUserId = document.body.getAttribute('data-user-id'); *@
+@*     if (currentUserId) { *@
+@*       connectNotificationsHub(currentUserId).catch(console.error); *@
+@*     } else { *@
+@*       console.warn("No current user id on the page; hub is not connected."); *@
+@*     } *@
+@*   }); *@
+@* *@
+@*   function loadNotifications() { *@
+@*     console.log("Оновлюємо список нотифікацій..."); *@
+@*   } *@
+@* </script> *@
+
 
 @await RenderSectionAsync("Scripts", required: false)
 </body>

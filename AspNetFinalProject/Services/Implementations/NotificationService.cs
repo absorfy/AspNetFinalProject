@@ -1,5 +1,7 @@
-﻿using AspNetFinalProject.Entities;
+﻿using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Entities;
 using AspNetFinalProject.Hubs;
+using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR;
@@ -45,12 +47,19 @@ public class NotificationService : INotificationService
             UserProfileId = uid,
             IsRead = false,
             ReadAt = null
-        });
+        }).ToList();
 
         await _notificationRepository.AddRangeAsync(notifications);
         await _notificationRepository.SaveChangesAsync();
+        
+        var dtos = notifications
+            .Select(NotificationMapper.CreateDto)
+            .ToList();
 
-        var groups = recipients.Select(uid => $"user:{uid}");
-        await _hub.Clients.Groups(groups).SendAsync("notificationCreated");
+        foreach (var dto in dtos)
+        {
+            var group = $"user:{dto.ReceiverProfileId}";
+            await _hub.Clients.Group(group).SendAsync("notificationCreated", dto);
+        }
     }
 }

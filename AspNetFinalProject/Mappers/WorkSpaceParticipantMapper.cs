@@ -9,6 +9,8 @@ public static class WorkSpaceParticipantMapper
     {
         return new WorkSpaceParticipantDto
         {
+            UserProfileId = workSpaceParticipant.UserProfileId,
+            WorkSpaceId = workSpaceParticipant.WorkSpaceId.ToString(),
             JoiningTimestamp = workSpaceParticipant.JoiningTimestamp,
             Username = workSpaceParticipant.UserProfile?.Username ??
                    workSpaceParticipant.UserProfile?.IdentityUser.UserName ?? "Unknown",

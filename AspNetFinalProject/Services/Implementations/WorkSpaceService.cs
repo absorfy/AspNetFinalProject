@@ -12,14 +12,17 @@ public class WorkSpaceService : IWorkSpaceService
     private readonly IWorkSpaceRepository _workSpaceRepository;
     private readonly IWorkSpaceParticipantRepository _participantRepository;
     private readonly ISubscriptionService _subscriptionService;
+    private readonly IWorkSpaceParticipantRepository _workSpaceParticipantRepository;
 
     public WorkSpaceService(IWorkSpaceRepository workSpaceRepository, 
                             IWorkSpaceParticipantRepository participantRepository, 
-                            ISubscriptionService subscriptionService)
+                            ISubscriptionService subscriptionService,
+                            IWorkSpaceParticipantRepository workSpaceParticipantRepository)
     {
         _workSpaceRepository = workSpaceRepository;
         _participantRepository = participantRepository;
         _subscriptionService = subscriptionService;
+        _workSpaceParticipantRepository = workSpaceParticipantRepository;
     }
 
 

@@ -1,6 +1,6 @@
 ﻿import { selectWorkspace } from "../load/loadBoards.js";
 import {handleSubscribeToggle} from "../../shared/events/subscribeHandler.js";
-import {handleDeleteButton} from "../../shared/events/deleteHandler.js";
+import {handleDeleteWorkspaceButton} from "../../shared/events/deleteWorkspaceHandler.js";
 
 export function showWorkspace(workspace, container) {
   const div = document.createElement("div");
@@ -12,7 +12,7 @@ export function showWorkspace(workspace, container) {
         <strong>${workspace.title}</strong><br/>
         ${workspace.description ?? ""}<br/>
         <small>Author: ${workspace.authorName}</small> | 
-        <small>Participants: ${workspace.participantsCount}</small>
+        <small>Participants: ${workspace.participantIds.length}</small>
       </div>
       <div class="text-end">
         <button class="btn btn-sm btn-outline-primary settings-btn" data-id="${workspace.id}">Налаштувати</button>
@@ -38,7 +38,7 @@ export function showWorkspace(workspace, container) {
   });
   
   const deleteBtn = div.querySelector(".delete-btn");
-  handleDeleteButton(deleteBtn, workspace, () => {
+  handleDeleteWorkspaceButton(deleteBtn, workspace, () => {
     div.remove();
   });
   

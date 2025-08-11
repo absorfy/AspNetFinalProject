@@ -13,6 +13,7 @@ public static class NotificationMapper
             IsRead = notification.IsRead,
             ReadAt = notification.ReadAt,
             UserActionLog = UserActionLogMapper.CreateDto(notification.UserActionLog),
+            ReceiverProfileId = notification.UserProfileId
         };
     }
 }

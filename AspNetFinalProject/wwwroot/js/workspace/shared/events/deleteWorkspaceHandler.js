@@ -4,14 +4,14 @@ let workspaceIdToDelete = null;
 let onDeleteSuccess = null;
 let elements = {};
 
-export function initDeleteHandlers({confirmDeleteBtn, deleteModal, deleteModalText}) {
+export function initDeleteWorkspaceHandlers({confirmDeleteBtn, deleteModal, deleteModalText}) {
   elements.confirmDeleteBtn = confirmDeleteBtn;
   elements.deleteModal = deleteModal;
   elements.deleteModalText = deleteModalText;
-  handleDeleteSubmitButton();
+  handleDeleteWorkspaceSubmitButton();
 }
 
-export function handleDeleteButton(deleteBtn, workspace, successCallback) {
+export function handleDeleteWorkspaceButton(deleteBtn, workspace, successCallback) {
   deleteBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     workspaceIdToDelete = workspace.id;
@@ -21,7 +21,7 @@ export function handleDeleteButton(deleteBtn, workspace, successCallback) {
   });
 }
 
-export function handleDeleteSubmitButton() {
+export function handleDeleteWorkspaceSubmitButton() {
   elements.confirmDeleteBtn.addEventListener("click", async () => {
     if (!workspaceIdToDelete || !onDeleteSuccess) return;
 

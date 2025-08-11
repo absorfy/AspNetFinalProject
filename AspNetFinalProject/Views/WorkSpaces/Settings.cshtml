@@ -51,7 +51,26 @@
     </div>
 
     <div id="tab-boards" class="d-none">Завантаження дошок...</div>
-    <div id="tab-participants" class="d-none">Завантаження учасників...</div>
+    <div id="tab-participants" class="d-none">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <h5 class="mb-2">Учасники</h5>
+                <div id="participants-list" class="vstack gap-2">
+                    <!-- тут з’являться картки учасників -->
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <h5 class="mb-2">Додати учасника</h5>
+                <div class="mb-2">
+                    <input id="participant-search" class="form-control" placeholder="Введи нік або email" autocomplete="off">
+                </div>
+                <div id="participant-search-results" class="vstack gap-2">
+                    <!-- тут з’являться результати пошуку -->
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @await Html.PartialAsync("_ConfirmDeleteModal")
