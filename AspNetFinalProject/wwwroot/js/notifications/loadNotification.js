@@ -1,6 +1,6 @@
 ﻿import {notificationsContainer} from "./dom.js";
 import {fetchNotifications} from "../api/notifications.js";
-import {showNotification} from "./ui.js";
+import {showNotification} from "./showNotification.js";
 
 
 export async function loadNotifications() {

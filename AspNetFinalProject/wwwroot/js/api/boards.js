@@ -16,3 +16,13 @@ export async function createBoardAjax(data) {
   }
   return await response.json();
 }
+
+export async function deleteBoardAjax(boardId) {
+  const response = await fetch(`/api/boards/${boardId}`, {
+    method: "DELETE",
+  });
+  if(!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to delete board. Server response: ${errorText}`);
+  }
+}

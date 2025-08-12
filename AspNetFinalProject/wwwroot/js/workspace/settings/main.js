@@ -5,16 +5,19 @@ import {handleDeleteWorkspaceButton, initDeleteWorkspaceHandlers} from "../share
 import {handleParticipantSearch} from "./events/participantsSearchHandler.js";
 import {initDeleteWorkspaceParticipantHandlers} from "../shared/events/deleteWorkspaceParticipantHandler.js";
 import {handleUpdateWorkspaceSubmit} from "./form/updateWorkspace.js";
+import {initDeleteBoardHandlers} from "../shared/events/deleteBoardHandler.js";
 
 
 document.addEventListener("DOMContentLoaded", () => {
+  initDeleteBoardHandlers({confirmDeleteBtn, deleteModal, deleteModalText});
+  initDeleteWorkspaceHandlers({confirmDeleteBtn, deleteModal, deleteModalText});
+  initDeleteWorkspaceParticipantHandlers({confirmDeleteBtn, deleteModal, deleteModalText});
   handleWorkspaceTabs();
   handleSubscribeToggle(subscribeBtn, currentWorkspace);
-  initDeleteWorkspaceHandlers({confirmDeleteBtn, deleteModal, deleteModalText});
   handleDeleteWorkspaceButton(deleteBtn, currentWorkspace, () => {
     window.location.href = "/Home/Dashboard";
   });
   handleParticipantSearch(currentWorkspace.id);
-  initDeleteWorkspaceParticipantHandlers({confirmDeleteBtn, deleteModal, deleteModalText});
   handleUpdateWorkspaceSubmit();
+  
 });

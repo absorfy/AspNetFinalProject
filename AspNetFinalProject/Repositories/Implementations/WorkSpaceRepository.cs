@@ -1,5 +1,7 @@
-﻿using AspNetFinalProject.Data;
+﻿using AspNetFinalProject.Common;
+using AspNetFinalProject.Data;
 using AspNetFinalProject.Entities;
+using AspNetFinalProject.Enums;
 using AspNetFinalProject.Repositories.Interfaces;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
@@ -17,14 +19,69 @@ public class WorkSpaceRepository : IWorkSpaceRepository
     
     public async Task<IEnumerable<WorkSpace>> GetUserWorkSpacesAsync(string userId)
     {
-        return await _context.WorkSpaces
+        return await BaseQueryForUser(userId).ToListAsync();
+    }
+
+    public async Task<PagedResult<WorkSpace>> GetUserWorkSpacesAsync(
+        string userId, 
+        int page, 
+        int pageSize,
+        WorkSpaceSearchField searchField = WorkSpaceSearchField.None, 
+        string? searchValue = null,
+        WorkSpaceSortField sortField = WorkSpaceSortField.Title, 
+        SortDirection sortDirection = SortDirection.Ascending,
+        CancellationToken ct = default)
+    {
+        var query = BaseQueryForUser(userId, asNoTracking: true);
+
+        // 🔍 Пошук
+        if (!string.IsNullOrWhiteSpace(searchValue) && searchField != WorkSpaceSearchField.None)
+        {
+            var pattern = $"%{searchValue.Trim()}%";
+            query = searchField switch
+            {
+                WorkSpaceSearchField.Title =>
+                    query.Where(w => EF.Functions.Like(w.Title, pattern)),
+
+                WorkSpaceSearchField.Description =>
+                    query.Where(w => w.Description != null && EF.Functions.Like(w.Description, pattern)),
+
+                WorkSpaceSearchField.AuthorName =>
+                    query.Where(w => EF.Functions.Like(w.Author.Username, pattern)),
+
+                _ => query
+            };
+        }
+
+        // ↕ Сортування
+        query = (sortField, sortDirection) switch
+        {
+            (WorkSpaceSortField.Title, SortDirection.Ascending) =>
+                query.OrderBy(w => w.Title),
+            (WorkSpaceSortField.Title, SortDirection.Descending) =>
+                query.OrderByDescending(w => w.Title),
+
+            (WorkSpaceSortField.CreatedAt, SortDirection.Ascending) =>
+                query.OrderBy(w => w.CreatingTimestamp),
+            (WorkSpaceSortField.CreatedAt, SortDirection.Descending) =>
+                query.OrderByDescending(w => w.CreatingTimestamp),
+
+            _ => query
+        };
+
+        return await query.ToPagedResultAsync(page, pageSize, ct);
+    }
+    
+    private IQueryable<WorkSpace> BaseQueryForUser(string userId, bool asNoTracking = false)
+    {
+        var q = _context.WorkSpaces
             .Include(w => w.Author)
-            .Include(w => w.Participants)
-                .ThenInclude(p => p.UserProfile)
+            .Include(w => w.Participants).ThenInclude(p => p.UserProfile)
             .Include(w => w.Boards)
-            .Where(w => w.DeletedAt == null && 
-                        (w.AuthorId == userId || w.Participants.Any(p => p.UserProfileId == userId)))
-            .ToListAsync();
+            .Where(w => w.DeletedAt == null &&
+                        (w.AuthorId == userId || w.Participants.Any(p => p.UserProfileId == userId)));
+
+        return asNoTracking ? q.AsNoTracking() : q;
     }
 
 

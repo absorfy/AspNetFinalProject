@@ -76,61 +76,6 @@
 </script>
 <script type="module" src="~/js/notifications/main.js"></script>
 
-@* *@
-@* <script type="module"> *@
-@*     import {connectNotificationsHub} from "~/js/notifications/hub.js"; *@
-@* *@
-@*     const userId = document.body.getAttribute("data-user-id"); *@
-@*     if(userId) { *@
-@*         connectNotificationsHub(userId); *@
-@*     } *@
-@* </script>  *@
-
-@* <script> *@
-@*   let notifConn; *@
-@* *@
-@*   async function connectNotificationsHub(currentUserId) { *@
-@*     notifConn = new signalR.HubConnectionBuilder() *@
-@*       .withUrl("/hubs/notifications") *@
-@*       .withAutomaticReconnect() *@
-@*       .build(); *@
-@* *@
-@*     // Подія від сервера *@
-@*     notifConn.on("notificationCreated", () => { *@
-@*       console.log("Нове повідомлення отримано!"); *@
-@*       loadNotifications(); *@
-@*     }); *@
-@* *@
-@*     // Трохи діагностики *@
-@*     notifConn.onreconnecting(err => console.warn("Reconnecting...", err)); *@
-@*     notifConn.onreconnected(() => console.log("Reconnected")); *@
-@*     notifConn.onclose(err => console.warn("Connection closed", err)); *@
-@* *@
-@*     try { *@
-@*       await notifConn.start(); *@
-@*       await notifConn.invoke("JoinMe", currentUserId); *@
-@*       console.log("Connected to notifications hub"); *@
-@*     } catch (e) { *@
-@*       console.error("Failed to connect to notifications hub:", e); *@
-@*       setTimeout(() => connectNotificationsHub(currentUserId), 3000); *@
-@*     } *@
-@*   } *@
-@* *@
-@*   document.addEventListener('DOMContentLoaded', () => { *@
-@*     const currentUserId = document.body.getAttribute('data-user-id'); *@
-@*     if (currentUserId) { *@
-@*       connectNotificationsHub(currentUserId).catch(console.error); *@
-@*     } else { *@
-@*       console.warn("No current user id on the page; hub is not connected."); *@
-@*     } *@
-@*   }); *@
-@* *@
-@*   function loadNotifications() { *@
-@*     console.log("Оновлюємо список нотифікацій..."); *@
-@*   } *@
-@* </script> *@
-
-
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
