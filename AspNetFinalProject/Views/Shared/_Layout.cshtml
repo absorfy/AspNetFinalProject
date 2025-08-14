@@ -10,6 +10,7 @@
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/skeleton.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/AspNetFinalProject.styles.css" asp-append-version="true"/>
 </head>
 <body data-user-id="@CurrentUserService.GetIdentityId()">
@@ -74,7 +75,7 @@
 <script>
     const userId = document.body.getAttribute("data-user-id");
 </script>
-<script type="module" src="~/js/notifications/main.js"></script>
+<script type="module" src="~/js/features/notifications/main.js"></script>
 
 @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -1,0 +1,46 @@
+﻿import {initDeleteWorkspaceHandler} from "../../shared/events/deleteWorkspaceHandler.js";
+import {initDeleteWorkspaceParticipantHandler} from "../../shared/events/deleteWorkspaceParticipantHandler.js";
+import {initWorkspaceTabsHandler} from "./workspaceTabsHandler.js";
+import {initParticipantsSearchHandler, triggerParticipantsSearch} from "./participantsSearchHandler.js";
+import {delegate} from "../../../../shared/utils/eventDelegator.js";
+import {updateWorkspaceAjax} from "../../api/workspaceApi.js";
+import {initAddNewParticipantHandler} from "./addNewParicipantHandler.js";
+import {initWorkspaceSubscribeHandler} from "../../shared/events/workspaceSubscribeHandler.js";
+import {navigate} from "../../../../shared/utils/navigation.js";
+import {getWorkspaceParticipantDiv} from "../ui/getWorkspaceParticipantDiv.js";
+import {participantContainer} from "../dom.js";
+
+
+export function initWorkspaceSettingsEvents(workspaceId) {
+  initDeleteWorkspaceHandler(() => {
+    navigate.toDashboard();
+  });
+  initDeleteWorkspaceParticipantHandler(workspaceId, (participantId) => {
+    const div = document.querySelector(`[data-participant-id="${participantId}"]`)
+    if(div) div.remove();
+    triggerParticipantsSearch();
+  });
+  initWorkspaceTabsHandler({workspaceId});
+  initParticipantsSearchHandler(workspaceId);
+  initAddNewParticipantHandler(workspaceId, (newParticipant) => {
+    const div = getWorkspaceParticipantDiv(newParticipant);
+    participantContainer.appendChild(div);
+    triggerParticipantsSearch();
+  });
+  initWorkspaceSubscribeHandler();
+  
+  delegate("submit", {
+    "update-workspace-form": async (form, e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      // за потреби: приведення типів
+      if (data.visibility !== undefined) data.visibility = parseInt(data.visibility, 10);
+      try {
+        await updateWorkspaceAjax(workspaceId, data);
+        alert("Робочий простір оновлено!")
+      } catch (err) {
+        alert(`Не вдалося оновити робочу область: ${err.message}`);
+      }
+    },
+  });
+}

@@ -30,6 +30,16 @@
       <_ContentIncludedByDefault Remove="wwwroot\js\board\load\loadCard.js" />
       <_ContentIncludedByDefault Remove="wwwroot\js\board\ui\showBoardList.js" />
       <_ContentIncludedByDefault Remove="wwwroot\js\board\ui\showCard.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\workspace\settings\dom.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\workspace\settings\events\addNewParicipantHandler.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\workspace\settings\events\participantsSearchHandler.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\workspace\settings\events\workspaceTabsHandler.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\workspace\settings\form\updateWorkspace.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\workspace\settings\load\loadParticipants.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\workspace\settings\main.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\workspace\settings\ui\showWorkspaceParticipant.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\features\workspaces\dashboard\form\createBoard.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\features\workspaces\dashboard\form\createWorkspace.js" />
     </ItemGroup>
 
 </Project>

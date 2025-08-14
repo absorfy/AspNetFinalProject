@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AspNetFinalProject.Controllers.WorkSpace;
 
 [Authorize]
-[Route("workspaces")]
+[Route("Workspaces")]
 public class WorkSpacesController : Controller
 {
     private readonly IWorkSpaceService _workSpaceService;
@@ -20,7 +20,7 @@ public class WorkSpacesController : Controller
         _currentUserService = currentUserService;
     }
     
-    [HttpGet("{id:guid}/settings")]
+    [HttpGet("{id:guid}/Settings")]
     public async Task<IActionResult> Settings(Guid id)
     {
         var userId = _currentUserService.GetIdentityId();
@@ -36,6 +36,8 @@ public class WorkSpacesController : Controller
         if (!isAuthor && !isAdmin)
             return Forbid();
         
-        return View(WorkSpaceMapper.CreateDto(workspace));
+        var isSubscribed = await _workSpaceService.IsSubscribedAsync(id, userId);
+        
+        return View(WorkSpaceMapper.CreateDto(workspace, isSubscribed));
     }
 }

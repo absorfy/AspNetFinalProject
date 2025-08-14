@@ -8,19 +8,19 @@
 
 <ul class="nav nav-tabs mb-3" id="settingsTabs">
     <li class="nav-item">
-        <a class="nav-link active" data-tab="general" href="#">Загальні</a>
+        <a class="nav-link active" data-action="open-tab" data-tab="general" href="#">Загальні</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" data-tab="boards" href="#">Дошки</a>
+        <a class="nav-link" data-action="open-tab" data-tab="boards" href="#">Дошки</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" data-tab="participants" href="#">Учасники</a>
+        <a class="nav-link" data-action="open-tab" data-tab="participants" href="#">Учасники</a>
     </li>
 </ul>
 
 <div id="tabContent">
-    <div id="tab-general">
-        <form id="workspaceSettingsForm">
+    <div data-tab-content="general" id="tab-general">
+        <form data-action="update-workspace-form" id="workspaceSettingsForm">
             <div class="mb-3">
                 <label class="form-label">Назва</label>
                 <input type="text" maxlength="100" minlength="3" class="form-control" name="title" value="@Model.Title">
@@ -38,8 +38,10 @@
             <button type="submit" class="btn btn-primary">Зберегти</button>
         </form>
         
-        <button class="btn btn-sm @(Model.IsSubscribed ? "btn-outline-secondary" : "btn-outline-success")"
+        <button class="btn btn-sm @(Model.IsSubscribed ? "btn-danger" : "btn-success")"
                 data-id="@Model.Id"
+                data-action="subscribe-workspace"
+                data-subscribed="@Model.IsSubscribed"
                 id="subscribe-btn">
             @(Model.IsSubscribed ? "Відписатися" : "Підписатися")
         </button>
@@ -47,11 +49,12 @@
         <button class="btn btn-sm btn-danger ms-2"
                 id="delete-btn"
                 data-id="@Model.Id"
-                data-name="@Model.Title">🗑</button>
+                data-action="delete-workspace"
+                data-title="@Model.Title">🗑</button>
     </div>
 
-    <div id="tab-boards" class="d-none">Завантаження дошок...</div>
-    <div id="tab-participants" class="d-none">
+    <div data-tab-content="boards" id="tab-boards" class="d-none">Завантаження дошок...</div>
+    <div data-tab-content="participants" id="tab-participants" class="d-none">
         <div class="row g-3">
             <div class="col-md-6">
                 <h5 class="mb-2">Учасники</h5>
@@ -63,9 +66,9 @@
             <div class="col-md-6">
                 <h5 class="mb-2">Додати учасника</h5>
                 <div class="mb-2">
-                    <input id="participant-search" class="form-control" placeholder="Введи нік або email" autocomplete="off">
+                    <input data-action="search-participant-input" id="participant-search" class="form-control" placeholder="Введи нік або email" autocomplete="off">
                 </div>
-                <div id="participant-search-results" class="vstack gap-2">
+                <div data-participants-search-results id="participant-search-results" class="vstack gap-2">
                     <!-- тут з’являться результати пошуку -->
                 </div>
             </div>
@@ -79,5 +82,5 @@
     <script>
         const workspace = @Html.Raw(Json.Serialize(Model));
     </script>
-    <script type="module" src="~/js/workspace/settings/main.js"></script>
+    <script type="module" src="~/js/features/workspaces/settings/main.js"></script>
 }

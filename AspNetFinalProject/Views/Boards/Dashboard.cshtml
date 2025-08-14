@@ -1,4 +1,5 @@
-﻿@model AspNetFinalProject.DTOs.BoardDto
+﻿@using System.Text.Json
+@model AspNetFinalProject.DTOs.BoardDto
 @{
     ViewData["Title"] = Model.Title;
 }
@@ -19,8 +20,8 @@
 @await Html.PartialAsync("_CreateCardModal")
 
 <script>
-    const boardId = @Model.Id;
+    window.boardId = @Html.Raw(JsonSerializer.Serialize(Model.Id));
 </script>
 @section Scripts {
-    <script type="module" src="~/js/board/dashboard/main.js"></script>
+    <script type="module" src="~/js/features/boards/dashboard/main.js"></script>
 }
