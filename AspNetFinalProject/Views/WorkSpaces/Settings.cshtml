@@ -53,7 +53,17 @@
                 data-title="@Model.Title">🗑</button>
     </div>
 
-    <div data-tab-content="boards" id="tab-boards" class="d-none">Завантаження дошок...</div>
+    <div data-tab-content="boards" id="tab-boards" class="d-none">
+        <button class="btn btn-primary mt-3 w-100" data-bs-toggle="modal" data-bs-target="#createBoardModal">
+            Create Board
+        </button>
+        <div class="col-md-6">
+            <h5 class="mb-2">Дошки</h5>
+            <div id="boards-list" class="vstack gap-2">
+                <!-- тут з’являться картки дошок -->
+            </div>
+        </div>
+    </div>
     <div data-tab-content="participants" id="tab-participants" class="d-none">
         <div class="row g-3">
             <div class="col-md-6">
@@ -77,10 +87,14 @@
 </div>
 
 @await Html.PartialAsync("_ConfirmDeleteModal")
+@await Html.PartialAsync("_CreateBoardModal")
+
+
+
 
 @section Scripts {
     <script>
-        const workspace = @Html.Raw(Json.Serialize(Model));
+        window.workspace = @Html.Raw(Json.Serialize(Model));
     </script>
     <script type="module" src="~/js/features/workspaces/settings/main.js"></script>
 }

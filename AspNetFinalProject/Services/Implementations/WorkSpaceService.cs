@@ -12,17 +12,14 @@ public class WorkSpaceService : IWorkSpaceService
     private readonly IWorkSpaceRepository _workSpaceRepository;
     private readonly IWorkSpaceParticipantRepository _participantRepository;
     private readonly ISubscriptionService _subscriptionService;
-    private readonly IWorkSpaceParticipantRepository _workSpaceParticipantRepository;
 
     public WorkSpaceService(IWorkSpaceRepository workSpaceRepository, 
                             IWorkSpaceParticipantRepository participantRepository, 
-                            ISubscriptionService subscriptionService,
-                            IWorkSpaceParticipantRepository workSpaceParticipantRepository)
+                            ISubscriptionService subscriptionService)
     {
         _workSpaceRepository = workSpaceRepository;
         _participantRepository = participantRepository;
         _subscriptionService = subscriptionService;
-        _workSpaceParticipantRepository = workSpaceParticipantRepository;
     }
 
 
@@ -51,15 +48,15 @@ public class WorkSpaceService : IWorkSpaceService
         await _workSpaceRepository.AddAsync(workspace);
         await _workSpaceRepository.SaveChangesAsync();
 
-        var admin = new WorkSpaceParticipant
+        var owner = new WorkSpaceParticipant
         {
             UserProfileId = authorId,
             WorkSpaceId = workspace.Id,
-            Role = WorkSpaceRole.Admin,
+            Role = WorkSpaceRole.Owner,
             JoiningTimestamp = DateTime.UtcNow
         };
         
-        await _participantRepository.AddAsync(admin);
+        await _participantRepository.AddAsync(owner);
         await _participantRepository.SaveChangesAsync();
         
         return workspace;

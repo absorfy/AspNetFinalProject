@@ -129,6 +129,14 @@ public class WorkSpaceApiController : ControllerBase
         
         return Ok(workspace.Participants.Select(WorkSpaceParticipantMapper.CreateDto));
     }
+
+    [HttpGet("roles")]
+    public ActionResult<WorkSpaceRoleDto> GetWorkSpaceRoles()
+    {
+        var roles = Enum.GetValues<WorkSpaceRole>()
+            .Select(WorkSpaceRoleMapper.CreateDto);
+        return Ok(roles);
+    }
     
     [HttpDelete("{id:guid}/participants")]
     public async Task<ActionResult> RemoveParticipant(Guid id, [FromBody] ParticipantActionRequest req)
@@ -197,4 +205,5 @@ public class WorkSpaceApiController : ControllerBase
 
         return Ok(WorkSpaceParticipantMapper.CreateDto(createdFull));
     }
+    
 }

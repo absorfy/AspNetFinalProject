@@ -20,6 +20,9 @@ export function getBoardDiv(board) {
     onCardClick: () => {
       window.location.href = `/Boards/Dashboard/${board.id}`;
     },
+    attrs: {
+      "data-board-id": board.id,
+    }
   });
   return card;
 }

@@ -15,9 +15,9 @@ export function initDeleteWorkspaceParticipantHandler(workspaceId, onConfirm) {
       confirmDelete({
         title: btn.dataset.name || "цього учасника",
         onConfirm: async () => {
-          await removeWorkspaceParticipantAjax(workspaceId, btn.dataset.userid);
+          await removeWorkspaceParticipantAjax(workspaceId, btn.dataset.id);
           if(typeof onConfirm === "function") {
-            onConfirm(btn.dataset.userid);
+            onConfirm(btn.dataset.id);
           }
         }
       });

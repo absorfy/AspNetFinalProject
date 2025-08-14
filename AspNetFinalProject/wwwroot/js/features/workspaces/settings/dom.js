@@ -1,7 +1,8 @@
 ﻿export const workspaceSettingsForm = document.getElementById("workspaceSettingsForm");
-export const currentWorkspace = workspace;
-export const boardListContainer = document.getElementById("tab-boards");
+export const currentWorkspace = window.workspace;
+export const boardContainer = document.getElementById("boards-list");
 export const participantContainer = document.getElementById("participants-list");
+export const createBoardForm = document.getElementById("createBoardForm");
 
 export const subscribeBtn = document.getElementById("subscribe-btn");
 export const deleteBtn = document.getElementById("delete-btn");

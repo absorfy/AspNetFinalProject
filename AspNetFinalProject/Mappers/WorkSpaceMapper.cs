@@ -18,6 +18,7 @@ public static class WorkSpaceMapper
             IsSubscribed = isSubscribed,
             CreatingTimestamp = entity.CreatingTimestamp,
             BoardsCount = entity.Boards.Count,
+            ParticipantsCount = entity.Participants.Count,
             ParticipantIds = entity.Participants.Select(p => p.UserProfileId).ToList()
         };
     }

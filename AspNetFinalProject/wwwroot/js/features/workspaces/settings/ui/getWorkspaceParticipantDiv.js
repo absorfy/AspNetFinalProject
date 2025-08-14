@@ -1,5 +1,10 @@
 ﻿import {renderCardDiv} from "../../../../shared/ui/cardDivRenderer.js";
 import {formatDateTime} from "../../../../shared/utils/formatDateTime.js";
+import {getDeleteButtonConfig} from "../../../../shared/actions/buttonsConfigs.js";
+import {getRoleSelectConfig} from "../../../../shared/actions/selectsConfigs.js";
+import {fetchWorkspaceParticipantRoles} from "../../api/workspaceApi.js";
+
+const roles = await fetchWorkspaceParticipantRoles();
 
 export function getWorkspaceParticipantDiv(participant) {
   return renderCardDiv({
@@ -9,14 +14,17 @@ export function getWorkspaceParticipantDiv(participant) {
       `Став учасником: ${formatDateTime(participant.joiningTimestamp)}`,
     ],
     actions: [
-      {
-        text: "Видалити",
-        className: "btn btn-sm btn-outline-danger",
-        attrs: {
-          "data-action": "delete-participant",
-          "data-userid": participant.userProfileId,
-        },
-      },
+      getDeleteButtonConfig({
+        targetAction: "delete-participant",
+        targetId: participant.userProfileId,
+        targetTitle: participant.username
+      }),
+      getRoleSelectConfig({
+        targetAction: "select-participant-role",
+        targetId: participant.userProfileId,
+        currentRole: participant.role,
+        roles
+      })
     ],
     onCardClick: null,
     attrs: {

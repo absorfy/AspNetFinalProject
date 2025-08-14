@@ -40,6 +40,7 @@
       <_ContentIncludedByDefault Remove="wwwroot\js\workspace\settings\ui\showWorkspaceParticipant.js" />
       <_ContentIncludedByDefault Remove="wwwroot\js\features\workspaces\dashboard\form\createBoard.js" />
       <_ContentIncludedByDefault Remove="wwwroot\js\features\workspaces\dashboard\form\createWorkspace.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\features\workspaces\settings\form\updateWorkspace.js" />
     </ItemGroup>
 
 </Project>

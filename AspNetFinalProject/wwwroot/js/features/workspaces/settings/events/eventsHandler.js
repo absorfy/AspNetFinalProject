@@ -8,7 +8,9 @@ import {initAddNewParticipantHandler} from "./addNewParicipantHandler.js";
 import {initWorkspaceSubscribeHandler} from "../../shared/events/workspaceSubscribeHandler.js";
 import {navigate} from "../../../../shared/utils/navigation.js";
 import {getWorkspaceParticipantDiv} from "../ui/getWorkspaceParticipantDiv.js";
-import {participantContainer} from "../dom.js";
+import {boardContainer, participantContainer} from "../dom.js";
+import {initDeleteBoardHandler} from "../../shared/events/deleteBoardHandler.js";
+import {initCreateBoardSubmitHandler} from "../../shared/events/createBoardHandler.js";
 
 
 export function initWorkspaceSettingsEvents(workspaceId) {
@@ -28,6 +30,11 @@ export function initWorkspaceSettingsEvents(workspaceId) {
     triggerParticipantsSearch();
   });
   initWorkspaceSubscribeHandler();
+  initCreateBoardSubmitHandler(boardContainer);
+  initDeleteBoardHandler((boardId) => {
+    const card = document.querySelector(`[data-board-id="${boardId}"]`);
+    if(card) card.remove();
+  });
   
   delegate("submit", {
     "update-workspace-form": async (form, e) => {

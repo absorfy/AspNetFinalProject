@@ -51,3 +51,8 @@ export async function searchWorkspaceParticipantsAjax(id, q, signal) {
 export async function updateWorkspaceAjax(id, payload, signal) {
   return await apiClient.put(`/workspaces/${id}`, payload, { signal });
 }
+
+// GET /workspaces/roles
+export async function fetchWorkspaceParticipantRoles() {
+  return await apiClient.get("/workspaces/roles");
+}
