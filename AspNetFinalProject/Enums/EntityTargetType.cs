@@ -2,8 +2,8 @@
 
 public enum EntityTargetType
 {
-    Workspace = 1,
-    Board = 2,
-    BoardList = 3,
-    Card = 4
+    Workspace,
+    Board,
+    BoardList,
+    Card,
 }

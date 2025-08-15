@@ -1,6 +1,7 @@
 ﻿using AspNetFinalProject.Data;
 using AspNetFinalProject.Entities;
 using AspNetFinalProject.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace AspNetFinalProject.Repositories.Implementations;
 
@@ -21,5 +22,10 @@ public class UserActionLogRepository : IUserActionLogRepository
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<UserActionLog>> GetByUserIdAsync(string userId)
+    {
+        return await _context.UserActionLogs.Where(l => l.UserProfileId == userId).ToListAsync();
     }
 }

@@ -41,7 +41,7 @@ public class Board : ILogEntity
     public ICollection<BoardList> Lists { get; set; } = new List<BoardList>();
     public EntityTargetType GetEntityType()
     {
-        return EntityTargetType.BoardList;
+        return EntityTargetType.Board;
     }
 
     public string GetName()

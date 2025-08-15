@@ -1,0 +1,44 @@
+﻿@page
+@using AspNetFinalProject.Enums
+@using AspNetFinalProject.Mappers
+@model Logs
+@{
+    ViewData["Title"] = "Logs";
+    ViewData["ActivePage"] = ManageNavPages.Logs;
+    Layout = "_Layout.cshtml";
+}
+
+<h3 class="mb-4">@ViewData["Title"]</h3>
+
+@if (!Model.UserLogs.Any())
+{
+    <div class="alert alert-info">Жодних дій не зафіксовано.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-light">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Час</th>
+            <th scope="col">Дія</th>
+            <th scope="col">Сутність</th>
+            <th scope="col">ID сутності</th>
+            <th scope="col">Опис</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var (log, index) in Model.UserLogs.Select((value, i) => (value, i + 1)))
+        {
+            <tr>
+                <th scope="row">@index</th>
+                <td>@log.Timestamp.ToLocalTime().ToString("g")</td>
+                <td>@(log.ActionType)</td>
+                <td>@(EntityTargetTypeMapper.CreateDto((EntityTargetType)log.EntityType).Text)</td>
+                <td>@log.EntityId</td>
+                <td>@log.Description</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

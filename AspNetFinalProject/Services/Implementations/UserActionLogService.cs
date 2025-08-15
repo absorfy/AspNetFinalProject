@@ -17,7 +17,7 @@ public class UserActionLogService : IUserActionLogService
     public async Task<UserActionLog> LogDeleting(string userId, ILogEntity logEntity)
     {
         return await LogAction(userId, logEntity, UserActionType.Delete,
-            $"Видалено дошку «{logEntity.GetName()}» у воркспейсі.");
+            $"Видалено дошку «{logEntity.GetName()}».");
     }
 
     
@@ -25,9 +25,14 @@ public class UserActionLogService : IUserActionLogService
     public async Task<UserActionLog> LogCreating(string userId, ILogEntity logEntity)
     {
         return await LogAction(userId, logEntity, UserActionType.Create,
-            $"Створено дошку «{logEntity.GetName()}» у воркспейсі.");
+            $"Створено дошку «{logEntity.GetName()}».");
     }
-    
+
+    public Task<IEnumerable<UserActionLog>> GetByUserIdAsync(string userId)
+    {
+        return _actionLogRepository.GetByUserIdAsync(userId);
+    }
+
     private async Task<UserActionLog> LogAction(string userId, ILogEntity logEntity, UserActionType actionType, string message)
     {
         var log = new UserActionLog
