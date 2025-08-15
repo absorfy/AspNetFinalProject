@@ -8,7 +8,6 @@ export function initCreateCardHandler() {
     "create-card-form": async (form, e) => {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
-      data.boardListId = parseInt(data.boardListId, 10);
       try {
         const newCard = await createCardAjax(data);
         form.reset();

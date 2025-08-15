@@ -7,6 +7,8 @@ using AspNetFinalProject.Repositories.Implementations;
 using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Implementations;
 using AspNetFinalProject.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,25 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+        options.SaveTokens = true;
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
+    });
+
+builder.Services.ConfigureApplicationCookie(options =>
+    {
+        options.LoginPath = "/Identity/Account/Login";
+        options.LogoutPath = "/Identity/Account/Logout";
+        options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+        options.SlidingExpiration = true;
+    });
 
 builder.Services.AddScoped<IWorkSpaceRepository, WorkSpaceRepository>();
 builder.Services.AddScoped<IWorkSpaceService, WorkSpaceService>();
@@ -74,6 +95,7 @@ else
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

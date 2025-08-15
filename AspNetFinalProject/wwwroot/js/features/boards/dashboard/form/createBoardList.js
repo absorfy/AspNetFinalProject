@@ -10,7 +10,7 @@ export function initCreateBoardListHandler(currentBoardId) {
       e.preventDefault();
       const data = { title: form.title.value, boardId: currentBoardId };
       try {
-        const newList = await createBoardListAjax(data);
+        const newList = await createBoardListAjax({ ...data, boardId: currentBoardId });
         form.reset();
         bootstrap.Modal.getInstance(form.closest(".modal")).hide();
         showBoardList(newList, boardListsContainer)

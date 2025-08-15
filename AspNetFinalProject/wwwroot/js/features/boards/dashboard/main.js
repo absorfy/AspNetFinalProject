@@ -3,6 +3,6 @@ import {boardListsContainer, currentBoardId} from "./dom.js";
 import {initBoardDashboardEvents} from "./events/eventsHandler.js";
 
 document.addEventListener("DOMContentLoaded", async() => {
-  initBoardDashboardEvents();
+  initBoardDashboardEvents(currentBoardId);
   await loadBoardLists(currentBoardId, boardListsContainer);
 });

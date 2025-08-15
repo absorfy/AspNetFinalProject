@@ -7,6 +7,5 @@ export async function fetchListsByBoard(boardId, signal) {
 
 // POST /api/lists
 export async function createBoardListAjax(payload, signal) {
-  // payload: { boardId, title, ... }
   return await apiClient.post("/lists", payload, { signal });
 }

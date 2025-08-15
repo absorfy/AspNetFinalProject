@@ -71,11 +71,13 @@
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
-
-<script>
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <script>
     const userId = document.body.getAttribute("data-user-id");
 </script>
-<script type="module" src="~/js/features/notifications/main.js"></script>
+    <script type="module" src="~/js/features/notifications/main.js"></script>
+}
 
 @await RenderSectionAsync("Scripts", required: false)
 </body>
