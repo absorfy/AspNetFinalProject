@@ -10,9 +10,9 @@ public static class UserActionLogMapper
         return new UserActionLogDto
         {
             Id = userActionLog.Id.ToString(),
-            EntityType = userActionLog.EntityType,
+            EntityType = (int)userActionLog.EntityType,
             EntityId = userActionLog.EntityId,
-            ActionType = userActionLog.ActionType,
+            ActionType = (int)userActionLog.ActionType,
             Description = userActionLog.Description,
             Timestamp = userActionLog.Timestamp,
         };

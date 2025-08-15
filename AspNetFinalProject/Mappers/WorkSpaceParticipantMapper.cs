@@ -5,7 +5,7 @@ namespace AspNetFinalProject.Mappers;
 
 public static class WorkSpaceParticipantMapper
 {
-    public static WorkSpaceParticipantDto CreateDto(WorkSpaceParticipant workSpaceParticipant)
+    public static WorkSpaceParticipantDto CreateDto(WorkSpaceParticipant workSpaceParticipant, bool isChanging)
     {
         return new WorkSpaceParticipantDto
         {
@@ -14,7 +14,8 @@ public static class WorkSpaceParticipantMapper
             JoiningTimestamp = workSpaceParticipant.JoiningTimestamp,
             Username = workSpaceParticipant.UserProfile?.Username ??
                    workSpaceParticipant.UserProfile?.IdentityUser.UserName ?? "Unknown",
-            Role = workSpaceParticipant.Role.ToString()
+            Role = (int)workSpaceParticipant.Role,
+            IsChanging = isChanging,
         };
     }
 }

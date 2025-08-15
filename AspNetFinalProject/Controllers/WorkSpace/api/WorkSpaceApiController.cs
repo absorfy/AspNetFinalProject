@@ -16,34 +16,14 @@ public class WorkSpaceApiController : ControllerBase
 {
     private readonly IWorkSpaceService _workSpaceService;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IWorkSpaceParticipantRepository _participantRepository;
 
     public WorkSpaceApiController(IWorkSpaceService workSpaceService,
-                                  ICurrentUserService currentUserService,
-                                  IWorkSpaceParticipantRepository participantRepository)
+                                  ICurrentUserService currentUserService)
     {
         _workSpaceService = workSpaceService;
         _currentUserService = currentUserService;
-        _participantRepository = participantRepository;
     }
-
-    [HttpGet("{workspaceId:guid}/participants/search")]
-    public async Task<ActionResult<IEnumerable<UserProfileDto>>> GetNewParticipants(Guid workspaceId, [FromQuery] string q, [FromQuery] int take = 20)
-    {
-        q = (q ?? "").Trim();
-        if (q.Length < 3) return Ok(Array.Empty<UserProfileDto>());
-
-        var byName = await _participantRepository.GetNonParticipantsByUserNameAsync(workspaceId, q);
-        var byEmail = await _participantRepository.GetNonParticipantsByEmailAsync(workspaceId, q);
-        
-        var result = byName.Concat(byEmail)
-            .DistinctBy(u => u.IdentityId)
-            .Take(Math.Clamp(take, 1, 50))
-            .Select(UserProfileMapper.CreateDto)
-            .ToList();
-            
-        return result;
-    }
+    
     
     [HttpGet]
     public async Task<ActionResult<IEnumerable<WorkSpaceDto>>> GetMyWorkspaces()
@@ -117,93 +97,4 @@ public class WorkSpaceApiController : ControllerBase
 
         return NoContent();
     }
-
-    [HttpGet("{id}/participants")]
-    public async Task<ActionResult<IEnumerable<WorkSpaceParticipantDto>>> GetWorkspacesParticipants(string id)
-    {
-        var user = await _currentUserService.GetUserProfileAsync();
-        if (user == null) return Unauthorized();
-        
-        var workspace = await _workSpaceService.GetByIdAsync(Guid.Parse(id));
-        if (workspace == null) return NotFound();
-        
-        return Ok(workspace.Participants.Select(WorkSpaceParticipantMapper.CreateDto));
-    }
-
-    [HttpGet("roles")]
-    public ActionResult<WorkSpaceRoleDto> GetWorkSpaceRoles()
-    {
-        var roles = Enum.GetValues<WorkSpaceRole>()
-            .Select(WorkSpaceRoleMapper.CreateDto);
-        return Ok(roles);
-    }
-    
-    [HttpDelete("{id:guid}/participants")]
-    public async Task<ActionResult> RemoveParticipant(Guid id, [FromBody] ParticipantActionRequest req)
-    {
-        if (string.IsNullOrWhiteSpace(req.UserProfileId))
-            return BadRequest("userProfileId is required.");
-        
-        var me = await _currentUserService.GetUserProfileAsync();
-        if (me is null) return Unauthorized();
-        
-        var ws = await _workSpaceService.GetByIdAsync(id);
-        if (ws is null) return NotFound();
-        
-        var myMembership = ws.Participants.FirstOrDefault(p => p.UserProfileId == me.IdentityId);
-        var amAllowed = myMembership?.Role is WorkSpaceRole.Owner or WorkSpaceRole.Admin;
-        if (!amAllowed) return Forbid();
-
-        if (!await _participantRepository.IsAlreadyParticipant(id, req.UserProfileId))
-            return Conflict("User is not a participant of this workspace.");
-
-        await _participantRepository.RemoveAsync(id, req.UserProfileId);
-        await _participantRepository.SaveChangesAsync();
-        
-        return NoContent();
-    }
-    
-    public record ParticipantActionRequest(string UserProfileId);
-
-    [HttpPost("{id:guid}/participants")]
-    public async Task<ActionResult<WorkSpaceParticipantDto>> AddNewParticipant(Guid id, [FromBody] ParticipantActionRequest req)
-    {
-        if (string.IsNullOrWhiteSpace(req.UserProfileId))
-            return BadRequest("userProfileId is required.");
-
-        // 1) Поточний користувач
-        var me = await _currentUserService.GetUserProfileAsync();
-        if (me is null) return Unauthorized();
-
-        // 2) Перевірка, що workspace існує + перевірка прав (Owner/Admin)
-        var ws = await _workSpaceService.GetByIdAsync(id);
-        if (ws is null) return NotFound();
-
-        var myMembership = ws.Participants.FirstOrDefault(p => p.UserProfileId == me.IdentityId);
-        var amAllowed = myMembership?.Role is WorkSpaceRole.Owner or WorkSpaceRole.Admin;
-        if (!amAllowed) return Forbid();
-
-        // 3) Не додавати двічі
-        if (await _participantRepository.IsAlreadyParticipant(id, req.UserProfileId))
-            return Conflict("User is already a participant of this workspace.");
-
-        // 4) Створення і збереження
-        var newParticipant = new WorkSpaceParticipant
-        {
-            WorkSpaceId = id,
-            UserProfileId = req.UserProfileId,
-            Role = WorkSpaceRole.Viewer,         // дефолт
-            JoiningTimestamp = DateTime.UtcNow
-        };
-
-        await _participantRepository.AddAsync(newParticipant);
-        await _participantRepository.SaveChangesAsync();
-
-        // 5) Повторно завантажити з навігаціями для мапера (щоб не отримати NRE)
-        var createdFull = (await _participantRepository.GetByWorkSpaceIdAsync(id))
-            .First(p => p.UserProfileId == req.UserProfileId);
-
-        return Ok(WorkSpaceParticipantMapper.CreateDto(createdFull));
-    }
-    
 }

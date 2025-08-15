@@ -89,17 +89,20 @@ async function request(path, { method = "GET", query, body, headers, signal, tim
   }
   cleanup();
 
+  if (response.redirected) {
+    window.location.href = response.url;
+    return;
+  }
+  
   const data = await parseBody(response);
-
   if (!response.ok) {
     const msg =
       (data && typeof data === "object" && (data.message || data.error)) ||
       (typeof data === "string" && data) ||
       `HTTP ${response.status}`;
     const apiErr = new ApiError(msg, { status: response.status, url, details: data });
-
-    // централізована реакція (за потреби)
-    if (response.status === 401) {
+    
+    if (response.status === 403) {
       // window.dispatchEvent(new CustomEvent("auth:required"));
     }
     throw apiErr;

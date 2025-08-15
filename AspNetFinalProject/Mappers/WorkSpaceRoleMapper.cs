@@ -9,7 +9,7 @@ public static class WorkSpaceRoleMapper
     {
         return new WorkSpaceRoleDto
         {
-            Value = role.ToString(),
+            Value = (int)role,
             Text = role switch
             {
                 WorkSpaceRole.Admin => "Адмін",
@@ -17,6 +17,11 @@ public static class WorkSpaceRoleMapper
                 WorkSpaceRole.Owner => "Власник",
                 WorkSpaceRole.Viewer => "Спостерігач",
                 _ => throw new ArgumentOutOfRangeException(nameof(role), role, null)
+            },
+            Hidden = role switch
+            {
+                WorkSpaceRole.Owner => true,
+                _ => false
             }
         };
     }

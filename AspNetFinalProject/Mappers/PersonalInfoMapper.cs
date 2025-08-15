@@ -1,5 +1,6 @@
 ﻿using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Entities;
+using AspNetFinalProject.Enums;
 
 namespace AspNetFinalProject.Mappers;
 
@@ -12,7 +13,7 @@ public static class PersonalInfoMapper
             Name = personalInfo.Name,
             Surname = personalInfo.Surname,
             BirthDate = personalInfo.BirthDate,
-            Gender = personalInfo.Gender,
+            Gender = (int)personalInfo.Gender,
             PhoneNumber = personalInfo.PhoneNumber,
             About = personalInfo.About,
         };
@@ -26,7 +27,11 @@ public static class PersonalInfoMapper
         personalInfo.Name = updateDto.Name;
         personalInfo.Surname = updateDto.Surname;
         personalInfo.BirthDate = updateDto.BirthDate;
-        personalInfo.Gender = updateDto.Gender;
+        if (Enum.TryParse(updateDto.Gender.ToString(), out GenderType gender))
+        {
+            personalInfo.Gender = gender;
+        }
+        else throw new Exception("Invalid gender");
         personalInfo.PhoneNumber = updateDto.PhoneNumber;
         personalInfo.About = updateDto.About;
     }

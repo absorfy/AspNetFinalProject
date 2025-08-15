@@ -13,7 +13,7 @@ public static class WorkSpaceMapper
             Id = entity.Id.ToString(),
             Title = entity.Title,
             Description = entity.Description,
-            Visibility = entity.Visibility,
+            Visibility = (int)entity.Visibility,
             AuthorName = entity.Author?.Username ?? entity.Author?.IdentityUser.UserName ?? "Unknown",
             IsSubscribed = isSubscribed,
             CreatingTimestamp = entity.CreatingTimestamp,

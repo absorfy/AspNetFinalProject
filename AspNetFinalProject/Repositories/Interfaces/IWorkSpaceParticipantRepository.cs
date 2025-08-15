@@ -9,6 +9,7 @@ public interface IWorkSpaceParticipantRepository
     Task<IEnumerable<UserProfile>> GetNonParticipantsByEmailAsync(Guid workSpaceId,
         string email);
     Task<IEnumerable<WorkSpaceParticipant>> GetByWorkSpaceIdAsync(Guid workSpaceId);
+    Task<WorkSpaceParticipant?> GetAsync(Guid workSpaceId, string userProfileId);
     Task AddAsync(WorkSpaceParticipant participant);
     Task RemoveAsync(Guid workspaceId, string participantId);
     Task SaveChangesAsync();

@@ -8,7 +8,7 @@ public class WorkSpaceDto
     public string Id { get; set; }
     public string Title { get; set; }
     public string? Description { get; set; }
-    public WorkSpaceVisibility Visibility { get; set; }
+    public int Visibility { get; set; }
     public DateTime CreatingTimestamp { get; set; }
     
     public string AuthorName { get; set; }

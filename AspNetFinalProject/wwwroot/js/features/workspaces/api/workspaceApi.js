@@ -56,3 +56,7 @@ export async function updateWorkspaceAjax(id, payload, signal) {
 export async function fetchWorkspaceParticipantRoles() {
   return await apiClient.get("/workspaces/roles");
 }
+
+export async function changeWorkspaceParticipantRole(id, userId, newRole, signal) {
+  return await apiClient.post(`/workspaces/${id}/participants/${userId}/role`, { role: newRole }, signal);
+}

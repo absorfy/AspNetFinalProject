@@ -48,6 +48,11 @@ public class WorkSpaceParticipantRepository : IWorkSpaceParticipantRepository
             .ToListAsync();
     }
 
+    public async Task<WorkSpaceParticipant?> GetAsync(Guid workSpaceId, string userProfileId)
+    {
+        return await _context.WorkSpaceParticipants.FirstOrDefaultAsync(p => p.WorkSpaceId == workSpaceId && p.UserProfileId == userProfileId);
+    }
+
     public async Task AddAsync(WorkSpaceParticipant participant)
     {
         await _context.WorkSpaceParticipants.AddAsync(participant);

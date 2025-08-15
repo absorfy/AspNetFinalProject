@@ -2,28 +2,44 @@
 import {formatDateTime} from "../../../../shared/utils/formatDateTime.js";
 import {getDeleteButtonConfig} from "../../../../shared/actions/buttonsConfigs.js";
 import {getRoleSelectConfig} from "../../../../shared/actions/selectsConfigs.js";
-import {fetchWorkspaceParticipantRoles} from "../../api/workspaceApi.js";
+import {getWorkspaceRoles} from "../main.js";
+import {changeWorkspaceParticipantRole} from "../../api/workspaceApi.js";
 
-const roles = await fetchWorkspaceParticipantRoles();
 
 export function getWorkspaceParticipantDiv(participant) {
+  let oldValue = participant.role;
+  const ctrl = new AbortController();
+  
   return renderCardDiv({
     title: `${participant.username}`,
     meta: [
-      `Роль: ${participant.role}`,
       `Став учасником: ${formatDateTime(participant.joiningTimestamp)}`,
     ],
     actions: [
       getDeleteButtonConfig({
         targetAction: "delete-participant",
         targetId: participant.userProfileId,
-        targetTitle: participant.username
+        targetTitle: participant.username,
+        disabled: !participant.isChanging,
       }),
       getRoleSelectConfig({
         targetAction: "select-participant-role",
         targetId: participant.userProfileId,
         currentRole: participant.role,
-        roles
+        roles: getWorkspaceRoles(),
+        onChange: async (e) => {
+          try {
+            await changeWorkspaceParticipantRole(participant.workSpaceId, participant.userProfileId, e.target.value, ctrl.signal);
+          }
+          catch (error) {
+            e.target.value = oldValue;
+            console.log("Не вдалося змінити роль:", error.message);
+          }
+          finally {
+            oldValue = e.target.value;
+          }
+        },
+        disabled: !participant.isChanging,
       })
     ],
     onCardClick: null,

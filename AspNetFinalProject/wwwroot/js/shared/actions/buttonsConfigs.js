@@ -25,14 +25,15 @@ export function getSubscribeButtonConfig({targetAction, targetId, isSubscribed})
   }
 }
 
-export function getDeleteButtonConfig({targetAction, targetId, targetTitle}) {
+export function getDeleteButtonConfig({targetAction, targetId, targetTitle, disabled = false}) {
   return {
     text: "Видалити",
     className: "btn btn-sm btn-outline-danger",
     attrs: {
       "data-action": targetAction,
       "data-id": targetId,
-      "data-title": targetTitle
+      "data-title": targetTitle,
+      ...(disabled ? { disabled: "disabled" } : {}),
     }
   }
 }

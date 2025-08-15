@@ -9,7 +9,7 @@ public class BoardDto
     public string WorkSpaceId { get; set; }
     public string Title { get; set; }
     public string? Description { get; set; }
-    public BoardVisibility Visibility { get; set; }
+    public int Visibility { get; set; }
     
     public string AuthorName { get; set; }
     public int ParticipantsCount { get; set; }
@@ -28,7 +28,7 @@ public class CreateBoardDto
     [MaxLength(1000)]
     public string? Description { get; set; }
 
-    public BoardVisibility Visibility { get; set; } = BoardVisibility.Private;
+    public int Visibility { get; set; } = (int)BoardVisibility.Private;
 }
 
 public class UpdateBoardDto
@@ -41,5 +41,5 @@ public class UpdateBoardDto
     public string? Description { get; set; }
 
     [Required]
-    public BoardVisibility Visibility { get; set; }
+    public int Visibility { get; set; }
 }

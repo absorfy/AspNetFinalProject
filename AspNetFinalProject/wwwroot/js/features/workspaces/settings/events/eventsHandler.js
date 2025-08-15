@@ -24,8 +24,8 @@ export function initWorkspaceSettingsEvents(workspaceId) {
   });
   initWorkspaceTabsHandler({workspaceId});
   initParticipantsSearchHandler(workspaceId);
-  initAddNewParticipantHandler(workspaceId, (newParticipant) => {
-    const div = getWorkspaceParticipantDiv(newParticipant);
+  initAddNewParticipantHandler(workspaceId, async (newParticipant) => {
+    const div = await getWorkspaceParticipantDiv(newParticipant);
     participantContainer.appendChild(div);
     triggerParticipantsSearch();
   });

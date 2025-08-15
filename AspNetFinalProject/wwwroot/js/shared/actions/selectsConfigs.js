@@ -1,6 +1,6 @@
 ﻿
 
-export function getRoleSelectConfig({targetAction, targetId, currentRole, roles}) {
+export function getRoleSelectConfig({targetAction, targetId, currentRole, roles, onChange, disabled = false}) {
   return {
     type: "select",
     label: "Роль:",
@@ -8,11 +8,14 @@ export function getRoleSelectConfig({targetAction, targetId, currentRole, roles}
     attrs: {
       "data-action": targetAction,
       "data-id": targetId,
+      ...(disabled ? { disabled: "disabled" } : {}),
     },
     options: roles.map(r => ({
       value: r.value,
       text: r.text,
       selected: r.value === currentRole,
+      ...(r.hidden ? { hidden: "hidden" } : {}),
     })),
+    onChange,
   }
 }

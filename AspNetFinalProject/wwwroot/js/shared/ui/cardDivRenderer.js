@@ -91,6 +91,7 @@ export function renderCardDiv({
           o.value = String(opt.value);
           o.textContent = opt.text ?? String(opt.value);
           if (opt.selected) o.selected = true;
+          if (opt.hidden) o.hidden = true;
           if (opt.attrs) Object.entries(opt.attrs).forEach(([k, v]) => o.setAttribute(k, v));
           select.appendChild(o);
         });
