@@ -13,10 +13,13 @@ namespace AspNetFinalProject.Controllers.BoardList.api;
 public class BoardListApiController : ControllerBase
 {
     private readonly IBoardListService _service;
+    private readonly ICurrentUserService _currentUserService;
 
-    public BoardListApiController(IBoardListService service)
+    public BoardListApiController(IBoardListService service,
+                                  ICurrentUserService currentUserService)
     {
         _service = service;
+        _currentUserService = currentUserService;
     }
     
     [HttpGet("board/{boardId:guid}")]
@@ -50,7 +53,10 @@ public class BoardListApiController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var updated = await _service.UpdateAsync(id, dto);
+        var userId = _currentUserService.GetIdentityId();
+        if(userId == null) return Unauthorized();
+        
+        var updated = await _service.UpdateAsync(id, dto, userId);
         if (!updated) return NotFound();
 
         return NoContent();

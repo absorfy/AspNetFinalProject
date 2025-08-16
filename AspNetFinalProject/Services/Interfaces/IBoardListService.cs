@@ -7,7 +7,7 @@ public interface IBoardListService
 {
     Task<IEnumerable<BoardList>> GetListsByBoardAsync(Guid boardId, string userId);
     Task<BoardList?> GetByIdAsync(Guid id);
-    Task<bool> UpdateAsync(Guid id, UpdateBoardListDto dto);
+    Task<bool> UpdateAsync(Guid id, UpdateBoardListDto dto, string updatedByUserId);
     Task<BoardList> CreateAsync(string authorId, CreateBoardListDto dto);
     Task<bool> DeleteAsync(Guid id, string deletedByUserId);
 }

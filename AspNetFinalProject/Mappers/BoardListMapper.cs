@@ -18,6 +18,14 @@ public static class BoardListMapper
         };
     }
 
+    public static UpdateBoardListDto CreateUpdateDto(BoardList entity)
+    {
+        return new UpdateBoardListDto
+        {
+            Title = entity.Title,
+        };
+    }
+
     public static void UpdateEntity(BoardList entity, UpdateBoardListDto updateDto)
     {
         entity.Title = updateDto.Title;

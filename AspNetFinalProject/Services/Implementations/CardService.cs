@@ -1,5 +1,7 @@
-﻿using AspNetFinalProject.DTOs;
+﻿using AspNetFinalProject.Common;
+using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Entities;
+using AspNetFinalProject.Enums;
 using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Interfaces;
@@ -9,10 +11,13 @@ namespace AspNetFinalProject.Services.Implementations;
 public class CardService : ICardService
 {
     private readonly ICardRepository _repository;
+    private readonly ActionLogger _actionLogger;
 
-    public CardService(ICardRepository repository)
+    public CardService(ICardRepository repository,
+                       ActionLogger actionLogger)
     {
         _repository = repository;
+        _actionLogger = actionLogger;
     }
 
     public async Task<IEnumerable<Card>> GetCardsByListAsync(Guid boardListId, string userId)
@@ -25,12 +30,17 @@ public class CardService : ICardService
         return await _repository.GetByIdAsync(id);
     }
     
-    public async Task<bool> UpdateAsync(Guid id, UpdateCardDto dto)
+    public async Task<bool> UpdateAsync(Guid id, UpdateCardDto dto, string updateByUserId)
     {
         var card = await _repository.GetByIdAsync(id);
         if (card == null) return false;
+
+        var updateLogs = _actionLogger.CompareUpdateDtos(CardMapper.CreateUpdateDto(card), dto).ToArray();
+        if (updateLogs.Length == 0) return false;
         CardMapper.UpdateEntity(card, dto);
         await _repository.SaveChangesAsync();
+
+        await _actionLogger.LogAndNotifyAsync(updateByUserId, card, UserActionType.Update, updateLogs);
         return true;
     }
 
@@ -40,6 +50,7 @@ public class CardService : ICardService
         await _repository.AddAsync(card);
         await _repository.SaveChangesAsync();
 
+        await _actionLogger.LogAndNotifyAsync(authorId, card, UserActionType.Create);
         return card;
     }
 
@@ -52,6 +63,7 @@ public class CardService : ICardService
         await _repository.DeleteAsync(card);
         await _repository.SaveChangesAsync();
 
+        await _actionLogger.LogAndNotifyAsync(deletedByUserId, card, UserActionType.Delete);
         return true;
     }
 }

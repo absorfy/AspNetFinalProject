@@ -22,6 +22,17 @@ public static class CardMapper
         };
     }
 
+    public static UpdateCardDto CreateUpdateDto(Card entity)
+    {
+        return new UpdateCardDto
+        {
+            Color = entity.Color,
+            Description = entity.Description,
+            Deadline = entity.Deadline,
+            Title = entity.Title,
+        };
+    }
+
     public static void UpdateEntity(Card entity, UpdateCardDto updateDto)
     {
         entity.Title = updateDto.Title;

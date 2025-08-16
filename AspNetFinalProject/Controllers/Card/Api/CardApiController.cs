@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using AspNetFinalProject.Common;
 using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Services.Interfaces;
@@ -13,10 +14,13 @@ namespace AspNetFinalProject.Controllers.Card.Api;
 public class CardApiController : ControllerBase
 {
     private readonly ICardService _cardService;
-
-    public CardApiController(ICardService cardService)
+    private readonly ICurrentUserService _currentUserService;
+    
+    public CardApiController(ICardService cardService,
+                             ICurrentUserService currentUserService)
     {
         _cardService = cardService;
+        _currentUserService = currentUserService;
     }
     
     [HttpGet("list/{boardListId:guid}")]
@@ -47,7 +51,10 @@ public class CardApiController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var updated = await _cardService.UpdateAsync(id, dto);
+        var userId = _currentUserService.GetIdentityId();
+        if(userId == null) return Unauthorized();
+        
+        var updated = await _cardService.UpdateAsync(id, dto, userId);
         if (!updated) return NotFound();
 
         return NoContent();

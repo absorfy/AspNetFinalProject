@@ -7,7 +7,7 @@ public interface ICardService
 {
     Task<IEnumerable<Card>> GetCardsByListAsync(Guid boardListId, string userId);
     Task<Card?> GetByIdAsync(Guid id);
-    Task<bool> UpdateAsync(Guid id, UpdateCardDto dto);
+    Task<bool> UpdateAsync(Guid id, UpdateCardDto dto, string updateByUserId);
     Task<Card> CreateAsync(string authorId, CreateCardDto dto);
     Task<bool> DeleteAsync(Guid id, string deletedByUserId);
 }
