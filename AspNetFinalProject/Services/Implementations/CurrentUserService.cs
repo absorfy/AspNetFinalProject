@@ -2,6 +2,7 @@
 using AspNetFinalProject.Data;
 using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Entities;
+using AspNetFinalProject.Enums;
 using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Interfaces;
@@ -39,5 +40,12 @@ public class CurrentUserService : ICurrentUserService
         UserProfileMapper.UpdateEntity(userProfile, updateDto);
         await _repository.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<bool> HasRoleAsync(Guid workspaceId, params WorkSpaceRole[] roles)
+    {
+        var user = await GetUserProfileAsync();
+        var count = user?.WorkspacesParticipating.Count(p => p.WorkSpaceId == workspaceId && roles.Contains(p.Role));
+        return count == 1;
     }
 }

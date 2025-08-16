@@ -1,4 +1,5 @@
-﻿using AspNetFinalProject.Enums;
+﻿using AspNetFinalProject.Common;
+using AspNetFinalProject.Enums;
 using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +13,7 @@ public class WorkSpacesController : Controller
 {
     private readonly IWorkSpaceService _workSpaceService;
     private readonly ICurrentUserService _currentUserService;
+    
     
     public WorkSpacesController(IWorkSpaceService workSpaceService, 
                                 ICurrentUserService currentUserService)
@@ -31,10 +33,8 @@ public class WorkSpacesController : Controller
         if (workspace == null)
             return NotFound();
         
-        var isAuthor = workspace.AuthorId == userId;
-        var isAdmin = workspace.Participants.Any(p => p.UserProfileId == userId && p.Role == WorkSpaceRole.Admin);
-        if (!isAuthor && !isAdmin)
-            return Forbid();
+        var isParticipant = workspace.Participants.Any(p => p.UserProfileId == userId);
+        if(!isParticipant) return Forbid();
         
         var isSubscribed = await _workSpaceService.IsSubscribedAsync(id, userId);
         

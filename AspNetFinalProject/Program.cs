@@ -1,3 +1,4 @@
+using AspNetFinalProject.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AspNetFinalProject.Data;

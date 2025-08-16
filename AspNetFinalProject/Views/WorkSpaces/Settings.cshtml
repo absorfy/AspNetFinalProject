@@ -1,7 +1,12 @@
-﻿@using AspNetFinalProject.Enums
+﻿@inject ICurrentUserService CurrentUserService
+@using AspNetFinalProject.Enums
+@using AspNetFinalProject.Services.Interfaces
 @model AspNetFinalProject.DTOs.WorkSpaceDto
 @{
     ViewData["Title"] = Model.Title;
+    // ViewData["AdminRights"] = await CurrentUserService.HasRoleAsync(
+    //     Guid.Parse(Model.Id), 
+    //     [WorkSpaceRole.Admin, WorkSpaceRole.Owner]);
 }
 
 <h2>Налаштування: @Model.Title</h2>
@@ -35,7 +40,14 @@
                         asp-items="Html.GetEnumSelectList<WorkSpaceVisibility>()">
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Зберегти</button>
+            @* @{ *@
+            @*      if ((bool?)ViewData["AdminRights"] == true) *@
+            @*      { *@
+                    <button type="submit" class="btn btn-primary">
+                        Зберегти
+                    </button>
+            @*     } *@
+            @* } *@
         </form>
         
         <button class="btn btn-sm @(Model.IsSubscribed ? "btn-danger" : "btn-success")"
@@ -46,11 +58,16 @@
             @(Model.IsSubscribed ? "Відписатися" : "Підписатися")
         </button>
         
-        <button class="btn btn-sm btn-danger ms-2"
-                id="delete-btn"
-                data-id="@Model.Id"
-                data-action="delete-workspace"
-                data-title="@Model.Title">🗑</button>
+        @* @{ *@
+        @*     if ((bool?)ViewData["AdminRights"] == true) *@
+        @*     { *@
+                <button class="btn btn-sm btn-danger ms-2"
+                        id="delete-btn"
+                        data-id="@Model.Id"
+                        data-action="delete-workspace"
+                        data-title="@Model.Title">🗑</button>
+        @*     } *@
+        @* } *@
     </div>
 
     <div data-tab-content="boards" id="tab-boards" class="d-none">
