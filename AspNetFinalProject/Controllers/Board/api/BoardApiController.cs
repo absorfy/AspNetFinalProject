@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using AspNetFinalProject.Common;
 using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Services.Interfaces;
@@ -24,13 +25,18 @@ public class BoardApiController : ControllerBase
     }
     
     [HttpGet("workspace/{workspaceId:guid}")]
-    public async Task<ActionResult<IEnumerable<BoardDto>>> GetBoardsByWorkspace(Guid workspaceId)
+    public async Task<ActionResult<PagedResult<BoardDto>>> GetBoardsByWorkspace(Guid workspaceId, [FromQuery] PagedRequest request)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
-        var boards = await _boardService.GetAllByWorkSpaceAsync(workspaceId, userId);
-        var result = boards.Select(BoardMapper.CreateDto);
-        return Ok(result);
+        var pagedBoards = await (await _boardService.GetAllByWorkSpaceAsync(workspaceId, userId, request))
+            .MapAsync<BoardDto>(async b =>
+            {
+                var isSubscribed = await _boardService.IsSubscribedAsync(b.Id, userId);
+                return BoardMapper.CreateDto(b, isSubscribed);
+            });
+
+        return Ok(pagedBoards);
     }
     
     [HttpPost]

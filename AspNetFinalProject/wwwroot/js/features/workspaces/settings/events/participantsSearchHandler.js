@@ -4,19 +4,12 @@ import {delegate} from "../../../../shared/utils/eventDelegator.js";
 import {listSkeleton} from "../../../../shared/ui/skeletons.js";
 import {getNewWorkspaceParticipantDiv} from "../ui/getWorkspaceParticipantDiv.js";
 import {searchParticipantsInput} from "../dom.js";
+import {debounceInput} from "../../../../shared/utils/debounceInputs.js";
 
 
 let _inited = false;
 let _searchCtrl = null;
 let _triggerSearch = null;
-
-function debounce(fn, ms) {
-  let t = null;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), ms);
-  };
-}
 
 export function initParticipantsSearchHandler(workspaceId) {
   if (_inited) return;
@@ -62,7 +55,7 @@ export function initParticipantsSearchHandler(workspaceId) {
     }
   };
 
-  const debounced = debounce(runSearch, 300);
+  const debounced = debounceInput(runSearch, 300);
 
   delegate("input", {
     "search-participant-input": (inputEl) => {

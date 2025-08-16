@@ -63,12 +63,12 @@ async function loadTab(tab, { workspaceId }) {
       case "participants":
         view = createContainerState(participantContainer, {skeleton: listSkeleton});
         view.setState(ContainerState.LOADING);
-        await loadParticipants(workspaceId, container, ctrl.signal, view);
+        await loadParticipants(workspaceId, participantContainer, ctrl.signal, view);
         break;
       case "boards":
         view = createContainerState(boardContainer, {skeleton: listSkeleton});
         view.setState(ContainerState.LOADING);
-        await loadBoardsWithWorkspaceId(workspaceId, container, ctrl.signal, view);
+        await loadBoardsWithWorkspaceId(workspaceId, boardContainer, ctrl.signal, view);
         break;
       case "general":
       default:

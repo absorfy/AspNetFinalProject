@@ -1,4 +1,5 @@
-﻿using AspNetFinalProject.Data;
+﻿using AspNetFinalProject.Common;
+using AspNetFinalProject.Data;
 using AspNetFinalProject.Entities;
 using AspNetFinalProject.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -16,15 +17,59 @@ public class BoardRepository : IBoardRepository
 
     public async Task<IEnumerable<Board>> GetBoardsByWorkSpaceAsync(Guid workSpaceId, string userId)
     {
-        return await _context.Boards
+        return await BaseQueryForWorkSpace(workSpaceId, userId).ToListAsync();
+    }
+
+    public async Task<PagedResult<Board>> GetBoardsByWorkSpaceAsync(
+        Guid workSpaceId, 
+        string userId, 
+        PagedRequest request)
+    {
+        var query = BaseQueryForWorkSpace(workSpaceId, userId, asNoTracking: true);
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var pattern = $"%{request.Search.Trim()}%";
+            query = query.Where(b => EF.Functions.Like(b.Title, pattern) ||
+                                     b.Description != null && EF.Functions.Like(b.Description, pattern) ||
+                                     EF.Functions.Like(b.Author.Username, pattern));
+        }
+        
+        query = (request.SortBy, request.Descending) switch
+        {
+            ("title", false) =>
+                query.OrderBy(b => b.Title),
+            ("title", true) =>
+                query.OrderByDescending(b => b.Title),
+
+            ("date", false) =>
+                query.OrderBy(b => b.CreatingTimestamp),
+            ("date", true) =>
+                query.OrderByDescending(b => b.CreatingTimestamp),
+            
+            ("author", false) =>
+                query.OrderBy(b => b.CreatingTimestamp),
+            ("author", true) =>
+                query.OrderByDescending(b => b.CreatingTimestamp),
+
+            _ => query
+        };
+        
+        return await query.ToPagedResultAsync(request.Page, request.PageSize);
+    }
+
+    private IQueryable<Board> BaseQueryForWorkSpace(Guid workSpaceId, string userId, bool asNoTracking = false)
+    {
+        var q = _context.Boards
             .Include(b => b.Author)
             .Include(b => b.Participants)
             .ThenInclude(p => p.UserProfile)
             .Include(b => b.Lists)
-            .Where(b => b.WorkSpaceId == workSpaceId 
+            .Where(b => b.WorkSpaceId == workSpaceId
                         && b.DeletedAt == null
-                        && (b.AuthorId == userId || b.Participants.Any(p => p.UserProfileId == userId)))
-            .ToListAsync();
+                        && (b.AuthorId == userId || b.Participants.Any(p => p.UserProfileId == userId)));
+
+        return asNoTracking ? q.AsNoTracking() : q;
     }
 
     public async Task<Board?> GetByIdAsync(Guid id, bool withDeleted = false)

@@ -11,6 +11,7 @@ public class BoardDto
     public string Title { get; set; }
     public string? Description { get; set; }
     public BoardVisibility Visibility { get; set; }
+    public bool IsSubscribed { get; set; }
     
     public string AuthorName { get; set; }
     public int ParticipantsCount { get; set; }

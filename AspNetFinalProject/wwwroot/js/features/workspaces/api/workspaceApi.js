@@ -1,8 +1,9 @@
 ﻿
 import {apiClient} from "../../../shared/api/apiClient.js";
 
-export async function fetchWorkspacesAjax({ page = 1, pageSize = 20 } = {}, signal) {
-  return await apiClient.get("/workspaces", null, { query: { page, pageSize }, signal });
+// GET /api/workspaces
+export async function fetchWorkspacesAjax(query, signal) {
+  return await apiClient.get("/workspaces", null, { query, signal });
 }
 
 // POST /api/workspaces

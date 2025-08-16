@@ -24,52 +24,41 @@ public class WorkSpaceRepository : IWorkSpaceRepository
 
     public async Task<PagedResult<WorkSpace>> GetUserWorkSpacesAsync(
         string userId, 
-        int page, 
-        int pageSize,
-        WorkSpaceSearchField searchField = WorkSpaceSearchField.None, 
-        string? searchValue = null,
-        WorkSpaceSortField sortField = WorkSpaceSortField.Title, 
-        SortDirection sortDirection = SortDirection.Ascending,
-        CancellationToken ct = default)
+        PagedRequest request)
     {
         var query = BaseQueryForUser(userId, asNoTracking: true);
 
         // 🔍 Пошук
-        if (!string.IsNullOrWhiteSpace(searchValue) && searchField != WorkSpaceSearchField.None)
+        if (!string.IsNullOrWhiteSpace(request.Search))
         {
-            var pattern = $"%{searchValue.Trim()}%";
-            query = searchField switch
-            {
-                WorkSpaceSearchField.Title =>
-                    query.Where(w => EF.Functions.Like(w.Title, pattern)),
+            var pattern = $"%{request.Search.Trim()}%";
 
-                WorkSpaceSearchField.Description =>
-                    query.Where(w => w.Description != null && EF.Functions.Like(w.Description, pattern)),
-
-                WorkSpaceSearchField.AuthorName =>
-                    query.Where(w => EF.Functions.Like(w.Author.Username, pattern)),
-
-                _ => query
-            };
+            query = query.Where(w => EF.Functions.Like(w.Title, pattern) ||
+                                     w.Description != null && EF.Functions.Like(w.Description, pattern) ||
+                                     EF.Functions.Like(w.Author.Username, pattern));
         }
-
-        // ↕ Сортування
-        query = (sortField, sortDirection) switch
+        
+        query = (request.SortBy, request.Descending) switch
         {
-            (WorkSpaceSortField.Title, SortDirection.Ascending) =>
+            ("title", false) =>
                 query.OrderBy(w => w.Title),
-            (WorkSpaceSortField.Title, SortDirection.Descending) =>
+            ("title", true) =>
                 query.OrderByDescending(w => w.Title),
 
-            (WorkSpaceSortField.CreatedAt, SortDirection.Ascending) =>
+            ("date", false) =>
                 query.OrderBy(w => w.CreatingTimestamp),
-            (WorkSpaceSortField.CreatedAt, SortDirection.Descending) =>
+            ("date", true) =>
+                query.OrderByDescending(w => w.CreatingTimestamp),
+            
+            ("author", false) =>
+                query.OrderBy(w => w.CreatingTimestamp),
+            ("author", true) =>
                 query.OrderByDescending(w => w.CreatingTimestamp),
 
             _ => query
         };
 
-        return await query.ToPagedResultAsync(page, pageSize, ct);
+        return await query.ToPagedResultAsync(request.Page, request.PageSize);
     }
     
     private IQueryable<WorkSpace> BaseQueryForUser(string userId, bool asNoTracking = false)

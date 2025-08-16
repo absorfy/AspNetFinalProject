@@ -12,23 +12,28 @@ public class BoardService : IBoardService
 {
     private readonly IBoardRepository _boardRepository;
     private readonly IBoardParticipantRepository _participantRepository;
-    private readonly IUserActionLogService _userActionLogService;
     private readonly ActionLogger _actionLogger;
+    private readonly ISubscriptionService _subscriptionService;
 
     public BoardService(IBoardRepository boardRepository,
                         IBoardParticipantRepository participantRepository,
-                        IUserActionLogService userActionLogService,
-                        ActionLogger actionLogger)
+                        ActionLogger actionLogger,
+                        ISubscriptionService subscriptionService)
     {
         _boardRepository = boardRepository;
         _participantRepository = participantRepository;
-        _userActionLogService = userActionLogService;
         _actionLogger = actionLogger;
+        _subscriptionService = subscriptionService;
     }
 
     public async Task<IEnumerable<Board>> GetAllByWorkSpaceAsync(Guid workSpaceId, string userId)
     {
         return await _boardRepository.GetBoardsByWorkSpaceAsync(workSpaceId, userId);
+    }
+
+    public async Task<PagedResult<Board>> GetAllByWorkSpaceAsync(Guid workSpaceId, string userId, PagedRequest request)
+    {
+        return await _boardRepository.GetBoardsByWorkSpaceAsync(workSpaceId, userId, request);
     }
 
     public async Task<Board?> GetByIdAsync(Guid id)
@@ -83,5 +88,25 @@ public class BoardService : IBoardService
 
         await _actionLogger.LogAndNotifyAsync(deletedByUserId, board, UserActionType.Delete);
         return true;
+    }
+
+    public async Task<bool> SubscribeAsync(Guid id, string userId)
+    {
+        var board = await _boardRepository.GetByIdAsync(id);
+        if (board == null) return false;
+        
+        return await _subscriptionService.SubscribeAsync(userId, EntityTargetType.Board, id.ToString());
+    }
+
+    public async Task<bool> UnsubscribeAsync(Guid id, string userId)
+    {
+        var board = await _boardRepository.GetByIdAsync(id);
+        if (board == null) return false;
+        return await _subscriptionService.UnsubscribeAsync(userId, EntityTargetType.Board, id.ToString());
+    }
+
+    public Task<bool> IsSubscribedAsync(Guid id, string userId)
+    {
+        return _subscriptionService.IsSubscribedAsync(userId, EntityTargetType.Board, id.ToString());
     }
 }

@@ -1,4 +1,5 @@
-﻿using AspNetFinalProject.DTOs;
+﻿using AspNetFinalProject.Common;
+using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Entities;
 using AspNetFinalProject.Enums;
 using AspNetFinalProject.Mappers;
@@ -26,21 +27,19 @@ public class WorkSpaceApiController : ControllerBase
     
     
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<WorkSpaceDto>>> GetMyWorkspaces()
+    public async Task<ActionResult<PagedResult<WorkSpaceDto>>> GetMyWorkspaces([FromQuery] PagedRequest request)
     {
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
 
-        var workspaces = await _workSpaceService.GetUserWorkSpacesAsync(user.IdentityId);
-
-        var resultTasks = workspaces.Select(async ws =>
-        {
-            var isSubscribed = await _workSpaceService.IsSubscribedAsync(ws.Id, user.IdentityId);
-            return WorkSpaceMapper.CreateDto(ws, isSubscribed);
-        });
-
-        var result = await Task.WhenAll(resultTasks);
-        return Ok(result);
+        var pagedWorkspaces = await (await _workSpaceService.GetUserWorkSpacesAsync(user.IdentityId, request))
+            .MapAsync<WorkSpaceDto>(async ws => 
+            {
+                var isSubscribed = await _workSpaceService.IsSubscribedAsync(ws.Id, user.IdentityId);
+                return WorkSpaceMapper.CreateDto(ws, isSubscribed);
+            });
+        
+        return Ok(pagedWorkspaces);
     }
     
     [HttpPost]

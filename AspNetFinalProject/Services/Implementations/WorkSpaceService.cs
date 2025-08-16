@@ -26,10 +26,16 @@ public class WorkSpaceService : IWorkSpaceService
         _actionLogger = actionLogger;
     }
 
-
+    
+    
     public async Task<IEnumerable<WorkSpace>> GetUserWorkSpacesAsync(string userId)
     {
         return await _workSpaceRepository.GetUserWorkSpacesAsync(userId);
+    }
+    
+    public async Task<PagedResult<WorkSpace>> GetUserWorkSpacesAsync(string userId, PagedRequest request)
+    {
+        return await _workSpaceRepository.GetUserWorkSpacesAsync(userId, request);
     }
 
     public async Task<WorkSpace?> GetByIdAsync(Guid id)

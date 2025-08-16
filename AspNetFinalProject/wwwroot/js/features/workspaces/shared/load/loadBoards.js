@@ -1,28 +1,48 @@
-﻿import {ContainerState, createContainerState} from "../../../../shared/ui/containerState.js";
-import {fetchBoardsAjax} from "../../../boards/api/boardApi.js";
+﻿import {fetchBoardsAjax} from "../../../boards/api/boardApi.js";
 import {getBoardDiv} from "../ui/getBoardDiv.js";
+import {createPaginationController} from "../../../../shared/ui/paginationController.js";
+import {listSkeleton} from "../../../../shared/ui/skeletons.js";
+import {bindDebouncedInput} from "../../../../shared/utils/debounceInputs.js";
 
-export async function loadBoardsWithWorkspaceId(workspaceId, container, signal, view) {
-  try {
-    view.setState(ContainerState.LOADING);
+export function loadBoardsWithWorkspaceId(workspaceId, container) {
+  if(!container || !workspaceId) return;
 
-    const boards = await fetchBoardsAjax(workspaceId, signal);
+  const ctrl = createPaginationController({
+    root: container,
+    controlsPosition: "top",
+    async fetchPage(state, signal) {
+      // state: { page, pageSize, search, sortBy, descending }
+      return await fetchBoardsAjax(workspaceId, {
+        page: state.page,
+        pageSize: state.pageSize,
+        search: state.search,
+        sortBy: state.sortBy,
+        descending: state.descending
+      }, signal);
+    },
+    renderItem: getBoardDiv,
+    renderSkeleton: () => listSkeleton,
+    inputId: "boardsSearchInput",
+    controllerId: "boardPaginationController",
+    emptyMessage: "Ще немає дошок",
+    errorMessage: "Не вдалося завантажити дошки",
+    initialState: { page: 1, pageSize: 10, sortBy: "", descending: true },
+    pageSizeOptions: [5, 10, 20, 50],
+    sortOptions: [
+      { value: "", text: "Без сортування" },
+      { value: "title", text: "За назвою" },
+      { value: "date", text: "За датою" },
+      { value: "author", text: "За автором" },
+    ],
+    searchPlaceholder: "Пошук дошок..."
+  });
 
-    if (!boards || boards.length === 0) {
-      view.setState(ContainerState.EMPTY, { message: "Жодної дошки" });
-      return;
-    }
-
-    view.setState(ContainerState.CONTENT, {
-      builder: (root) => {
-        boards.forEach(board => {
-          const div = getBoardDiv(board);
-          root.appendChild(div);
-        });
-      }
-    });
-  } catch (e) {
-    view.setState(ContainerState.ERROR, { message: "Не вдалося завантажити дошки" });
-    console.error(e);
-  }
+  bindDebouncedInput({
+    element: "#boardsSearchInput", 
+    delay: 300,
+    minLength: 3,
+    onChange: (q) => ctrl.setState({ search: q, page: 1 })
+  });
+  
+  return ctrl;
 }
