@@ -14,10 +14,20 @@ public static class BoardMapper
             WorkSpaceId = entity.WorkSpaceId.ToString(),
             Title = entity.Title,
             Description = entity.Description,
-            Visibility = (int)entity.Visibility,
+            Visibility = entity.Visibility,
             AuthorName = entity.Author?.Username ?? entity.Author?.IdentityUser.UserName ?? "Unknown",
             ParticipantsCount = entity.Participants.Count,
             ListsIds = entity.Lists.Select(l => l.Id.ToString()).ToList(),
+        };
+    }
+
+    public static UpdateBoardDto CreateUpdateDto(Board entity)
+    {
+        return new UpdateBoardDto
+        {
+            Description = entity.Description,
+            Title = entity.Title,
+            Visibility = entity.Visibility,
         };
     }
 
@@ -34,18 +44,14 @@ public static class BoardMapper
 
     public static Board CreateEntity(string authorId, CreateBoardDto createDto)
     {
-        if (Enum.TryParse(createDto.Visibility.ToString(), out BoardVisibility visibility))
+        return new Board
         {
-            return new Board
-            {
-                WorkSpaceId = Guid.Parse(createDto.WorkSpaceId),
-                Title = createDto.Title,
-                AuthorId = authorId,
-                Description = createDto.Description,
-                Visibility = visibility,
-                CreatingTimestamp = DateTime.UtcNow
-            };
-        }
-        throw new Exception("Invalid visibility value");
+            WorkSpaceId = Guid.Parse(createDto.WorkSpaceId),
+            Title = createDto.Title,
+            AuthorId = authorId,
+            Description = createDto.Description,
+            Visibility = createDto.Visibility,
+            CreatingTimestamp = DateTime.UtcNow
+        };
     }
 }

@@ -11,7 +11,8 @@ export async function loadWorkspaces(container) {
     view.setState(ContainerState.LOADING);
 
     const data = await fetchWorkspacesAjax({ page: 1, pageSize: 20 }, controller.signal);
-
+    console.log(data);
+    
     if (!data || data.length === 0 || data.items?.length === 0) {
       view.setState(ContainerState.EMPTY, { message: "Ще немає робочих областей" });
       return;

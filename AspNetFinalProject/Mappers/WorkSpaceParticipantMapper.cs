@@ -14,7 +14,7 @@ public static class WorkSpaceParticipantMapper
             JoiningTimestamp = workSpaceParticipant.JoiningTimestamp,
             Username = workSpaceParticipant.UserProfile?.Username ??
                    workSpaceParticipant.UserProfile?.IdentityUser.UserName ?? "Unknown",
-            Role = (int)workSpaceParticipant.Role,
+            Role = workSpaceParticipant.Role,
             IsChanging = isChanging,
         };
     }

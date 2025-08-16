@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AspNetFinalProject.Common;
 using AspNetFinalProject.Enums;
 
 namespace AspNetFinalProject.DTOs;
@@ -29,10 +30,10 @@ public class CreateWorkSpaceDto
     [MaxLength(1000)]
     public string? Description { get; set; }
 
-    public int Visibility { get; set; } = (int)WorkSpaceVisibility.Private;
+    public WorkSpaceVisibility Visibility { get; set; } = (int)WorkSpaceVisibility.Private;
 }
 
-public class UpdateWorkSpaceDto
+public class UpdateWorkSpaceDto : ILogUpdateDto
 {
     [Required]
     [MaxLength(100)]
@@ -42,5 +43,5 @@ public class UpdateWorkSpaceDto
     public string? Description { get; set; }
 
     [Required]
-    public int Visibility { get; set; }
+    public WorkSpaceVisibility Visibility { get; set; }
 }

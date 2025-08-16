@@ -1,6 +1,8 @@
 ﻿@page
+@inject IUserActionLogService UserActionLogService
 @using AspNetFinalProject.Enums
 @using AspNetFinalProject.Mappers
+@using AspNetFinalProject.Services.Interfaces
 @model Logs
 @{
     ViewData["Title"] = "Logs";
@@ -21,10 +23,8 @@ else
         <tr>
             <th scope="col">#</th>
             <th scope="col">Час</th>
-            <th scope="col">Дія</th>
-            <th scope="col">Сутність</th>
-            <th scope="col">ID сутності</th>
             <th scope="col">Опис</th>
+            <th scope="col">Сутність</th>
         </tr>
         </thead>
         <tbody>
@@ -33,12 +33,23 @@ else
             <tr>
                 <th scope="row">@index</th>
                 <td>@log.Timestamp.ToLocalTime().ToString("g")</td>
-                <td>@(log.ActionType)</td>
-                <td>@(EntityTargetTypeMapper.CreateDto((EntityTargetType)log.EntityType).Text)</td>
-                <td>@log.EntityId</td>
-                <td>@log.Description</td>
+                <td>@{
+                        foreach (var logMessage in log.Messages)
+                        {
+                            <p>@logMessage</p>
+                        }
+                    }</td>
+                <td>
+                    <a href="@await UserActionLogService.GetEntityLink((EntityTargetType)log.EntityType, Guid.Parse(log.EntityId))" class="btn btn-outline-info">
+                        @(EntityTargetTypeMapper.CreateDto((EntityTargetType)log.EntityType).Text)
+                    </a>
+                </td>
             </tr>
         }
         </tbody>
     </table>
+}
+
+@section Scripts {
+    <script type="module" src="~/js/features/logs/main.js"></script>
 }

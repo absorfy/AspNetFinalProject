@@ -13,7 +13,7 @@ public static class PersonalInfoMapper
             Name = personalInfo.Name,
             Surname = personalInfo.Surname,
             BirthDate = personalInfo.BirthDate,
-            Gender = (int)personalInfo.Gender,
+            Gender = personalInfo.Gender,
             PhoneNumber = personalInfo.PhoneNumber,
             About = personalInfo.About,
         };

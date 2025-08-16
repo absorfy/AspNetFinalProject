@@ -23,11 +23,21 @@ public static class WorkSpaceMapper
         };
     }
 
+    public static UpdateWorkSpaceDto CreateUpdateDto(WorkSpace entity)
+    {
+        return new UpdateWorkSpaceDto
+        {
+            Description = entity.Description,
+            Title = entity.Title,
+            Visibility = entity.Visibility,
+        };
+    }
+
     public static void UpdateEntity(WorkSpace entity, UpdateWorkSpaceDto updateDto)
     {
         entity.Title = updateDto.Title;
         entity.Description = updateDto.Description;
-        entity.Visibility = (WorkSpaceVisibility)updateDto.Visibility;
+        entity.Visibility = updateDto.Visibility;
     }
 
     public static WorkSpace CreateEntity(string authorId, CreateWorkSpaceDto createDto)
@@ -37,7 +47,7 @@ public static class WorkSpaceMapper
             AuthorId = authorId,
             Title = createDto.Title,
             Description = createDto.Description,
-            Visibility = (WorkSpaceVisibility)createDto.Visibility,
+            Visibility = createDto.Visibility,
             CreatingTimestamp = DateTime.UtcNow
         };
     }

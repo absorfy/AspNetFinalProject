@@ -58,7 +58,10 @@ public class WorkSpaceApiController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var updated = await _workSpaceService.UpdateAsync(Guid.Parse(id), dto);
+        var userId = _currentUserService.GetIdentityId();
+        if(userId == null) return Unauthorized();
+        
+        var updated = await _workSpaceService.UpdateAsync(Guid.Parse(id), dto, userId);
         if (!updated) return NotFound();
 
         return NoContent();

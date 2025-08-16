@@ -30,7 +30,7 @@ public class CardRepository : ICardRepository
             .ToListAsync();
     }
 
-    public async Task<Card?> GetByIdAsync(Guid id)
+    public async Task<Card?> GetByIdAsync(Guid id, bool withDeleted = false)
     {
         return await _context.Cards
             .Include(c => c.Author)
@@ -40,7 +40,7 @@ public class CardRepository : ICardRepository
                 .ThenInclude(tc => tc.Tag)
             .Include(c => c.Comments)
             .Include(c => c.Attachments)
-            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+            .FirstOrDefaultAsync(c => c.Id == id && (withDeleted || c.DeletedAt == null));
     }
 
     public async Task AddAsync(Card card)

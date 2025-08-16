@@ -17,7 +17,7 @@ public interface IWorkSpaceRepository
         WorkSpaceSortField sortField = WorkSpaceSortField.Title,
         SortDirection sortDirection = SortDirection.Ascending,
         CancellationToken ct = default);
-    Task<WorkSpace?> GetByIdAsync(Guid id);
+    Task<WorkSpace?> GetByIdAsync(Guid id, bool withDeleted = false);
     Task AddAsync(WorkSpace workspace);
     Task DeleteAsync(WorkSpace workspace);
     Task SaveChangesAsync();

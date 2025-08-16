@@ -9,7 +9,7 @@ public static class WorkSpaceRoleMapper
     {
         return new WorkSpaceRoleDto
         {
-            Value = (int)role,
+            Value = role,
             Text = role switch
             {
                 WorkSpaceRole.Admin => "Адмін",

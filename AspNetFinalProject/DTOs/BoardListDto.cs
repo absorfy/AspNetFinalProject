@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AspNetFinalProject.Common;
 
 namespace AspNetFinalProject.DTOs;
 
@@ -21,7 +22,7 @@ public class CreateBoardListDto
     public string Title { get; set; }
 }
 
-public class UpdateBoardListDto
+public class UpdateBoardListDto : ILogUpdateDto
 {
     [Required]
     [MaxLength(50)]

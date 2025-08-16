@@ -1,6 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using AspNetFinalProject.Common;
+using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Enums;
+using KellermanSoftware.CompareNetObjects;
 
 namespace AspNetFinalProject.Entities;
 
@@ -52,5 +55,15 @@ public class Board : ILogEntity
     public string GetId()
     {
         return Id.ToString();
+    }
+
+    public string GetSettingsLink()
+    {
+        return $"/Boards/{GetId()}/Settings";
+    }
+
+    public string GetDescriptionName()
+    {
+        return "дошку";
     }
 }

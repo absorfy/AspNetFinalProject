@@ -8,7 +8,7 @@ public interface IWorkSpaceService
 {
     Task<IEnumerable<WorkSpace>> GetUserWorkSpacesAsync(string userId);
     Task<WorkSpace?> GetByIdAsync(Guid id);
-    Task<bool> UpdateAsync(Guid id, UpdateWorkSpaceDto dto);
+    Task<bool> UpdateAsync(Guid id, UpdateWorkSpaceDto dto, string updatedByUserId);
     Task<WorkSpace> CreateAsync(string authorId, CreateWorkSpaceDto dto);
     Task<bool> DeleteAsync(Guid id, string deletedByUserId);
     Task<bool> SubscribeAsync(Guid id, string userId);

@@ -10,10 +10,12 @@ public static class UserActionLogMapper
         return new UserActionLogDto
         {
             Id = userActionLog.Id.ToString(),
-            EntityType = (int)userActionLog.EntityType,
+            EntityType = userActionLog.EntityType,
             EntityId = userActionLog.EntityId,
-            ActionType = (int)userActionLog.ActionType,
-            Description = userActionLog.Description,
+            ActionType = userActionLog.ActionType,
+            Messages = userActionLog.Description
+                .Replace("\t", " -  ")
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries),
             Timestamp = userActionLog.Timestamp,
         };
     }

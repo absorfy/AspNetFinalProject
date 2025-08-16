@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using AspNetFinalProject.Common;
+using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Enums;
 
 namespace AspNetFinalProject.Entities;
 
-public class WorkSpace
+public class WorkSpace : ILogEntity
 {
     [Key]
     public Guid Id { get; set; }
@@ -29,4 +31,28 @@ public class WorkSpace
     
     public ICollection<WorkSpaceParticipant> Participants { get; set; } = new List<WorkSpaceParticipant>();
     public ICollection<Board> Boards { get; set; } = new List<Board>();
+    public EntityTargetType GetEntityType()
+    {
+        return EntityTargetType.Workspace;
+    }
+
+    public string GetName()
+    {
+        return Title;
+    }
+
+    public string GetId()
+    {
+        return Id.ToString();
+    }
+
+    public string GetSettingsLink()
+    {
+        return $"/Workspaces/{GetId()}/Settings";
+    }
+
+    public string GetDescriptionName()
+    {
+        return "робочий простір";
+    }
 }

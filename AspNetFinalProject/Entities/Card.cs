@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using AspNetFinalProject.Common;
+using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Enums;
 
 namespace AspNetFinalProject.Entities;
@@ -62,4 +64,15 @@ public class Card : ILogEntity
     {
         return Id.ToString();
     }
+
+    public string GetSettingsLink()
+    {
+        return $"Cards/{GetId()}/Settings";
+    }
+
+    public string GetDescriptionName()
+    {
+        return "картку";
+    }
+    
 }

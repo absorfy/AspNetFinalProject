@@ -1,9 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using AspNetFinalProject.Common;
+using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Enums;
 
 namespace AspNetFinalProject.Entities;
 
-public class BoardList
+public class BoardList : ILogEntity
 {
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -27,4 +30,28 @@ public class BoardList
     public UserProfile? DeletedByUser { get; set; }
     
     public ICollection<Card> Cards { get; set; } = new List<Card>();
+    public EntityTargetType GetEntityType()
+    {
+        return EntityTargetType.BoardList;
+    }
+
+    public string GetName()
+    {
+        return Title;
+    }
+
+    public string GetId()
+    {
+        return Id.ToString();
+    }
+
+    public string GetSettingsLink()
+    {
+        return $"Lists/{GetId()}/Settings";
+    }
+
+    public string GetDescriptionName()
+    {
+        return "список";
+    }
 }

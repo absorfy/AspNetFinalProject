@@ -9,7 +9,7 @@ public static class EntityTargetTypeMapper
     {
         return new EntityTargetTypeDto
         {
-            Value = (int)entityType,
+            Value = entityType,
             Text = entityType switch
             {
                 EntityTargetType.Board => "Дошка",

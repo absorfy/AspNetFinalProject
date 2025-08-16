@@ -2,7 +2,7 @@
 import {apiClient} from "../../../shared/api/apiClient.js";
 
 export async function fetchWorkspacesAjax({ page = 1, pageSize = 20 } = {}, signal) {
-  return await apiClient.get("/workspaces", { query: { page, pageSize }, signal });
+  return await apiClient.get("/workspaces", null, { query: { page, pageSize }, signal });
 }
 
 // POST /api/workspaces
@@ -28,7 +28,7 @@ export async function unsubscribeFromWorkspaceAjax(id, signal) {
 
 // GET /api/workspaces/{id}/participants?page=1&pageSize=20
 export async function fetchWorkspaceParticipantsAjax(id, { page = 1, pageSize = 20 } = {}, signal) {
-  return await apiClient.get(`/workspaces/${id}/participants`, { query: { page, pageSize }, signal });
+  return await apiClient.get(`/workspaces/${id}/participants`, null, { query: { page, pageSize }, signal });
 }
 
 // POST /api/workspaces/{id}/participants  body: { userProfileId, role }
@@ -44,7 +44,7 @@ export async function removeWorkspaceParticipantAjax(id, userProfileId, signal) 
 // GET /api/workspaces/{id}/participants/search?q=...
 // Міндовжина q -> на рівні UI (debounce + перевірка), НЕ тут
 export async function searchWorkspaceParticipantsAjax(id, q, signal) {
-  return await apiClient.get(`/workspaces/${id}/participants/search`, { query: { q }, signal });
+  return await apiClient.get(`/workspaces/${id}/participants/search`,  null,{ query: { q }, signal });
 }
 
 // PUT /api/workspaces/{id}

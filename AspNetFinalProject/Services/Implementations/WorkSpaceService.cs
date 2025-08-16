@@ -1,4 +1,5 @@
-﻿using AspNetFinalProject.DTOs;
+﻿using AspNetFinalProject.Common;
+using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Entities;
 using AspNetFinalProject.Enums;
 using AspNetFinalProject.Mappers;
@@ -12,14 +13,17 @@ public class WorkSpaceService : IWorkSpaceService
     private readonly IWorkSpaceRepository _workSpaceRepository;
     private readonly IWorkSpaceParticipantRepository _participantRepository;
     private readonly ISubscriptionService _subscriptionService;
+    private readonly ActionLogger _actionLogger;
 
     public WorkSpaceService(IWorkSpaceRepository workSpaceRepository, 
                             IWorkSpaceParticipantRepository participantRepository, 
-                            ISubscriptionService subscriptionService)
+                            ISubscriptionService subscriptionService,
+                            ActionLogger actionLogger)
     {
         _workSpaceRepository = workSpaceRepository;
         _participantRepository = participantRepository;
         _subscriptionService = subscriptionService;
+        _actionLogger = actionLogger;
     }
 
 
@@ -33,12 +37,18 @@ public class WorkSpaceService : IWorkSpaceService
         return await _workSpaceRepository.GetByIdAsync(id);
     }
     
-    public async Task<bool> UpdateAsync(Guid id, UpdateWorkSpaceDto dto)
+    public async Task<bool> UpdateAsync(Guid id, UpdateWorkSpaceDto dto, string updatedByUserId)
     {
         var workspace = await _workSpaceRepository.GetByIdAsync(id);
         if (workspace == null) return false;
+
+        var updateLogs = _actionLogger.CompareUpdateDtos(WorkSpaceMapper.CreateUpdateDto(workspace), dto).ToArray();
+        if (updateLogs.Length == 0) return false;
+        
         WorkSpaceMapper.UpdateEntity(workspace, dto);
         await _workSpaceRepository.SaveChangesAsync();
+
+        await _actionLogger.LogAndNotifyAsync(updatedByUserId, workspace, UserActionType.Update, updateLogs);
         return true;
     }
 
@@ -59,6 +69,7 @@ public class WorkSpaceService : IWorkSpaceService
         await _participantRepository.AddAsync(owner);
         await _participantRepository.SaveChangesAsync();
         
+        await _actionLogger.LogAndNotifyAsync(authorId, workspace, UserActionType.Create);
         return workspace;
     }
 
@@ -71,6 +82,7 @@ public class WorkSpaceService : IWorkSpaceService
         await _workSpaceRepository.DeleteAsync(workspace);
         await _workSpaceRepository.SaveChangesAsync();
 
+        await _actionLogger.LogAndNotifyAsync(deletedByUserId, workspace, UserActionType.Delete);
         return true;
     }
 

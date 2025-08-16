@@ -27,14 +27,14 @@ public class BoardRepository : IBoardRepository
             .ToListAsync();
     }
 
-    public async Task<Board?> GetByIdAsync(Guid id)
+    public async Task<Board?> GetByIdAsync(Guid id, bool withDeleted = false)
     {
         return await _context.Boards
             .Include(b => b.Author)
             .Include(b => b.Participants)
             .ThenInclude(p => p.UserProfile)
             .Include(b => b.Lists)
-            .FirstOrDefaultAsync(b => b.Id == id && b.DeletedAt == null);
+            .FirstOrDefaultAsync(b => b.Id == id && (withDeleted || b.DeletedAt == null));
     }
 
     public async Task AddAsync(Board board)

@@ -1,4 +1,5 @@
-﻿using AspNetFinalProject.DTOs;
+﻿using AspNetFinalProject.Common;
+using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Entities;
 using AspNetFinalProject.Enums;
 using AspNetFinalProject.Mappers;
@@ -12,20 +13,17 @@ public class BoardService : IBoardService
     private readonly IBoardRepository _boardRepository;
     private readonly IBoardParticipantRepository _participantRepository;
     private readonly IUserActionLogService _userActionLogService;
-    private readonly ISubscriptionService _subscriptionService;
-    private readonly INotificationService _notificationService;
+    private readonly ActionLogger _actionLogger;
 
     public BoardService(IBoardRepository boardRepository,
                         IBoardParticipantRepository participantRepository,
                         IUserActionLogService userActionLogService,
-                        ISubscriptionService subscriptionService,
-                        INotificationService notificationService)
+                        ActionLogger actionLogger)
     {
         _boardRepository = boardRepository;
         _participantRepository = participantRepository;
         _userActionLogService = userActionLogService;
-        _subscriptionService = subscriptionService;
-        _notificationService = notificationService;
+        _actionLogger = actionLogger;
     }
 
     public async Task<IEnumerable<Board>> GetAllByWorkSpaceAsync(Guid workSpaceId, string userId)
@@ -38,12 +36,18 @@ public class BoardService : IBoardService
         return await _boardRepository.GetByIdAsync(id);
     }
     
-    public async Task<bool> UpdateAsync(Guid id, UpdateBoardDto dto)
+    public async Task<bool> UpdateAsync(Guid id, UpdateBoardDto dto, string updateByUserId)
     {
         var board = await _boardRepository.GetByIdAsync(id);
         if (board == null) return false;
+        
+        var updatingLogs = _actionLogger.CompareUpdateDtos(BoardMapper.CreateUpdateDto(board), dto).ToArray();
+        if (updatingLogs.Length == 0) return false;
+        
         BoardMapper.UpdateEntity(board, dto);
         await _boardRepository.SaveChangesAsync();
+
+        await _actionLogger.LogAndNotifyAsync(updateByUserId, board, UserActionType.Update, updatingLogs);
         return true;
     }
 
@@ -64,12 +68,7 @@ public class BoardService : IBoardService
         await _participantRepository.AddAsync(admin);
         await _participantRepository.SaveChangesAsync();
 
-        var log = await _userActionLogService.LogCreating(authorId, board);
-        var wsSubs = await _subscriptionService.GetSubscribedAsync(EntityTargetType.Workspace, board.WorkSpaceId.ToString());
-        wsSubs = wsSubs.Where(uid => uid != authorId).Distinct().ToList();
-        if(wsSubs.Any())
-            await _notificationService.CreateForSubscribersAsync(log.Id, wsSubs);
-        
+        await _actionLogger.LogAndNotifyAsync(authorId, board, UserActionType.Create);
         return await _boardRepository.GetByIdAsync(board.Id) ?? board;
     }
 
@@ -82,7 +81,7 @@ public class BoardService : IBoardService
         await _boardRepository.DeleteAsync(board);
         await _boardRepository.SaveChangesAsync();
 
-        await _userActionLogService.LogDeleting(deletedByUserId, board);
+        await _actionLogger.LogAndNotifyAsync(deletedByUserId, board, UserActionType.Delete);
         return true;
     }
 }

@@ -85,14 +85,14 @@ public class WorkSpaceRepository : IWorkSpaceRepository
     }
 
 
-    public async Task<WorkSpace?> GetByIdAsync(Guid workspaceId)
+    public async Task<WorkSpace?> GetByIdAsync(Guid workspaceId, bool withDeleted = false)
     {
         return await _context.WorkSpaces
             .Include(w => w.Author)
             .Include(w => w.Participants)
                 .ThenInclude(p => p.UserProfile)
             .Include(w => w.Boards)
-            .FirstOrDefaultAsync(w => w.Id == workspaceId && w.DeletedAt == null);
+            .FirstOrDefaultAsync(w => w.Id == workspaceId && (withDeleted || w.DeletedAt == null));
     }
 
     public async Task AddAsync(WorkSpace workspace)

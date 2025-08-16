@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AspNetFinalProject.Common;
 
 namespace AspNetFinalProject.DTOs;
 
@@ -34,7 +35,7 @@ public class CreateCardDto
     public DateTime? Deadline { get; set; }
 }
 
-public class UpdateCardDto
+public class UpdateCardDto : ILogUpdateDto
 {
     [Required]
     [MaxLength(100)]

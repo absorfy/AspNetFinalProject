@@ -25,12 +25,12 @@ public class BoardListRepository : IBoardListRepository
             .ToListAsync();
     }
 
-    public async Task<BoardList?> GetByIdAsync(Guid id)
+    public async Task<BoardList?> GetByIdAsync(Guid id, bool withDeleted = false)
     {
         return await _context.Lists
             .Include(l => l.Author)
             .Include(l => l.Cards)
-            .FirstOrDefaultAsync(l => l.Id == id && l.DeletedAt == null);
+            .FirstOrDefaultAsync(l => l.Id == id && (withDeleted || l.DeletedAt == null));
     }
 
     public async Task AddAsync(BoardList list)

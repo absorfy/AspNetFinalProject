@@ -3,7 +3,7 @@
 
 // GET /api/workspaces/{workspaceId}/boards
 export async function fetchBoardsAjax(workspaceId, signal) {
-  return await apiClient.get(`/boards/workspace/${workspaceId}`, { signal });
+  return await apiClient.get(`/boards/workspace/${workspaceId}`, null, { signal });
 }
 
 // POST /api/boards
@@ -14,5 +14,5 @@ export async function createBoardAjax(payload, signal) {
 
 // DELETE /api/boards/{id}
 export async function deleteBoardAjax(id, signal) {
-  await apiClient.delete(`/boards/${id}`, { signal }); // void
+  await apiClient.delete(`/boards/${id}`, null, { signal }); // void
 }

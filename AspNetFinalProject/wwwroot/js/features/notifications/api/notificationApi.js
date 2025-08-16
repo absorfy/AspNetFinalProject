@@ -2,7 +2,7 @@
 
 // GET /api/notifications?onlyUnread=&take=
 export async function fetchNotifications(onlyUnread = true, take = 3, signal) {
-  return await apiClient.get("/notifications", { query: { onlyUnread, take }, signal });
+  return await apiClient.get("/notifications", null, { query: { onlyUnread, take }, signal });
 }
 
 // POST /api/notifications/{id}/read

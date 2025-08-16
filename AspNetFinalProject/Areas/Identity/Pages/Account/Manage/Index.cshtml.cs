@@ -151,7 +151,7 @@ namespace AspNetFinalProject.Areas.Identity.Pages.Account.Manage
                     Name = Input.Name,
                     Surname = Input.Surname,
                     BirthDate = Input.BirthDate,
-                    Gender = (int)Input.Gender,
+                    Gender = Input.Gender,
                     PhoneNumber = Input.PhoneNumber,
                     About = Input.About
                 }

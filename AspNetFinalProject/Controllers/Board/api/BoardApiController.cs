@@ -12,11 +12,15 @@ namespace AspNetFinalProject.Controllers.Board.api;
 [Authorize]
 public class BoardApiController : ControllerBase
 {
-    private readonly IBoardService _service;
+    private readonly IBoardService _boardService;
+    private readonly ICurrentUserService _currentUserService;
     
-    public BoardApiController(IBoardService service)
+    public BoardApiController(
+        IBoardService boardService,
+        ICurrentUserService currentUserService)
     {
-        _service = service;
+        _boardService = boardService;
+        _currentUserService = currentUserService;
     }
     
     [HttpGet("workspace/{workspaceId:guid}")]
@@ -24,7 +28,7 @@ public class BoardApiController : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
-        var boards = await _service.GetAllByWorkSpaceAsync(workspaceId, userId);
+        var boards = await _boardService.GetAllByWorkSpaceAsync(workspaceId, userId);
         var result = boards.Select(BoardMapper.CreateDto);
         return Ok(result);
     }
@@ -35,7 +39,7 @@ public class BoardApiController : ControllerBase
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
-        var board = await _service.CreateAsync(userId, dto);
+        var board = await _boardService.CreateAsync(userId, dto);
 
         return CreatedAtAction(
             nameof(GetBoardsByWorkspace), 
@@ -48,8 +52,10 @@ public class BoardApiController : ControllerBase
     public async Task<ActionResult> UpdateBoard(Guid id, [FromBody] UpdateBoardDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-
-        var updated = await _service.UpdateAsync(id, dto);
+        var userId = _currentUserService.GetIdentityId();
+        if(userId == null) return Unauthorized();
+        
+        var updated = await _boardService.UpdateAsync(id, dto, userId);
         if (!updated) return NotFound();
 
         return NoContent();
@@ -61,7 +67,7 @@ public class BoardApiController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
-        var deleted = await _service.DeleteAsync(id, userId);
+        var deleted = await _boardService.DeleteAsync(id, userId);
         if (!deleted) return NotFound();
 
         return NoContent();

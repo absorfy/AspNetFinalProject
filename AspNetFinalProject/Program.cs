@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using AspNetFinalProject.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -71,10 +72,18 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IUserActionLogService, UserActionLogService>();
 builder.Services.AddScoped<IUserActionLogRepository, UserActionLogRepository>();
 
+builder.Services.AddScoped<ActionLogger>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSignalR();
+
+// builder.Services.AddControllers()
+//     .AddJsonOptions(options =>
+//     {
+//         options.JsonSerializerOptions.Converters.Clear();
+//     });
 
 var app = builder.Build();
 app.MapHub<NotificationsHub>("/hubs/notifications");

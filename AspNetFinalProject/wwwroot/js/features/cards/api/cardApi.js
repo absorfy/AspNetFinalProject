@@ -2,7 +2,7 @@
 
 // GET /api/cards/list/{listId}
 export async function fetchCardsByList(listId, signal) {
-  return await apiClient.get(`/cards/list/${listId}`, { signal });
+  return await apiClient.get(`/cards/list/${listId}`, null, { signal });
 }
 
 // POST /api/cards
