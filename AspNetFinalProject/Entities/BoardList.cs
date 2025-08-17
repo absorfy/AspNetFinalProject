@@ -23,6 +23,9 @@ public class BoardList : ILogEntity
     [MaxLength(50)]
     public string Title { get; set; } = null!;
     public DateTime CreatingTimestamp { get; set; } = DateTime.UtcNow;
+    
+    [Required]
+    public int OrderIndex { get; set; }
     public DateTime? DeletedAt { get; set; }
 
     public string? DeletedByUserId { get; set; }

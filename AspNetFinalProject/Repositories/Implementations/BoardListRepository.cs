@@ -1,6 +1,7 @@
 ﻿using AspNetFinalProject.Data;
 using AspNetFinalProject.Entities;
 using AspNetFinalProject.Repositories.Interfaces;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 namespace AspNetFinalProject.Repositories.Implementations;
@@ -22,7 +23,7 @@ public class BoardListRepository : IBoardListRepository
             .Where(l => l.BoardId == boardId
                         && l.DeletedAt == null
                         && (l.AuthorId == userId || l.Board.Participants.Any(p => p.UserProfileId == userId)))
-            .OrderBy(l => l.CreatingTimestamp)
+            .OrderBy(l => l.OrderIndex)
             .ToListAsync();
     }
 
@@ -36,15 +37,25 @@ public class BoardListRepository : IBoardListRepository
 
     public async Task AddAsync(BoardList list)
     {
+        list.OrderIndex = _context.Lists.Count(l => l.BoardId == list.BoardId);
         await _context.Lists.AddAsync(list);
     }
 
-    public Task DeleteAsync(BoardList list)
+    public async Task DeleteAsync(BoardList list)
     {
         // Soft delete
         list.DeletedAt = DateTime.UtcNow;
+        list.OrderIndex = -1;
         _context.Lists.Update(list);
-        return Task.CompletedTask;
+        var otherLists = await _context.Lists
+            .Where(l => l.BoardId == list.BoardId && l.DeletedAt == null)
+            .OrderBy(l => l.OrderIndex)
+            .ToListAsync();
+        
+        for(var i = 0; i < otherLists.Count; i++)
+        {
+            otherLists[i].OrderIndex = i;
+        }
     }
 
     public async Task SaveChangesAsync()

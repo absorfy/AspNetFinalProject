@@ -28,14 +28,12 @@ export function initCardsDndForList(listEl) {
       const ctrl = new AbortController();
       
       try {
-        const cardData = await changeListForCard(cardId, newListId, ctrl.signal)
+        await changeListForCard(cardId, newListId, evt.newIndex, ctrl.signal)
       } catch (e) {
-        // простий rollback
         evt.from.insertBefore(
           cardEl,
           evt.from.children[evt.oldIndex] || null
         );
-        // опційно: showToast("Не вдалося зберегти", "danger");
       }
     }
   })

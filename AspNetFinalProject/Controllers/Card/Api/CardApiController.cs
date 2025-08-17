@@ -33,12 +33,13 @@ public class CardApiController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("{cardId:guid}/change-list/{newListId:guid}")]
-    public async Task<ActionResult<CardDto>> ChangeList(Guid cardId, Guid newListId)
+    public record MoveCardRequest(int OrderIndex);
+    
+    [HttpPost("{cardId:guid}/move-to-list/{newListId:guid}")]
+    public async Task<ActionResult<CardDto>> MoveCard(Guid cardId, Guid newListId, [FromBody] MoveCardRequest request)
     {
-        var newCard = await _cardService.ChangeListForCard(cardId, newListId);
-        if(newCard == null) return NotFound();
-        return Ok(CardMapper.CreateDto(newCard));
+        await _cardService.MoveCard(cardId, newListId, request.OrderIndex);
+        return Ok();
     }
     
     [HttpPost]

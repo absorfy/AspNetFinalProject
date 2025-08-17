@@ -9,4 +9,5 @@ public interface ICardRepository
     Task AddAsync(Card card);
     Task DeleteAsync(Card card);
     Task SaveChangesAsync();
+    Task MoveCard(Guid cardId, Guid newListId, int orderIndex);
 }

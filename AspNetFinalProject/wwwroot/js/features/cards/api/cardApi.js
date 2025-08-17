@@ -10,8 +10,8 @@ export async function createCardAjax(payload, signal) {
   return await apiClient.post("/cards", payload, { signal });
 }
 
-export async function changeListForCard(cardId, newListId, signal) {
-  return await apiClient.post(`/cards/${cardId}/change-list/${newListId}`, null, { signal });
+export async function changeListForCard(cardId, newListId, orderIndex, signal) {
+  return await apiClient.post(`/cards/${cardId}/move-to-list/${newListId}`, { orderIndex }, { signal });
 }
 
 export async function deleteCardAjax(cardId, signal) {

@@ -22,6 +22,9 @@ public class Card : ILogEntity
     public UserProfile Author { get; set; } = null!;
 
     public DateTime CreatingTimestamp { get; set; } = DateTime.UtcNow;
+    
+    [Required]
+    public int OrderIndex { get; set; }
 
     [Required]
     [MaxLength(100)]
