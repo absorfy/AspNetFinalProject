@@ -66,4 +66,14 @@ public class CardService : ICardService
         await _actionLogger.LogAndNotifyAsync(deletedByUserId, card, UserActionType.Delete);
         return true;
     }
+
+    public async Task<Card?> ChangeListForCard(Guid cardId, Guid newListId)
+    {
+        var card = await _repository.GetByIdAsync(cardId);
+        if(card == null) return null;
+        if(card.BoardListId == newListId) return null;
+        card.BoardListId = newListId;
+        await _repository.SaveChangesAsync();
+        return await _repository.GetByIdAsync(cardId);
+    }
 }

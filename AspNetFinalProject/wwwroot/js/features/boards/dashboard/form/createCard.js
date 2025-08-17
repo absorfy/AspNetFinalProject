@@ -1,6 +1,6 @@
 ﻿import {delegate} from "../../../../shared/utils/eventDelegator.js";
 import {createCardAjax} from "../../../cards/api/cardApi.js";
-import {showCard} from "../ui/showCard.js";
+import {getCardDiv} from "../ui/getCardDiv.js";
 
 
 export function initCreateCardHandler() {
@@ -13,7 +13,8 @@ export function initCreateCardHandler() {
         form.reset();
         bootstrap.Modal.getInstance(form.closest(".modal")).hide();
         const container = document.getElementById(`cards-container-${data.boardListId}`);
-        showCard(newCard, container);
+        const div = getCardDiv(newCard);
+        container.appendChild(div);
       } catch (err) {
         alert(`Не вдалося створити картку: ${err.message}`);
       }

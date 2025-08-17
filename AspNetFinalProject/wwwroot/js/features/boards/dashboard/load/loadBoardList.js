@@ -1,7 +1,7 @@
 ﻿import {ContainerState, createContainerState} from "../../../../shared/ui/containerState.js";
 import {listSkeleton} from "../../../../shared/ui/skeletons.js";
 import {fetchListsByBoard} from "../../../boardLists/api/boardListApi.js";
-import {showBoardList} from "../ui/showBoardList.js";
+import {getBoardListDiv} from "../ui/getBoardListDiv.js";
 import {loadCardsForList} from "./loadCard.js";
 
 export async function loadBoardLists(boardId, container) {
@@ -21,7 +21,8 @@ export async function loadBoardLists(boardId, container) {
     view.setState(ContainerState.CONTENT, {
       builder: (root) => {
         data.forEach(bl => {
-          showBoardList(bl, root);
+          const div = getBoardListDiv(bl, root);
+          root.appendChild(div);
           loadCardsForList(bl.id);
         })
       }

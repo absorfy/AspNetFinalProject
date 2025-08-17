@@ -22,6 +22,7 @@ public class BoardListRepository : IBoardListRepository
             .Where(l => l.BoardId == boardId
                         && l.DeletedAt == null
                         && (l.AuthorId == userId || l.Board.Participants.Any(p => p.UserProfileId == userId)))
+            .OrderBy(l => l.CreatingTimestamp)
             .ToListAsync();
     }
 

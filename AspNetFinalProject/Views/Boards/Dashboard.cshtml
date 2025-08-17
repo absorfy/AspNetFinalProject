@@ -18,6 +18,7 @@
 
 @await Html.PartialAsync("_CreateBoardListModal")
 @await Html.PartialAsync("_CreateCardModal")
+@await Html.PartialAsync("_ConfirmDeleteModal")
 
 <script>
     window.boardId = @Html.Raw(JsonSerializer.Serialize(Model.Id));

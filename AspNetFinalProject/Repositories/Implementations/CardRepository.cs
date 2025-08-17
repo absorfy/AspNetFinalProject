@@ -27,6 +27,7 @@ public class CardRepository : ICardRepository
             .Where(c => c.BoardListId == boardListId
                         && c.DeletedAt == null
                         && (c.AuthorId == userId || c.Participants.Any(p => p.UserProfileId == userId)))
+            .OrderBy(c => c.CreatingTimestamp)
             .ToListAsync();
     }
 

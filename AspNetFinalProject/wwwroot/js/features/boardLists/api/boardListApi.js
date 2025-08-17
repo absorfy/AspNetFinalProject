@@ -9,3 +9,7 @@ export async function fetchListsByBoard(boardId, signal) {
 export async function createBoardListAjax(payload, signal) {
   return await apiClient.post("/lists", payload, null, { signal });
 }
+
+export async function deleteListAjax(listId, signal) {
+  await apiClient.delete(`/lists/${listId}`, null, { signal });
+}

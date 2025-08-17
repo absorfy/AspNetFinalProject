@@ -1,9 +1,14 @@
 ﻿import {renderCardDiv} from "../../../../shared/ui/cardDivRenderer.js";
+import {initCardsDndForList} from "../../../../shared/ui/cardsDnd.js";
+import {getDeleteButtonConfig} from "../../../../shared/actions/buttonsConfigs.js";
 
 
-export function showBoardList(list, container) {
+export function getBoardListDiv(list) {
   const card = renderCardDiv({
     title: list.title,
+    attrs: {
+      "data-list-id": list.id,
+    },
     actions: [
       {
         text: "+ Додати картку",
@@ -13,6 +18,11 @@ export function showBoardList(list, container) {
           "data-list-id": list.id,
         },
       },
+      getDeleteButtonConfig({
+        targetAction: "delete-list",
+        targetId: list.id,
+        targetTitle: list.title,
+      }),
     ],
     onCardClick: null,
     classes: ["bg-light"],
@@ -22,7 +32,12 @@ export function showBoardList(list, container) {
   const cardsContainer = document.createElement("div");
   cardsContainer.className = "cards-container mb-2";
   cardsContainer.id = `cards-container-${list.id}`;
+
+  cardsContainer.setAttribute("data-cards", "");
+  cardsContainer.setAttribute("data-list-id", list.id);
+  
   card.insertBefore(cardsContainer, card.querySelector(".mt-2")); // перед кнопками
 
-  container.appendChild(card);
+  initCardsDndForList(cardsContainer);
+  return card;
 }
