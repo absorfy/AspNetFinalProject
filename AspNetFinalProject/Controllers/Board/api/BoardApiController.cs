@@ -67,6 +67,28 @@ public class BoardApiController : ControllerBase
         return NoContent();
     }
     
+    [HttpPost("{id:guid}/subscribe")]
+    public async Task<ActionResult> SubscribeToBoard(Guid id)
+    {
+        var user = await _currentUserService.GetUserProfileAsync();
+        if (user == null) return Unauthorized();
+
+        var subscribed = await _boardService.SubscribeAsync(id, user.IdentityId);
+        if (!subscribed) return NotFound();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}/subscribe")]
+    public async Task<ActionResult> UnsubscribeFromBoard(Guid id)
+    {
+        var user = await _currentUserService.GetUserProfileAsync();
+        if (user == null) return Unauthorized();
+        var unsubscribed = await _boardService.UnsubscribeAsync(id, user.IdentityId);
+        if (!unsubscribed) return NotFound();
+        return NoContent();
+    }
+    
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> DeleteBoard(Guid id)
     {

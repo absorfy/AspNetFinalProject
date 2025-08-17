@@ -68,7 +68,7 @@ public class WorkSpaceService : IWorkSpaceService
         {
             UserProfileId = authorId,
             WorkSpaceId = workspace.Id,
-            Role = WorkSpaceRole.Owner,
+            Role = ParticipantRole.Owner,
             JoiningTimestamp = DateTime.UtcNow
         };
         

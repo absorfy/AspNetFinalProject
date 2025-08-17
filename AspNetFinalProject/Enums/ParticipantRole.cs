@@ -2,7 +2,7 @@
 
 namespace AspNetFinalProject.Enums;
 
-public enum WorkSpaceRole
+public enum ParticipantRole
 {
     Owner,
     Admin,

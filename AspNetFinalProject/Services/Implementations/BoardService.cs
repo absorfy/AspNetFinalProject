@@ -62,15 +62,15 @@ public class BoardService : IBoardService
         await _boardRepository.AddAsync(board);
         await _boardRepository.SaveChangesAsync();
 
-        //Admin creating
-        var admin = new BoardParticipant
+        //Owner creating
+        var owner = new BoardParticipant
         {
             UserProfileId = authorId,
             BoardId = board.Id,
-            Role = BoardRole.Admin,
+            Role = ParticipantRole.Owner,
             JoiningTimestamp = DateTime.UtcNow
         };
-        await _participantRepository.AddAsync(admin);
+        await _participantRepository.AddAsync(owner);
         await _participantRepository.SaveChangesAsync();
 
         await _actionLogger.LogAndNotifyAsync(authorId, board, UserActionType.Create);

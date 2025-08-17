@@ -1,18 +1,19 @@
-﻿import {fetchWorkspaceParticipantsAjax} from "../../api/workspaceApi.js";
-import {getWorkspaceParticipantDiv} from "../ui/getWorkspaceParticipantDiv.js";
-import {createPaginationController} from "../../../../shared/ui/paginationController.js";
+﻿import {createPaginationController} from "../../../../shared/ui/paginationController.js";
 import {listSkeleton} from "../../../../shared/ui/skeletons.js";
+import {fetchBoardParticipantsAjax} from "../../api/boardApi.js";
+import {getBoardParticipantDiv} from "../ui/getBoardParticipantDiv.js";
 import {bindDebouncedInput} from "../../../../shared/utils/debounceInputs.js";
 
-export async function loadParticipants(workspaceId, container) {
-  if(!container || !workspaceId) return;
+
+export async function loadParticipants(boardId, container) {
+  if(!container || !boardId) return;
 
   const ctrl = createPaginationController({
     root: container,
     controlsPosition: "top",
     async fetchPage(state, signal) {
       // state: { page, pageSize, search, sortBy, descending }
-      return await fetchWorkspaceParticipantsAjax(workspaceId, {
+      return await fetchBoardParticipantsAjax(boardId, {
         page: state.page,
         pageSize: state.pageSize,
         search: state.search,
@@ -20,7 +21,7 @@ export async function loadParticipants(workspaceId, container) {
         descending: state.descending
       }, signal);
     },
-    renderItem: getWorkspaceParticipantDiv,
+    renderItem: getBoardParticipantDiv,
     renderSkeleton: () => listSkeleton,
     inputId: "participantsSearchInput",
     controllerId: "participantPaginationController",

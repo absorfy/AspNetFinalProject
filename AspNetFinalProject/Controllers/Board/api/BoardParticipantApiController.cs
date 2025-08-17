@@ -8,38 +8,38 @@ using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AspNetFinalProject.Controllers.WorkSpace.api;
+namespace AspNetFinalProject.Controllers.Board.api;
 
 [ApiController]
-[Route("api/workspaces")]
+[Route("api/boards")]
 [Authorize]
-public class WorkSpaceParticipantApiController : ControllerBase
+public class BoardParticipantApiController : ControllerBase
 {
-    private readonly IWorkSpaceService _workSpaceService;
+    private readonly IBoardService _boardSpaceService;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IWorkSpaceParticipantRepository _participantRepository;
+    private readonly IBoardParticipantRepository _participantRepository;
 
     public record ParticipantActionRequest(string UserProfileId);
 
     public record ParticipantRoleRequest(string Role);
     
-    public WorkSpaceParticipantApiController(IWorkSpaceService workSpaceService,
+    public BoardParticipantApiController(IBoardService boardSpaceService,
         ICurrentUserService currentUserService,
-        IWorkSpaceParticipantRepository participantRepository)
+        IBoardParticipantRepository participantRepository)
     {
-        _workSpaceService = workSpaceService;
+        _boardSpaceService = boardSpaceService;
         _currentUserService = currentUserService;
         _participantRepository = participantRepository;
     }
     
     
-    [HttpGet("{workspaceId:guid}/participants/search")]
-    public async Task<ActionResult<IEnumerable<UserProfileDto>>> GetNewParticipants(Guid workspaceId, [FromQuery] string q, [FromQuery] int take = 20)
+    [HttpGet("{boardId:guid}/participants/search")]
+    public async Task<ActionResult<IEnumerable<UserProfileDto>>> GetNewParticipants(Guid boardId, [FromQuery] string q, [FromQuery] int take = 20)
     {
         q = (q ?? "").Trim();
         if (q.Length < 3) return Ok(Array.Empty<UserProfileDto>());
 
-        var searched = await _participantRepository.GetNonParticipantsAsync(workspaceId, q);
+        var searched = await _participantRepository.GetNonParticipantsAsync(boardId, q);
         
         var result = searched
             .Take(Math.Clamp(take, 1, 50))
@@ -49,17 +49,17 @@ public class WorkSpaceParticipantApiController : ControllerBase
         return result;
     }
 
-    [HttpPost("{workspaceId:guid}/participants/{userProfileId}/role")]
-    public async Task<ActionResult> ChangeWorkspaceParticipantRole(Guid workspaceId, string userProfileId,
+    [HttpPost("{boardId:guid}/participants/{userProfileId}/role")]
+    public async Task<ActionResult> ChangeBoardParticipantRole(Guid boardId, string userProfileId,
         [FromBody] ParticipantRoleRequest request)
     {
         var userId = _currentUserService.GetIdentityId();
         if (userId == null) return Unauthorized();
         
-        var changer = await _participantRepository.GetAsync(workspaceId, userId);
+        var changer = await _participantRepository.GetAsync(boardId, userId);
         if(changer is null) return NotFound();
         
-        var participant = await _participantRepository.GetAsync(workspaceId, userProfileId);
+        var participant = await _participantRepository.GetAsync(boardId, userProfileId);
         if(participant is null) return NotFound();
         
         var notAllowed = IsNotAllowed(changer, participant);
@@ -80,20 +80,20 @@ public class WorkSpaceParticipantApiController : ControllerBase
         });
     }
     
-    [HttpGet("{workspaceId:guid}/participants")]
-    public async Task<ActionResult<PagedResult<WorkSpaceParticipantDto>>> GetWorkspaceParticipants(Guid workspaceId, [FromQuery] PagedRequest request)
+    [HttpGet("{boardId:guid}/participants")]
+    public async Task<ActionResult<PagedResult<BoardParticipantDto>>> GetBoardParticipants(Guid boardId, [FromQuery] PagedRequest request)
     {
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
         
-        var workspace = await _workSpaceService.GetByIdAsync(workspaceId);
-        if (workspace == null) return NotFound();
+        var board = await _boardSpaceService.GetByIdAsync(boardId);
+        if (board == null) return NotFound();
         
-        var participant = await _participantRepository.GetAsync(workspaceId, user.IdentityId);
+        var participant = await _participantRepository.GetAsync(boardId, user.IdentityId);
         if (participant == null) return Forbid();
 
-        var pagedParticipants = (await _participantRepository.GetByWorkSpaceIdAsync(workspaceId, request))
-            .Map<WorkSpaceParticipantDto>(wp => WorkSpaceParticipantMapper.CreateDto(wp, IsNotAllowed(participant, wp) == null));
+        var pagedParticipants = (await _participantRepository.GetByBoardIdAsync(boardId, request))
+            .Map<BoardParticipantDto>(bp => BoardParticipantMapper.CreateDto(bp, IsNotAllowed(participant, bp) == null));
 
         return Ok(pagedParticipants);
     }
@@ -106,7 +106,7 @@ public class WorkSpaceParticipantApiController : ControllerBase
         return Ok(roles);
     }
 
-    private ActionResult? IsNotAllowed(WorkSpaceParticipant changer, WorkSpaceParticipant target)
+    private ActionResult? IsNotAllowed(BoardParticipant changer, BoardParticipant target)
     {
         if ((changer.UserProfileId == target.UserProfileId && changer.Role == ParticipantRole.Owner) || (int)target.Role < (int)changer.Role)
         {
@@ -115,8 +115,8 @@ public class WorkSpaceParticipantApiController : ControllerBase
         return null;
     }
     
-    [HttpDelete("{workspaceId:guid}/participants")]
-    public async Task<ActionResult> RemoveParticipant(Guid workspaceId, [FromBody] ParticipantActionRequest req)
+    [HttpDelete("{boardId:guid}/participants")]
+    public async Task<ActionResult> RemoveParticipant(Guid boardId, [FromBody] ParticipantActionRequest req)
     {
         if (string.IsNullOrWhiteSpace(req.UserProfileId))
             return BadRequest("userProfileId is required.");
@@ -124,16 +124,16 @@ public class WorkSpaceParticipantApiController : ControllerBase
         var userId = _currentUserService.GetIdentityId();
         if (userId == null) return Unauthorized();
         
-        var changer = await _participantRepository.GetAsync(workspaceId, userId);
+        var changer = await _participantRepository.GetAsync(boardId, userId);
         if(changer is null) return NotFound();
         
-        var participant = await _participantRepository.GetAsync(workspaceId, req.UserProfileId);
+        var participant = await _participantRepository.GetAsync(boardId, req.UserProfileId);
         if(participant is null) return NotFound();
         
         var notAllowed = IsNotAllowed(changer, participant);
         if(notAllowed is not null) return notAllowed;
 
-        await _participantRepository.RemoveAsync(workspaceId, req.UserProfileId);
+        await _participantRepository.RemoveAsync(boardId, req.UserProfileId);
         await _participantRepository.SaveChangesAsync();
         
         return NoContent();
@@ -150,10 +150,10 @@ public class WorkSpaceParticipantApiController : ControllerBase
         if (me is null) return Unauthorized();
 
         // 2) Перевірка, що workspace існує + перевірка прав (Owner/Admin)
-        var ws = await _workSpaceService.GetByIdAsync(id);
-        if (ws is null) return NotFound();
+        var board = await _boardSpaceService.GetByIdAsync(id);
+        if (board is null) return NotFound();
 
-        var myMembership = ws.Participants.FirstOrDefault(p => p.UserProfileId == me.IdentityId);
+        var myMembership = board.Participants.FirstOrDefault(p => p.UserProfileId == me.IdentityId);
         var amAllowed = myMembership?.Role is ParticipantRole.Owner or ParticipantRole.Admin;
         if (!amAllowed) return Forbid();
 
@@ -162,11 +162,11 @@ public class WorkSpaceParticipantApiController : ControllerBase
             return Conflict("User is already a participant of this workspace.");
 
         // 4) Створення і збереження
-        var newParticipant = new WorkSpaceParticipant
+        var newParticipant = new BoardParticipant
         {
-            WorkSpaceId = id,
+            BoardId = id,
             UserProfileId = req.UserProfileId,
-            Role = ParticipantRole.Viewer,         // дефолт
+            Role = ParticipantRole.Viewer,
             JoiningTimestamp = DateTime.UtcNow
         };
 
@@ -174,9 +174,9 @@ public class WorkSpaceParticipantApiController : ControllerBase
         await _participantRepository.SaveChangesAsync();
 
         // 5) Повторно завантажити з навігаціями для мапера (щоб не отримати NRE)
-        var createdFull = (await _participantRepository.GetByWorkSpaceIdAsync(id))
-            .First(p => p.UserProfileId == req.UserProfileId);
-
-        return Ok(WorkSpaceParticipantMapper.CreateDto(createdFull, true));
+        var createdFull = await _participantRepository.GetAsync(id, req.UserProfileId);
+        if(createdFull == null) return NotFound();
+        
+        return Ok(BoardParticipantMapper.CreateDto(createdFull, true));
     }
 }

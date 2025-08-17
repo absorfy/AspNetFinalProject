@@ -28,8 +28,8 @@ export async function unsubscribeFromWorkspaceAjax(id, signal) {
 }
 
 // GET /api/workspaces/{id}/participants?page=1&pageSize=20
-export async function fetchWorkspaceParticipantsAjax(id, { page = 1, pageSize = 20 } = {}, signal) {
-  return await apiClient.get(`/workspaces/${id}/participants`, null, { query: { page, pageSize }, signal });
+export async function fetchWorkspaceParticipantsAjax(id, query, signal) {
+  return await apiClient.get(`/workspaces/${id}/participants`, null, { query, signal });
 }
 
 // POST /api/workspaces/{id}/participants  body: { userProfileId, role }
@@ -43,7 +43,6 @@ export async function removeWorkspaceParticipantAjax(id, userProfileId, signal) 
 }
 
 // GET /api/workspaces/{id}/participants/search?q=...
-// Міндовжина q -> на рівні UI (debounce + перевірка), НЕ тут
 export async function searchWorkspaceParticipantsAjax(id, q, signal) {
   return await apiClient.get(`/workspaces/${id}/participants/search`,  null,{ query: { q }, signal });
 }

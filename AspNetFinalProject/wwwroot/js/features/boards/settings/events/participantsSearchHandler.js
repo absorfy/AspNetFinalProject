@@ -1,17 +1,17 @@
 ﻿import {ContainerState, createContainerState} from "../../../../shared/ui/containerState.js";
-import {searchWorkspaceParticipantsAjax} from "../../api/workspaceApi.js";
 import {delegate} from "../../../../shared/utils/eventDelegator.js";
 import {listSkeleton} from "../../../../shared/ui/skeletons.js";
-import {getNewWorkspaceParticipantDiv} from "../ui/getWorkspaceParticipantDiv.js";
 import {searchParticipantsInput} from "../dom.js";
 import {debounceInput} from "../../../../shared/utils/debounceInputs.js";
+import {searchBoardParticipantsAjax} from "../../api/boardApi.js";
+import {getNewBoardParticipantDiv} from "../ui/getBoardParticipantDiv.js";
 
 
 let _inited = false;
 let _searchCtrl = null;
 let _triggerSearch = null;
 
-export function initWorkspaceParticipantsSearchHandler(workspaceId) {
+export function initBoardParticipantsSearchHandler(workspaceId) {
   if (_inited) return;
   _inited = true;
 
@@ -31,7 +31,7 @@ export function initWorkspaceParticipantsSearchHandler(workspaceId) {
 
     view.setState(ContainerState.LOADING);
     try {
-      const items = await searchWorkspaceParticipantsAjax(workspaceId, q.trim(), _searchCtrl.signal);
+      const items = await searchBoardParticipantsAjax(workspaceId, q.trim(), _searchCtrl.signal);
       if (!_searchCtrl || _searchCtrl.signal.aborted) return;
 
       if (!items || items.length === 0) {
@@ -43,7 +43,7 @@ export function initWorkspaceParticipantsSearchHandler(workspaceId) {
         builder: (root) => {
           root.innerHTML = "";
           items.forEach(u => {
-            const newParticipant = getNewWorkspaceParticipantDiv(u);
+            const newParticipant = getNewBoardParticipantDiv(u);
             root.appendChild(newParticipant);
           });
         }

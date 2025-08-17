@@ -39,7 +39,7 @@ export function getWorkspaceDiv(workspace) {
       createBoardForm.setAttribute("data-workspace-id", workspace.id);
       const controller = new AbortController();
       const view = createContainerState(boardListContainer, { skeleton: listSkeleton });
-      await loadBoardsWithWorkspaceId(workspace.id, boardListContainer, controller.signal, view);
+      loadBoardsWithWorkspaceId(workspace.id, boardListContainer, controller.signal, view);
     },
   });
   return card

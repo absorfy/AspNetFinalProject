@@ -2,14 +2,14 @@
 import {formatDateTime} from "../../../../shared/utils/formatDateTime.js";
 import {getDeleteButtonConfig} from "../../../../shared/actions/buttonsConfigs.js";
 import {getRoleSelectConfig} from "../../../../shared/actions/selectsConfigs.js";
-import {getWorkspaceRoles} from "../main.js";
-import {changeWorkspaceParticipantRole} from "../../api/workspaceApi.js";
+import {getBoardRoles} from "../main.js";
+import {changeBoardParticipantRole} from "../../api/boardApi.js";
 
 
-export function getWorkspaceParticipantDiv(participant) {
+export function getBoardParticipantDiv(participant) {
   let oldValue = participant.role;
   const ctrl = new AbortController();
-  
+
   return renderCardDiv({
     title: `${participant.username}`,
     meta: [
@@ -26,10 +26,10 @@ export function getWorkspaceParticipantDiv(participant) {
         targetAction: "select-participant-role",
         targetId: participant.userProfileId,
         currentRole: participant.role,
-        roles: getWorkspaceRoles(),
+        roles: getBoardRoles(),
         onChange: async (e) => {
           try {
-            await changeWorkspaceParticipantRole(participant.workSpaceId, participant.userProfileId, e.target.value, ctrl.signal);
+            await changeBoardParticipantRole(participant.boardId, participant.userProfileId, e.target.value, ctrl.signal);
           }
           catch (error) {
             e.target.value = oldValue;
@@ -49,8 +49,7 @@ export function getWorkspaceParticipantDiv(participant) {
   });
 }
 
-export function getNewWorkspaceParticipantDiv(userProfile) {
-  console.log(userProfile);
+export function getNewBoardParticipantDiv(userProfile) {
   return renderCardDiv({
     title: `${userProfile.username}`,
     actions: [

@@ -14,7 +14,7 @@ public class WorkSpaceParticipant
     [ForeignKey(nameof(UserProfileId))]
     public UserProfile UserProfile { get; set; } = null!;
 
-    public WorkSpaceRole Role { get; set; } = WorkSpaceRole.Member;
+    public ParticipantRole Role { get; set; } = ParticipantRole.Member;
 
     public DateTime JoiningTimestamp { get; set; } = DateTime.UtcNow;
 }

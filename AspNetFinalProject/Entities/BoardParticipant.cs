@@ -12,7 +12,7 @@ public class BoardParticipant
     [ForeignKey(nameof(UserProfileId))]
     public UserProfile UserProfile { get; set; } = null!;
     
-    public BoardRole Role { get; set; } = BoardRole.Viewer;
+    public ParticipantRole Role { get; set; } = ParticipantRole.Viewer;
     
     public DateTime JoiningTimestamp { get; set; } = DateTime.UtcNow;
 }

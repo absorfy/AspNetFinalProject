@@ -42,7 +42,7 @@ public class CurrentUserService : ICurrentUserService
         return true;
     }
 
-    public async Task<bool> HasRoleAsync(Guid workspaceId, params WorkSpaceRole[] roles)
+    public async Task<bool> HasRoleAsync(Guid workspaceId, params ParticipantRole[] roles)
     {
         var user = await GetUserProfileAsync();
         var count = user?.WorkspacesParticipating.Count(p => p.WorkSpaceId == workspaceId && roles.Contains(p.Role));

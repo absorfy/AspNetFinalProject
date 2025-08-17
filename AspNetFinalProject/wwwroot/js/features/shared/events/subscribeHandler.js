@@ -1,11 +1,11 @@
-﻿import {delegate} from "../../../../shared/utils/eventDelegator.js";
-import {toggleAction} from "../../../../shared/actions/toggleAction.js";
-import {subscribeToWorkspaceAjax, unsubscribeFromWorkspaceAjax} from "../../api/workspaceApi.js";
+﻿import {delegate} from "../../../shared/utils/eventDelegator.js";
+import {toggleAction} from "../../../shared/actions/toggleAction.js";
 
 
-export function initWorkspaceSubscribeHandler() {
+export function initSubscribeHandler(entityName, subscribe, unsubscribe) {
+  if(typeof subscribe !== "function" || typeof unsubscribe !== "function") return;
   delegate("click", {
-    "subscribe-workspace": (btn) => {
+    [`subscribe-${entityName}`]: (btn) => {
       let isSubscribed = btn.dataset.subscribed.toLowerCase() === "true";
       toggleAction({
         btn,
@@ -19,8 +19,8 @@ export function initWorkspaceSubscribeHandler() {
         },
         doAjax: () =>
           isSubscribed
-            ? unsubscribeFromWorkspaceAjax(btn.dataset.id)
-            : subscribeToWorkspaceAjax(btn.dataset.id),
+            ? unsubscribe(btn.dataset.id)
+            : subscribe(btn.dataset.id),
         loadingText: "Зачекайте...",
       });
     },

@@ -1,9 +1,6 @@
-﻿import {loadParticipants} from "../load/loadParticipants.js";
-import {ContainerState, createContainerState} from "../../../../shared/ui/containerState.js";
-import {delegate} from "../../../../shared/utils/eventDelegator.js";
-import {loadBoardsWithWorkspaceId} from "../../shared/load/loadBoards.js";
-import {listSkeleton} from "../../../../shared/ui/skeletons.js";
-import {boardContainer, participantContainer} from "../dom.js";
+﻿import {delegate} from "../../../../shared/utils/eventDelegator.js";
+import {loadParticipants} from "../load/loadParticipants.js";
+import {participantContainer} from "../dom.js";
 
 
 let _inited = false;
@@ -22,7 +19,7 @@ function showOnlyTab(tab) {
   });
 }
 
-async function loadTab(tab, { workspaceId }) {
+async function loadTab(tab, { boardId }) {
   // показати лише потрібний таб
   showOnlyTab(tab);
   setActiveTabButton(tab);
@@ -30,10 +27,7 @@ async function loadTab(tab, { workspaceId }) {
   // завантаження контенту конкретної вкладки
   switch (tab) {
     case "participants":
-      await loadParticipants(workspaceId, participantContainer);
-      break;
-    case "boards":
-      await loadBoardsWithWorkspaceId(workspaceId, boardContainer);
+      await loadParticipants(boardId, participantContainer);
       break;
     case "general":
     default:
@@ -49,29 +43,29 @@ function setHash(tab) {
   if (getTabFromHash() !== tab) history.replaceState(null, "", `#${tab}`);
 }
 
-export function initWorkspaceTabsHandler(opts) {
+export function initBoardTabsHandler(opts) {
   if (_inited) return; // ідемпотентність
   _inited = true;
 
-  
-  const { workspaceId } = opts || {};
+
+  const { boardId } = opts || {};
   // делегування кліків по табам
   delegate("click", {
     "open-tab": (btn, e) => {
       e.preventDefault();
       const tab = btn.dataset.tab || DEFAULT_TAB;
       setHash(tab);
-      loadTab(tab, { workspaceId });
+      loadTab(tab, { boardId });
     }
   });
 
   // реагуємо на зміну hash (якщо треба)
   window.addEventListener("hashchange", () => {
-    loadTab(getTabFromHash(), { workspaceId });
+    loadTab(getTabFromHash(), { boardId });
   });
 
   // перший запуск — із hash або за замовчуванням
   const initial = getTabFromHash();
   setHash(initial);
-  loadTab(initial, { workspaceId });
+  loadTab(initial, { boardId });
 }

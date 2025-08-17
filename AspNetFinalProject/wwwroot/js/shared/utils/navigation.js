@@ -13,7 +13,11 @@
   
 
   toBoardDashboard(id) {
-    this.to(`/Boards/Dashboard/${id}`);
+    this.to(`/Boards/${id}/Dashboard`);
+  },
+  
+  toSettingsBoard(id) {
+    this.to(`/Boards/${id}/Settings`);
   },
 
   toSettingsWorkspace(id) {
