@@ -1,4 +1,5 @@
-﻿using AspNetFinalProject.Data;
+﻿using AspNetFinalProject.Common;
+using AspNetFinalProject.Data;
 using AspNetFinalProject.Entities;
 using AspNetFinalProject.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,18 @@ public class UserActionLogRepository : IUserActionLogRepository
 
     public async Task<IEnumerable<UserActionLog>> GetByUserIdAsync(string userId)
     {
-        return await _context.UserActionLogs.Where(l => l.UserProfileId == userId).ToListAsync();
+        return await BaseQueryForUserId(userId).ToListAsync();
+    }
+
+    public async Task<PagedResult<UserActionLog>> GetByUserIdAsync(string userId, PagedRequest request)
+    {
+        var query = BaseQueryForUserId(userId, true);
+        return await query.ToPagedResultAsync(request.Page, request.PageSize);
+    }
+
+    private IQueryable<UserActionLog> BaseQueryForUserId(string userId, bool asNoTracking = false)
+    {
+        var q = _context.UserActionLogs.Where(l => l.UserProfileId == userId);
+        return asNoTracking ? q.AsNoTracking() : q;
     }
 }

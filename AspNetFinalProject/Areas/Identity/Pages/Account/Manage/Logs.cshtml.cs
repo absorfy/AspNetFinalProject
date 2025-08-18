@@ -1,4 +1,5 @@
-﻿using AspNetFinalProject.DTOs;
+﻿using AspNetFinalProject.Common;
+using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -21,9 +22,13 @@ public class Logs : PageModel
         _userManager = userManager;
     }
     
-    public IEnumerable<UserActionLogDto> UserLogs { get; set; }
+    public PagedResult<UserActionLogDto>? UserLogs { get; set; }
     
-    
+    [BindProperty(SupportsGet = true)]
+    public int PageIndex { get; set; } = 1;
+
+    [BindProperty(SupportsGet = true)]
+    public int PageSize { get; set; } = 10;
     
     public async Task<IActionResult> OnGetAsync()
     {
@@ -32,9 +37,15 @@ public class Logs : PageModel
         {
             return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
         }
+
+        var request = new PagedRequest
+        {
+            Page = PageIndex,
+            PageSize = PageSize,
+        };
         
-        var logs = await _userActionLogService.GetByUserIdAsync(user.Id);
-        UserLogs = logs.Select(UserActionLogMapper.CreateDto);
+        UserLogs = (await _userActionLogService.GetByUserIdAsync(user.Id, request))
+            .Map(UserActionLogMapper.CreateDto);
         return Page();
     }
 }

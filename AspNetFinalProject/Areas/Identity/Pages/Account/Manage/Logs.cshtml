@@ -1,55 +1,139 @@
 ﻿@page
 @inject IUserActionLogService UserActionLogService
-@using AspNetFinalProject.Enums
 @using AspNetFinalProject.Mappers
 @using AspNetFinalProject.Services.Interfaces
-@model Logs
+@model AspNetFinalProject.Areas.Identity.Pages.Account.Manage.Logs
 @{
     ViewData["Title"] = "Logs";
-    ViewData["ActivePage"] = ManageNavPages.Logs;
-    Layout = "_Layout.cshtml";
+
+    var paged = Model.UserLogs;
+    var totalPages = paged?.TotalPages ?? 1;
+    var totalCount = paged?.TotalCount ?? 0;
+
+    var currentPage = Model.PageIndex;   // з вашого .cs
+    var pageSize = Model.PageSize;       // з вашого .cs
+
+    var startIdx = totalCount == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    var endIdx = Math.Min(currentPage * pageSize, totalCount);
+
+    // вікно сторінок
+    int maxPagesToShow = 5;
+    int startPage = Math.Max(1, currentPage - maxPagesToShow / 2);
+    int endPage = Math.Min(totalPages, startPage + maxPagesToShow - 1);
+    if (endPage - startPage + 1 < maxPagesToShow)
+    {
+        startPage = Math.Max(1, endPage - maxPagesToShow + 1);
+    }
 }
 
-<h3 class="mb-4">@ViewData["Title"]</h3>
+<h2 class="mb-3">Журнал дій</h2>
 
-@if (!Model.UserLogs.Any())
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <small class="text-muted">
+            Показано @startIdx–@endIdx із @totalCount
+        </small>
+    </div>
+
+    <!-- селект розміру сторінки — без C# у атрибутах option (щоб не ловити RZ1031) -->
+    <form method="get" id="pagerForm" class="d-flex align-items-center gap-2">
+        <label for="pageSize" class="col-form-label me-2">На сторінці:</label>
+        <select name="pageSize" id="pageSize" class="form-select form-select-sm" onchange="resetPageAndSubmit()">
+            @{
+                var sizes = new[] { 10, 20, 50, 100 };
+                foreach (var s in sizes)
+                {
+                    if (s == pageSize)
+                    {
+                        @: <option value="@s" selected>@s</option>
+                    }
+                    else
+                    {
+                        @: <option value="@s">@s</option>
+                    }
+                }
+            }
+        </select>
+        
+        <input type="hidden" name="pageIndex" id="pageInput" value="@currentPage" />
+        <noscript><button type="submit" class="btn btn-sm btn-primary">Застосувати</button></noscript>
+    </form>
+</div>
+
+
+@if (paged?.Items != null && paged.Items.Count > 0)
 {
-    <div class="alert alert-info">Жодних дій не зафіксовано.</div>
+    <ul class="list-group mb-3">
+        @foreach (var log in paged.Items)
+        {
+            <li class="list-group-item">
+                @{
+                    var ts = log.Timestamp.ToLocalTime().ToString("g");
+                    var msgs = (log.Messages ?? Enumerable.Empty<string>())
+                        .Select(m => (m ?? string.Empty).Replace("\t", "    ").Trim())
+                        .Where(m => !string.IsNullOrWhiteSpace(m))
+                        .ToList();
+                    var joined = string.Join(" · ", msgs);
+                    
+                    var et = log.EntityType;
+                    var url = await UserActionLogService.GetEntityLink(et, Guid.Parse(log.EntityId));
+                    var etText = EntityTargetTypeMapper.CreateDto(et).Text;
+                }
+
+                <span class="text-muted">@ts</span> — @joined — <a href="@url" class="link-primary">@etText</a>
+            </li>
+        }
+    </ul>
 }
 else
 {
-    <table class="table table-bordered table-striped">
-        <thead class="table-light">
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Час</th>
-            <th scope="col">Опис</th>
-            <th scope="col">Сутність</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var (log, index) in Model.UserLogs.Select((value, i) => (value, i + 1)))
-        {
-            <tr>
-                <th scope="row">@index</th>
-                <td>@log.Timestamp.ToLocalTime().ToString("g")</td>
-                <td>@{
-                        foreach (var logMessage in log.Messages)
-                        {
-                            <p>@logMessage</p>
-                        }
-                    }</td>
-                <td>
-                    <a href="@await UserActionLogService.GetEntityLink((EntityTargetType)log.EntityType, Guid.Parse(log.EntityId))" class="btn btn-outline-info">
-                        @(EntityTargetTypeMapper.CreateDto((EntityTargetType)log.EntityType).Text)
-                    </a>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <div class="alert alert-light border text-muted">Немає записів.</div>
+}
+
+@if (totalPages > 1)
+{
+    <nav aria-label="Пагінація">
+        <ul class="pagination mb-0">
+            <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-page="./Logs"
+                   asp-route-pageIndex="@(currentPage - 1)"
+                   asp-route-pageSize="@pageSize"
+                   aria-label="Попередня">
+                    &laquo;
+                </a>
+            </li>
+
+            @for (int i = startPage; i <= endPage; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-page="./Logs"
+                       asp-route-pageIndex="@i"
+                       asp-route-pageSize="@pageSize">@i</a>
+                </li>
+            }
+
+            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-page="./Logs"
+                   asp-route-pageIndex="@(currentPage + 1)"
+                   asp-route-pageSize="@pageSize"
+                   aria-label="Наступна">
+                    &raquo;
+                </a>
+            </li>
+        </ul>
+    </nav>
 }
 
 @section Scripts {
+    <script>
+        function resetPageAndSubmit() {
+            // При зміні pageSize повертаємось на 1 сторінку
+            document.getElementById('pageInput').value = 1;
+            document.getElementById('pagerForm').submit();
+        }
+    </script>
     <script type="module" src="~/js/features/logs/main.js"></script>
 }

@@ -58,6 +58,11 @@ public class UserActionLogService : IUserActionLogService
         return _actionLogRepository.GetByUserIdAsync(userId);
     }
 
+    public async Task<PagedResult<UserActionLog>> GetByUserIdAsync(string userId, PagedRequest request)
+    {
+        return await _actionLogRepository.GetByUserIdAsync(userId, request);
+    }
+
     public async Task<string?> GetEntityLink(EntityTargetType entityType, Guid entityId)
     {
         ILogEntity? entityLog = entityType switch

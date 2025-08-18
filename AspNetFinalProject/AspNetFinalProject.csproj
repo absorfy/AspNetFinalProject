@@ -43,6 +43,9 @@
       <_ContentIncludedByDefault Remove="wwwroot\js\features\workspaces\dashboard\form\createBoard.js" />
       <_ContentIncludedByDefault Remove="wwwroot\js\features\workspaces\dashboard\form\createWorkspace.js" />
       <_ContentIncludedByDefault Remove="wwwroot\js\features\workspaces\settings\form\updateWorkspace.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\shared\ui\pagination\paginationControls.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\shared\ui\pagination\paginationCore.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\shared\ui\pagination\paginationList.js" />
     </ItemGroup>
 
 </Project>

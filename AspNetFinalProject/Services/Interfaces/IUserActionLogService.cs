@@ -11,5 +11,6 @@ public interface IUserActionLogService
 
     Task<UserActionLog> LogUpdating(string userId, ILogEntity logEntity, params EntityUpdateLog[] updateLogs);
     Task<IEnumerable<UserActionLog>> GetByUserIdAsync(string userId);
+    Task<PagedResult<UserActionLog>> GetByUserIdAsync(string userId, PagedRequest request);
     Task<string?> GetEntityLink(EntityTargetType entityType, Guid entityId);
 }
