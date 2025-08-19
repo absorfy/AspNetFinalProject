@@ -1,5 +1,5 @@
 ﻿import {renderCardDiv} from "../../../../shared/ui/cardDivRenderer.js";
-import {boardListContainer, createBoardForm, workspaceTitle} from "../dom.js";
+import {boardListContainer, createBoardButton, createBoardForm, workspaceTitle} from "../dom.js";
 import {loadBoardsWithWorkspaceId} from "../../shared/load/loadBoards.js";
 import {
   getDeleteButtonConfig,
@@ -39,6 +39,7 @@ export function getWorkspaceDiv(workspace) {
       createBoardForm.setAttribute("data-workspace-id", workspace.id);
       const controller = new AbortController();
       const view = createContainerState(boardListContainer, { skeleton: listSkeleton });
+      createBoardButton.hidden = false;
       loadBoardsWithWorkspaceId(workspace.id, boardListContainer, controller.signal, view);
     },
   });

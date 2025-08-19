@@ -12,6 +12,7 @@ import {initDeleteBoardHandler} from "../../shared/events/deleteBoardHandler.js"
 import {initCreateBoardSubmitHandler} from "../../shared/events/createBoardHandler.js";
 import {initBoardSettingsHandler} from "../../shared/events/boardSettingsHandler.js";
 import {initSubscribeHandler} from "../../../shared/events/subscribeHandler.js";
+import {subscribeToBoardAjax, unsubscribeFromBoardAjax} from "../../../boards/api/boardApi.js";
 
 
 export function initWorkspaceSettingsEvents(workspaceId) {
@@ -31,6 +32,7 @@ export function initWorkspaceSettingsEvents(workspaceId) {
     triggerParticipantsSearch();
   });
   initSubscribeHandler("workspace", subscribeToWorkspaceAjax, unsubscribeFromWorkspaceAjax);
+  initSubscribeHandler("board", subscribeToBoardAjax, unsubscribeFromBoardAjax)
   initCreateBoardSubmitHandler(boardContainer);
   initDeleteBoardHandler((boardId) => {
     const card = document.querySelector(`[data-board-id="${boardId}"]`);

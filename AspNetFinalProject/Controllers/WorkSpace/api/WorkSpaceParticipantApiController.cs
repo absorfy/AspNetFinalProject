@@ -21,7 +21,7 @@ public class WorkSpaceParticipantApiController : ControllerBase
 
     public record ParticipantActionRequest(string UserProfileId);
 
-    public record ParticipantRoleRequest(string Role);
+    public record ParticipantRoleRequest(ParticipantRole Role);
     
     public WorkSpaceParticipantApiController(IWorkSpaceService workSpaceService,
         ICurrentUserService currentUserService,
@@ -36,6 +36,15 @@ public class WorkSpaceParticipantApiController : ControllerBase
     [HttpGet("{workspaceId:guid}/participants/search")]
     public async Task<ActionResult<IEnumerable<UserProfileDto>>> GetNewParticipants(Guid workspaceId, [FromQuery] string q, [FromQuery] int take = 20)
     {
+        var userId = _currentUserService.GetIdentityId();
+        if(userId == null) return Unauthorized();
+
+        if (!await _currentUserService.HasWorkspaceRoleAsync(workspaceId,
+                ParticipantRole.Owner, ParticipantRole.Admin))
+        {
+            return Forbid();
+        }
+        
         q = (q ?? "").Trim();
         if (q.Length < 3) return Ok(Array.Empty<UserProfileDto>());
 
@@ -65,19 +74,10 @@ public class WorkSpaceParticipantApiController : ControllerBase
         var notAllowed = IsNotAllowed(changer, participant);
         if(notAllowed is not null) return notAllowed;
         
-        if (Enum.TryParse(request.Role, out ParticipantRole parsed))
-        {
-            if(parsed == ParticipantRole.Owner) return Forbid();
-            participant.Role = parsed;
-            await _participantRepository.SaveChangesAsync();
-            return NoContent();
-        }
-        
-        return BadRequest(new
-        {
-            error = $"Invalid role value: {request.Role}",
-            allowedValues = Enum.GetNames<ParticipantRole>()
-        });
+        if(request.Role == ParticipantRole.Owner || (int)request.Role < (int)changer.Role) return Forbid();
+        participant.Role = request.Role;
+        await _participantRepository.SaveChangesAsync();
+        return NoContent();
     }
     
     [HttpGet("{workspaceId:guid}/participants")]
@@ -88,6 +88,11 @@ public class WorkSpaceParticipantApiController : ControllerBase
         
         var workspace = await _workSpaceService.GetByIdAsync(workspaceId);
         if (workspace == null) return NotFound();
+        
+        if (!await _currentUserService.HasWorkspaceRoleAsync(workspaceId, ParticipantRole.Owner, ParticipantRole.Admin, ParticipantRole.Member))
+        {
+            return Forbid();
+        }
         
         var participant = await _participantRepository.GetAsync(workspaceId, user.IdentityId);
         if (participant == null) return Forbid();
@@ -108,7 +113,8 @@ public class WorkSpaceParticipantApiController : ControllerBase
 
     private ActionResult? IsNotAllowed(WorkSpaceParticipant changer, WorkSpaceParticipant target)
     {
-        if ((changer.UserProfileId == target.UserProfileId && changer.Role == ParticipantRole.Owner) || (int)target.Role < (int)changer.Role)
+        if ((changer.UserProfileId == target.UserProfileId && changer.Role == ParticipantRole.Owner) || (int)target.Role < (int)changer.Role || 
+            changer.Role != ParticipantRole.Admin && changer.Role != ParticipantRole.Owner)
         {
             return Forbid();
         }
@@ -145,28 +151,23 @@ public class WorkSpaceParticipantApiController : ControllerBase
         if (string.IsNullOrWhiteSpace(req.UserProfileId))
             return BadRequest("userProfileId is required.");
 
-        // 1) Поточний користувач
-        var me = await _currentUserService.GetUserProfileAsync();
-        if (me is null) return Unauthorized();
+        var userId = _currentUserService.GetIdentityId();
+        if (userId == null) return Unauthorized();
 
-        // 2) Перевірка, що workspace існує + перевірка прав (Owner/Admin)
-        var ws = await _workSpaceService.GetByIdAsync(id);
-        if (ws is null) return NotFound();
+        if (!await _currentUserService.HasWorkspaceRoleAsync(id, ParticipantRole.Owner, ParticipantRole.Admin))
+        {
+            return Forbid();
+        }
 
-        var myMembership = ws.Participants.FirstOrDefault(p => p.UserProfileId == me.IdentityId);
-        var amAllowed = myMembership?.Role is ParticipantRole.Owner or ParticipantRole.Admin;
-        if (!amAllowed) return Forbid();
-
-        // 3) Не додавати двічі
         if (await _participantRepository.IsAlreadyParticipant(id, req.UserProfileId))
             return Conflict("User is already a participant of this workspace.");
 
-        // 4) Створення і збереження
+
         var newParticipant = new WorkSpaceParticipant
         {
             WorkSpaceId = id,
             UserProfileId = req.UserProfileId,
-            Role = ParticipantRole.Viewer,         // дефолт
+            Role = ParticipantRole.Viewer,
             JoiningTimestamp = DateTime.UtcNow
         };
 

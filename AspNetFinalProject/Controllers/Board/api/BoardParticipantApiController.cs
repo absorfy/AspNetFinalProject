@@ -15,31 +15,43 @@ namespace AspNetFinalProject.Controllers.Board.api;
 [Authorize]
 public class BoardParticipantApiController : ControllerBase
 {
-    private readonly IBoardService _boardSpaceService;
+    private readonly IBoardService _boardService;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IBoardParticipantRepository _participantRepository;
+    private readonly IBoardParticipantRepository _boardParticipantRepository;
+    private readonly IWorkSpaceParticipantRepository _workSpaceParticipantRepository;
 
     public record ParticipantActionRequest(string UserProfileId);
 
-    public record ParticipantRoleRequest(string Role);
+    public record ParticipantRoleRequest(ParticipantRole Role);
     
-    public BoardParticipantApiController(IBoardService boardSpaceService,
+    public BoardParticipantApiController(IBoardService boardService,
         ICurrentUserService currentUserService,
-        IBoardParticipantRepository participantRepository)
+        IBoardParticipantRepository boardParticipantRepository,
+        IWorkSpaceParticipantRepository workSpaceParticipantRepository)
     {
-        _boardSpaceService = boardSpaceService;
+        _boardService = boardService;
         _currentUserService = currentUserService;
-        _participantRepository = participantRepository;
+        _boardParticipantRepository = boardParticipantRepository;
+        _workSpaceParticipantRepository = workSpaceParticipantRepository;
     }
     
     
     [HttpGet("{boardId:guid}/participants/search")]
     public async Task<ActionResult<IEnumerable<UserProfileDto>>> GetNewParticipants(Guid boardId, [FromQuery] string q, [FromQuery] int take = 20)
     {
+        var board = await _boardService.GetByIdAsync(boardId);
+        if (board == null) return NotFound();
+        
+        if (!await _currentUserService.HasBoardRoleAsync(boardId, ParticipantRole.Admin, ParticipantRole.Owner) &&
+            !await _currentUserService.HasWorkspaceRoleAsync(board.WorkSpaceId, ParticipantRole.Admin, ParticipantRole.Owner))
+        {
+            return Forbid();
+        }
+        
         q = (q ?? "").Trim();
         if (q.Length < 3) return Ok(Array.Empty<UserProfileDto>());
 
-        var searched = await _participantRepository.GetNonParticipantsAsync(boardId, q);
+        var searched = await _boardParticipantRepository.GetNonParticipantsAsync(boardId, q);
         
         var result = searched
             .Take(Math.Clamp(take, 1, 50))
@@ -56,28 +68,22 @@ public class BoardParticipantApiController : ControllerBase
         var userId = _currentUserService.GetIdentityId();
         if (userId == null) return Unauthorized();
         
-        var changer = await _participantRepository.GetAsync(boardId, userId);
-        if(changer is null) return NotFound();
-        
-        var participant = await _participantRepository.GetAsync(boardId, userProfileId);
+        var participant = await _boardParticipantRepository.GetAsync(boardId, userProfileId);
         if(participant is null) return NotFound();
         
-        var notAllowed = IsNotAllowed(changer, participant);
+        var notAllowed = await IsNotAllowed(boardId, participant);
         if(notAllowed is not null) return notAllowed;
         
-        if (Enum.TryParse(request.Role, out ParticipantRole parsed))
-        {
-            if(parsed == ParticipantRole.Owner) return Forbid();
-            participant.Role = parsed;
-            await _participantRepository.SaveChangesAsync();
-            return NoContent();
-        }
         
-        return BadRequest(new
-        {
-            error = $"Invalid role value: {request.Role}",
-            allowedValues = Enum.GetNames<ParticipantRole>()
-        });
+        var board = await _boardService.GetByIdAsync(boardId);
+        if (board == null) return NotFound();
+        var changerRole = (await _workSpaceParticipantRepository.GetAsync(board.WorkSpaceId, userProfileId))?.Role;
+        if (changerRole == null) return Forbid();
+        
+        if(request.Role == ParticipantRole.Owner || request.Role < changerRole) return Forbid();
+        participant.Role = request.Role;
+        await _boardParticipantRepository.SaveChangesAsync();
+        return NoContent();
     }
     
     [HttpGet("{boardId:guid}/participants")]
@@ -86,14 +92,18 @@ public class BoardParticipantApiController : ControllerBase
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
         
-        var board = await _boardSpaceService.GetByIdAsync(boardId);
+        var board = await _boardService.GetByIdAsync(boardId);
         if (board == null) return NotFound();
         
-        var participant = await _participantRepository.GetAsync(boardId, user.IdentityId);
-        if (participant == null) return Forbid();
+        if (!await _currentUserService.HasBoardRoleAsync(boardId, ParticipantRole.Admin, ParticipantRole.Owner,
+                ParticipantRole.Member) &&
+            !await _currentUserService.HasWorkspaceRoleAsync(board.WorkSpaceId, ParticipantRole.Admin, ParticipantRole.Owner))
+        {
+            return Forbid();
+        }
 
-        var pagedParticipants = (await _participantRepository.GetByBoardIdAsync(boardId, request))
-            .Map<BoardParticipantDto>(bp => BoardParticipantMapper.CreateDto(bp, IsNotAllowed(participant, bp) == null));
+        var pagedParticipants = (await _boardParticipantRepository.GetByBoardIdAsync(boardId, request))
+            .MapAsync<BoardParticipantDto>(async bp => BoardParticipantMapper.CreateDto(bp, await IsNotAllowed(boardId, bp) == null));
 
         return Ok(pagedParticipants);
     }
@@ -106,12 +116,35 @@ public class BoardParticipantApiController : ControllerBase
         return Ok(roles);
     }
 
-    private ActionResult? IsNotAllowed(BoardParticipant changer, BoardParticipant target)
+    private async Task<ActionResult?> IsNotAllowed(Guid boardId, BoardParticipant target)
     {
-        if ((changer.UserProfileId == target.UserProfileId && changer.Role == ParticipantRole.Owner) || (int)target.Role < (int)changer.Role)
+        var changerId = _currentUserService.GetIdentityId();
+        if(changerId is null) return Unauthorized();
+        var board = await _boardService.GetByIdAsync(boardId);
+        if (board is null) return NotFound();
+
+        
+        var boardChanger = await _boardParticipantRepository.GetAsync(boardId, changerId);
+        var workSpaceChanger = await _workSpaceParticipantRepository.GetAsync(board.WorkSpaceId, changerId);
+        if (workSpaceChanger is not null)
         {
-            return Forbid();
+            if (target.Role == ParticipantRole.Owner ||
+                workSpaceChanger.Role != ParticipantRole.Admin && workSpaceChanger.Role != ParticipantRole.Owner)
+            {
+                return Forbid();
+            }
         }
+        else if (boardChanger is not null)
+        {
+            if ((boardChanger.UserProfileId == target.UserProfileId && boardChanger.Role == ParticipantRole.Owner) || 
+                (int)target.Role < (int)boardChanger.Role ||
+                (boardChanger.Role != ParticipantRole.Admin && boardChanger.Role != ParticipantRole.Owner))
+            {
+                return Forbid();
+            }
+            
+        }
+        else return NotFound();
         return null;
     }
     
@@ -120,21 +153,15 @@ public class BoardParticipantApiController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(req.UserProfileId))
             return BadRequest("userProfileId is required.");
-
-        var userId = _currentUserService.GetIdentityId();
-        if (userId == null) return Unauthorized();
         
-        var changer = await _participantRepository.GetAsync(boardId, userId);
-        if(changer is null) return NotFound();
-        
-        var participant = await _participantRepository.GetAsync(boardId, req.UserProfileId);
+        var participant = await _boardParticipantRepository.GetAsync(boardId, req.UserProfileId);
         if(participant is null) return NotFound();
         
-        var notAllowed = IsNotAllowed(changer, participant);
+        var notAllowed = await IsNotAllowed(boardId, participant);
         if(notAllowed is not null) return notAllowed;
 
-        await _participantRepository.RemoveAsync(boardId, req.UserProfileId);
-        await _participantRepository.SaveChangesAsync();
+        await _boardParticipantRepository.RemoveAsync(boardId, req.UserProfileId);
+        await _boardParticipantRepository.SaveChangesAsync();
         
         return NoContent();
     }
@@ -145,20 +172,18 @@ public class BoardParticipantApiController : ControllerBase
         if (string.IsNullOrWhiteSpace(req.UserProfileId))
             return BadRequest("userProfileId is required.");
 
-        // 1) Поточний користувач
-        var me = await _currentUserService.GetUserProfileAsync();
-        if (me is null) return Unauthorized();
+        
+        var board = await _boardService.GetByIdAsync(id);
+        if (board == null) return NotFound();
 
-        // 2) Перевірка, що workspace існує + перевірка прав (Owner/Admin)
-        var board = await _boardSpaceService.GetByIdAsync(id);
-        if (board is null) return NotFound();
-
-        var myMembership = board.Participants.FirstOrDefault(p => p.UserProfileId == me.IdentityId);
-        var amAllowed = myMembership?.Role is ParticipantRole.Owner or ParticipantRole.Admin;
-        if (!amAllowed) return Forbid();
+        if (!await _currentUserService.HasBoardRoleAsync(id, ParticipantRole.Admin, ParticipantRole.Owner) &&
+            !await _currentUserService.HasWorkspaceRoleAsync(board.WorkSpaceId, ParticipantRole.Admin, ParticipantRole.Owner))
+        {
+            return Forbid();
+        }
 
         // 3) Не додавати двічі
-        if (await _participantRepository.IsAlreadyParticipant(id, req.UserProfileId))
+        if (await _boardParticipantRepository.IsAlreadyParticipant(id, req.UserProfileId))
             return Conflict("User is already a participant of this workspace.");
 
         // 4) Створення і збереження
@@ -170,11 +195,11 @@ public class BoardParticipantApiController : ControllerBase
             JoiningTimestamp = DateTime.UtcNow
         };
 
-        await _participantRepository.AddAsync(newParticipant);
-        await _participantRepository.SaveChangesAsync();
+        await _boardParticipantRepository.AddAsync(newParticipant);
+        await _boardParticipantRepository.SaveChangesAsync();
 
         // 5) Повторно завантажити з навігаціями для мапера (щоб не отримати NRE)
-        var createdFull = await _participantRepository.GetAsync(id, req.UserProfileId);
+        var createdFull = await _boardParticipantRepository.GetAsync(id, req.UserProfileId);
         if(createdFull == null) return NotFound();
         
         return Ok(BoardParticipantMapper.CreateDto(createdFull, true));

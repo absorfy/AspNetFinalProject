@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Enums;
 using AspNetFinalProject.Mappers;
 using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -43,6 +44,10 @@ public class BoardListApiController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
+        var hasPermission = await _currentUserService.HasBoardRoleAsync(Guid.Parse(dto.BoardId), 
+            ParticipantRole.Admin, ParticipantRole.Owner, ParticipantRole.Member);
+        if(!hasPermission) return Forbid();
+        
         var list = await _service.CreateAsync(userId, dto);
 
         return CreatedAtAction(nameof(GetListsByBoard), new { boardId = dto.BoardId }, BoardListMapper.CreateDto(list));
@@ -68,6 +73,14 @@ public class BoardListApiController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
+        
+        var list = await _service.GetByIdAsync(id);
+        if (list == null) return NotFound();
+        var hasPermission = await _currentUserService.HasBoardRoleAsync(list.BoardId,
+            ParticipantRole.Admin, ParticipantRole.Member, ParticipantRole.Owner);
+        
+        if(!hasPermission) return Forbid();
+        
         var deleted = await _service.DeleteAsync(id, userId);
         if (!deleted) return NotFound();
 

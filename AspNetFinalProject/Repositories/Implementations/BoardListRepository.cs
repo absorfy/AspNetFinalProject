@@ -1,5 +1,6 @@
 ﻿using AspNetFinalProject.Data;
 using AspNetFinalProject.Entities;
+using AspNetFinalProject.Enums;
 using AspNetFinalProject.Repositories.Interfaces;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -17,12 +18,21 @@ public class BoardListRepository : IBoardListRepository
 
     public async Task<IEnumerable<BoardList>> GetListsByBoardAsync(Guid boardId, string userId)
     {
+        var board = _context.Boards.Include(board => board.Participants).FirstOrDefault(b => b.Id == boardId);
+        var workspace = _context.WorkSpaces.Include(workSpace => workSpace.Participants).FirstOrDefault(ws => ws.Id == board.WorkSpaceId);
+        var isAdmin = workspace.Participants.Any(p => p.UserProfileId == userId && p.Role is ParticipantRole.Owner or ParticipantRole.Admin);
+        var isWorkSpaceParticipant = workspace.Participants.Any(p => p.UserProfileId == userId);
+        
         return await _context.Lists
             .Include(l => l.Author)
             .Include(l => l.Cards)
             .Where(l => l.BoardId == boardId
                         && l.DeletedAt == null
-                        && (l.AuthorId == userId || l.Board.Participants.Any(p => p.UserProfileId == userId)))
+                        && (l.AuthorId == userId || 
+                            board.Participants.Any(p => p.UserProfileId == userId) ||
+                            board.Visibility == BoardVisibility.Public ||
+                            board.Visibility == BoardVisibility.Workspace && isWorkSpaceParticipant ||
+                            board.Visibility == BoardVisibility.Private && isAdmin))
             .OrderBy(l => l.OrderIndex)
             .ToListAsync();
     }

@@ -27,7 +27,7 @@ public class WorkSpaceApiController : ControllerBase
     
     
     [HttpGet]
-    public async Task<ActionResult<PagedResult<WorkSpaceDto>>> GetMyWorkspaces([FromQuery] PagedRequest request)
+    public async Task<ActionResult<PagedResult<WorkSpaceDto>>> GetWorkspaces([FromQuery] PagedRequest request)
     {
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
@@ -49,18 +49,23 @@ public class WorkSpaceApiController : ControllerBase
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
         var workspace = await _workSpaceService.CreateAsync(user.IdentityId, dto);
-        return CreatedAtAction(nameof(GetMyWorkspaces), new { id = workspace.Id }, WorkSpaceMapper.CreateDto(workspace));
+        return CreatedAtAction(nameof(GetWorkspaces), new { id = workspace.Id }, WorkSpaceMapper.CreateDto(workspace));
     }
     
-    [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateWorkspace(string id, [FromBody] UpdateWorkSpaceDto dto)
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult> UpdateWorkspace(Guid id, [FromBody] UpdateWorkSpaceDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var userId = _currentUserService.GetIdentityId();
         if(userId == null) return Unauthorized();
+
+        if (!await _currentUserService.HasWorkspaceRoleAsync(id, ParticipantRole.Admin, ParticipantRole.Owner))
+        {
+            return Forbid();
+        }
         
-        var updated = await _workSpaceService.UpdateAsync(Guid.Parse(id), dto, userId);
+        var updated = await _workSpaceService.UpdateAsync(id, dto, userId);
         if (!updated) return NotFound();
 
         return NoContent();
@@ -72,6 +77,12 @@ public class WorkSpaceApiController : ControllerBase
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
 
+        if (!await _currentUserService.HasWorkspaceRoleAsync(id,
+                ParticipantRole.Admin, ParticipantRole.Owner, ParticipantRole.Member, ParticipantRole.Viewer))
+        {
+            return Forbid();
+        }
+        
         var subscribed = await _workSpaceService.SubscribeAsync(id, user.IdentityId);
         if (!subscribed) return NotFound();
 
@@ -88,13 +99,16 @@ public class WorkSpaceApiController : ControllerBase
         return NoContent();
     }
     
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteWorkspace(string id)
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> DeleteWorkspace(Guid id)
     {
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
-
-        var deleted = await _workSpaceService.DeleteAsync(Guid.Parse(id), user.IdentityId);
+        if (!await _currentUserService.HasWorkspaceRoleAsync(id, ParticipantRole.Admin, ParticipantRole.Owner))
+        {
+            return Forbid();
+        }
+        var deleted = await _workSpaceService.DeleteAsync(id, user.IdentityId);
         if (!deleted) return NotFound();
 
         return NoContent();

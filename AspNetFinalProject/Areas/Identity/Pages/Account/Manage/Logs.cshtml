@@ -10,8 +10,8 @@
     var totalPages = paged?.TotalPages ?? 1;
     var totalCount = paged?.TotalCount ?? 0;
 
-    var currentPage = Model.PageIndex;   // з вашого .cs
-    var pageSize = Model.PageSize;       // з вашого .cs
+    var currentPage = Model.PageIndex;
+    var pageSize = Model.PageSize;
 
     var startIdx = totalCount == 0 ? 0 : (currentPage - 1) * pageSize + 1;
     var endIdx = Math.Min(currentPage * pageSize, totalCount);

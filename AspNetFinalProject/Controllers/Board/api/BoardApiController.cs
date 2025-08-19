@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
 using AspNetFinalProject.Common;
 using AspNetFinalProject.DTOs;
+using AspNetFinalProject.Enums;
 using AspNetFinalProject.Mappers;
+using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +47,13 @@ public class BoardApiController : ControllerBase
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
+
+        if (!await _currentUserService.HasWorkspaceRoleAsync(Guid.Parse(dto.WorkSpaceId), 
+                ParticipantRole.Member, ParticipantRole.Admin, ParticipantRole.Owner))
+        {
+            return Forbid();
+        }
+        
         var board = await _boardService.CreateAsync(userId, dto);
 
         return CreatedAtAction(
@@ -60,6 +69,15 @@ public class BoardApiController : ControllerBase
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var userId = _currentUserService.GetIdentityId();
         if(userId == null) return Unauthorized();
+
+        var board = await _boardService.GetByIdAsync(id);
+        if (board == null) return NotFound();
+        
+        if (!await _currentUserService.HasWorkspaceRoleAsync(board.WorkSpaceId, ParticipantRole.Owner, ParticipantRole.Admin) &&
+            !await _currentUserService.HasBoardRoleAsync(board.Id, ParticipantRole.Owner, ParticipantRole.Admin))
+        {
+            return Forbid();
+        }
         
         var updated = await _boardService.UpdateAsync(id, dto, userId);
         if (!updated) return NotFound();
@@ -73,6 +91,17 @@ public class BoardApiController : ControllerBase
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
 
+        var board = await _boardService.GetByIdAsync(id);
+        if(board == null) return NotFound();
+        
+        if (!await _currentUserService.HasWorkspaceRoleAsync(board.WorkSpaceId,
+                ParticipantRole.Owner, ParticipantRole.Member, ParticipantRole.Admin, ParticipantRole.Viewer) &&
+            !await _currentUserService.HasBoardRoleAsync(id,
+                ParticipantRole.Owner, ParticipantRole.Member, ParticipantRole.Admin, ParticipantRole.Viewer))
+        {
+            return Forbid();
+        }
+        
         var subscribed = await _boardService.SubscribeAsync(id, user.IdentityId);
         if (!subscribed) return NotFound();
 
@@ -94,7 +123,12 @@ public class BoardApiController : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
-
+        
+        if (!await _currentUserService.HasBoardRoleAsync(id, ParticipantRole.Admin, ParticipantRole.Owner))
+        {
+            return Forbid();
+        }
+        
         var deleted = await _boardService.DeleteAsync(id, userId);
         if (!deleted) return NotFound();
 

@@ -18,6 +18,8 @@ public class UserProfileRepository : IUserProfileRepository
     {
         return await _context.UserProfiles
             .Include(up => up.PersonalInfo)
+            .Include(up => up.WorkspacesParticipating)
+            .Include(up => up.BoardParticipants)
             .FirstOrDefaultAsync(up => up.IdentityId == identityId);
     }
 

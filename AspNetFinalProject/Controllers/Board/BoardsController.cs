@@ -1,4 +1,6 @@
-﻿using AspNetFinalProject.Mappers;
+﻿using AspNetFinalProject.Enums;
+using AspNetFinalProject.Mappers;
+using AspNetFinalProject.Repositories.Interfaces;
 using AspNetFinalProject.Services.Implementations;
 using AspNetFinalProject.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -12,12 +14,15 @@ public class BoardsController : Controller
 {
     private readonly IBoardService _boardService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IWorkSpaceParticipantRepository _workSpaceParticipantRepository;
     
     public BoardsController(IBoardService boardService, 
-                            ICurrentUserService currentUserService)
+                            ICurrentUserService currentUserService,
+                            IWorkSpaceParticipantRepository workSpaceParticipantRepository)
     {
         _boardService = boardService;
         _currentUserService = currentUserService;
+        _workSpaceParticipantRepository = workSpaceParticipantRepository;
     }
     
     [HttpGet("{id}/Dashboard")]
@@ -30,14 +35,21 @@ public class BoardsController : Controller
         var board = await _boardService.GetByIdAsync(Guid.Parse(id));
         if(board == null)
             return NotFound();
-        
-        var isAuthor = board.AuthorId == userId;
-        var isParticipant = board.Participants.Any(p => p.UserProfileId == userId);
-        
-        if(!isAuthor && !isParticipant)
-            return Forbid();
-        
-        return View(BoardMapper.CreateDto(board));
+
+        var workSpaceParticipant = await _workSpaceParticipantRepository.GetAsync(board.WorkSpaceId, userId);
+
+
+        if (board.Visibility == BoardVisibility.Public ||
+            board.Visibility == BoardVisibility.Workspace && workSpaceParticipant != null ||
+            board.Visibility == BoardVisibility.Private && (workSpaceParticipant is
+                                                            {
+                                                                Role: ParticipantRole.Admin or ParticipantRole.Owner
+                                                            } ||
+                                                            board.Participants.Any(p => p.UserProfileId == userId)))
+        {
+            return View(BoardMapper.CreateDto(board));
+        }
+        return Forbid();
     }
 
     [HttpGet("{id:guid}/Settings")]
@@ -50,9 +62,15 @@ public class BoardsController : Controller
         var board = await _boardService.GetByIdAsync(id);
         if (board == null)
             return NotFound();
-        
-        var isParticipant = board.Participants.Any(p => p.UserProfileId == userId);
-        if(!isParticipant) return Forbid();
+
+
+        if (!await _currentUserService.HasWorkspaceRoleAsync(board.WorkSpaceId, ParticipantRole.Admin,
+                ParticipantRole.Owner) &&
+            !await _currentUserService.HasBoardRoleAsync(board.Id, ParticipantRole.Owner, ParticipantRole.Admin,
+                ParticipantRole.Member))
+        {
+            return Forbid();
+        }
 
         var isSubscribed = await _boardService.IsSubscribedAsync(id, userId);
         

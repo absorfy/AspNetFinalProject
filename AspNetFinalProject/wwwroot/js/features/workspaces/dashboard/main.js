@@ -5,5 +5,5 @@ import {workspaceListContainer} from "./dom.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   initWorkspaceDashboardEvents();
-  await loadWorkspaces(workspaceListContainer);
+  loadWorkspaces(workspaceListContainer);
 });

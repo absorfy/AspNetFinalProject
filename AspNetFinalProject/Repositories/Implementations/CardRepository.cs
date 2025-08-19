@@ -1,5 +1,6 @@
 ﻿using AspNetFinalProject.Data;
 using AspNetFinalProject.Entities;
+using AspNetFinalProject.Enums;
 using AspNetFinalProject.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,12 @@ public class CardRepository : ICardRepository
 
     public async Task<IEnumerable<Card>> GetCardsByListAsync(Guid boardListId, string userId)
     {
+        var boardList = _context.Lists.FirstOrDefault(l => l.Id == boardListId);
+        var board = _context.Boards.Include(board => board.Participants).FirstOrDefault(b => b.Id == boardList.BoardId);
+        var workspace = _context.WorkSpaces.Include(workSpace => workSpace.Participants).FirstOrDefault(ws => ws.Id == board.WorkSpaceId);
+        var isAdmin = workspace.Participants.Any(p => p.UserProfileId == userId && p.Role is ParticipantRole.Owner or ParticipantRole.Admin);
+        var isWorkSpaceParticipant = workspace.Participants.Any(p => p.UserProfileId == userId);
+        
         return await _context.Cards
             .Include(c => c.Author)
             .Include(c => c.Participants)
@@ -26,7 +33,11 @@ public class CardRepository : ICardRepository
             .Include(c => c.Attachments)
             .Where(c => c.BoardListId == boardListId
                         && c.DeletedAt == null
-                        && (c.AuthorId == userId || c.Participants.Any(p => p.UserProfileId == userId)))
+                        && (c.AuthorId == userId || 
+                            board.Participants.Any(p => p.UserProfileId == userId) ||
+                            board.Visibility == BoardVisibility.Public ||
+                            board.Visibility == BoardVisibility.Workspace && isWorkSpaceParticipant ||
+                            board.Visibility == BoardVisibility.Private && isAdmin))
             .OrderBy(c => c.OrderIndex)
             .ToListAsync();
     }

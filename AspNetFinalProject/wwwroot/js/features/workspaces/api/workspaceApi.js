@@ -58,5 +58,5 @@ export async function fetchWorkspaceParticipantRoles() {
 }
 
 export async function changeWorkspaceParticipantRole(id, userId, newRole, signal) {
-  return await apiClient.post(`/workspaces/${id}/participants/${userId}/role`, { role: newRole }, signal);
+  return await apiClient.post(`/workspaces/${id}/participants/${userId}/role`, { role: +newRole }, signal);
 }

@@ -28,13 +28,16 @@ public class WorkSpacesController : Controller
         var userId = _currentUserService.GetIdentityId();
         if (userId == null)
             return Unauthorized();
+
+        if (!await _currentUserService.HasWorkspaceRoleAsync(id, 
+                ParticipantRole.Member, ParticipantRole.Admin, ParticipantRole.Owner))
+        {
+            return Forbid();
+        }
         
         var workspace = await _workSpaceService.GetByIdAsync(id);
         if (workspace == null)
             return NotFound();
-        
-        var isParticipant = workspace.Participants.Any(p => p.UserProfileId == userId);
-        if(!isParticipant) return Forbid();
         
         var isSubscribed = await _workSpaceService.IsSubscribedAsync(id, userId);
         

@@ -68,7 +68,9 @@ public class WorkSpaceRepository : IWorkSpaceRepository
             .Include(w => w.Participants).ThenInclude(p => p.UserProfile)
             .Include(w => w.Boards)
             .Where(w => w.DeletedAt == null &&
-                        (w.AuthorId == userId || w.Participants.Any(p => p.UserProfileId == userId)));
+                        (w.AuthorId == userId || 
+                         w.Participants.Any(p => p.UserProfileId == userId) ||
+                         w.Visibility == WorkSpaceVisibility.Public));
 
         return asNoTracking ? q.AsNoTracking() : q;
     }

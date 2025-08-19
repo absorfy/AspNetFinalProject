@@ -1,6 +1,7 @@
 ﻿using AspNetFinalProject.Common;
 using AspNetFinalProject.Data;
 using AspNetFinalProject.Entities;
+using AspNetFinalProject.Enums;
 using AspNetFinalProject.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -60,14 +61,23 @@ public class BoardRepository : IBoardRepository
 
     private IQueryable<Board> BaseQueryForWorkSpace(Guid workSpaceId, string userId, bool asNoTracking = false)
     {
+        var workspace = _context.WorkSpaces.Include(workSpace => workSpace.Participants).FirstOrDefault(ws => ws.Id == workSpaceId);
+        var isAdmin = workspace.Participants.Any(p => p.UserProfileId == userId && p.Role is ParticipantRole.Owner or ParticipantRole.Admin);
+        var isWorkSpaceParticipant = workspace.Participants.Any(p => p.UserProfileId == userId);
+        
         var q = _context.Boards
             .Include(b => b.Author)
             .Include(b => b.Participants)
             .ThenInclude(p => p.UserProfile)
             .Include(b => b.Lists)
+            .Include(b => b.WorkSpace)
             .Where(b => b.WorkSpaceId == workSpaceId
                         && b.DeletedAt == null
-                        && (b.AuthorId == userId || b.Participants.Any(p => p.UserProfileId == userId)));
+                        && (b.AuthorId == userId || 
+                            b.Participants.Any(p => p.UserProfileId == userId) ||
+                            b.Visibility == BoardVisibility.Public ||
+                            b.Visibility == BoardVisibility.Workspace && isWorkSpaceParticipant ||
+                            b.Visibility == BoardVisibility.Private && isAdmin));
 
         return asNoTracking ? q.AsNoTracking() : q;
     }

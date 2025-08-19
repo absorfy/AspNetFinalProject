@@ -19,7 +19,7 @@ public static class WorkSpaceMapper
             CreatingTimestamp = entity.CreatingTimestamp,
             BoardsCount = entity.Boards.Count,
             ParticipantsCount = entity.Participants.Count,
-            ParticipantIds = entity.Participants.Select(p => p.UserProfileId).ToList()
+            ParticipantIds = entity.Participants.Select(p => p.UserProfileId).ToList(),
         };
     }
 

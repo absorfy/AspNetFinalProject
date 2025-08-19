@@ -50,7 +50,6 @@ export function getWorkspaceParticipantDiv(participant) {
 }
 
 export function getNewWorkspaceParticipantDiv(userProfile) {
-  console.log(userProfile);
   return renderCardDiv({
     title: `${userProfile.username}`,
     actions: [

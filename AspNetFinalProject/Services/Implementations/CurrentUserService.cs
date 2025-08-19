@@ -42,10 +42,16 @@ public class CurrentUserService : ICurrentUserService
         return true;
     }
 
-    public async Task<bool> HasRoleAsync(Guid workspaceId, params ParticipantRole[] roles)
+    public async Task<bool> HasWorkspaceRoleAsync(Guid workspaceId, params ParticipantRole[] roles)
     {
         var user = await GetUserProfileAsync();
-        var count = user?.WorkspacesParticipating.Count(p => p.WorkSpaceId == workspaceId && roles.Contains(p.Role));
-        return count == 1;
+        return user != null && user.WorkspacesParticipating.Any(p => p.WorkSpaceId == workspaceId && roles.Contains(p.Role));
+    }
+
+
+    public async Task<bool> HasBoardRoleAsync(Guid boardId, params ParticipantRole[] roles)
+    {
+        var user = await GetUserProfileAsync();
+        return user != null && user.BoardParticipants.Any(p => p.BoardId == boardId && roles.Contains(p.Role));
     }
 }

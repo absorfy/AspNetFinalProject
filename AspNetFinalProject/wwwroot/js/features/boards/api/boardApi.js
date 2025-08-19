@@ -57,6 +57,6 @@ export async function fetchBoardParticipantRoles() {
 }
 
 export async function changeBoardParticipantRole(id, userId, newRole, signal) {
-  return await apiClient.post(`/boards/${id}/participants/${userId}/role`, { role: newRole }, signal);
+  return await apiClient.post(`/boards/${id}/participants/${userId}/role`, { role: +newRole }, signal);
 }
 

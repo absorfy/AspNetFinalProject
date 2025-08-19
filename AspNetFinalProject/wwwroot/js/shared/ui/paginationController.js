@@ -141,9 +141,11 @@ export function createPaginationController({
     showSkeleton();
 
     try {
-      const data = await fetchPage(structuredClone(state), _ctrl.signal);
+      let data = await fetchPage(structuredClone(state), _ctrl.signal);
       _last = data;
-
+      if(!data.items)
+        data = data.result
+      
       clearRoot();
       if (!data || !Array.isArray(data.items) || data.items.length === 0) {
         showEmpty();
