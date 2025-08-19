@@ -1,12 +1,13 @@
 ﻿using AspNetFinalProject.Common;
 using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Entities;
+using AspNetFinalProject.Enums;
 
 namespace AspNetFinalProject.Mappers;
 
 public static class BoardListMapper
 {
-    public static BoardListDto CreateDto(BoardList entity)
+    public static BoardListDto CreateDto(BoardList entity, ParticipantRole? userBoardRole)
     {
         return new BoardListDto
         {
@@ -15,6 +16,7 @@ public static class BoardListMapper
             Title = entity.Title,
             AuthorName = entity.Author?.Username ?? entity.Author?.IdentityUser.UserName ?? "Unknown",
             CardsIds = entity.Cards.Select(card => card.Id.ToString()).ToList(),
+            UserBoardRole = userBoardRole,
         };
     }
 

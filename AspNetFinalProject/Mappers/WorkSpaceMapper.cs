@@ -6,7 +6,7 @@ namespace AspNetFinalProject.Mappers;
 
 public static class WorkSpaceMapper
 {
-    public static WorkSpaceDto CreateDto(WorkSpace entity, bool isSubscribed = false)
+    public static WorkSpaceDto CreateDto(WorkSpace entity, string userId, bool isSubscribed = false)
     {
         return new WorkSpaceDto
         {
@@ -20,6 +20,7 @@ public static class WorkSpaceMapper
             BoardsCount = entity.Boards.Count,
             ParticipantsCount = entity.Participants.Count,
             ParticipantIds = entity.Participants.Select(p => p.UserProfileId).ToList(),
+            UserRole = entity.Participants.FirstOrDefault(p => p.UserProfileId == userId)?.Role,
         };
     }
 

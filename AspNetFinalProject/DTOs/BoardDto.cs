@@ -12,7 +12,8 @@ public class BoardDto
     public string? Description { get; set; }
     public BoardVisibility Visibility { get; set; }
     public bool IsSubscribed { get; set; }
-    
+    public ParticipantRole? UserWorkSpaceRole { get; set; }
+    public ParticipantRole? UserBoardRole { get; set; }
     public string AuthorName { get; set; }
     public int ParticipantsCount { get; set; }
     public ICollection<string> ListsIds { get; set; } = new List<string>();

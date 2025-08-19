@@ -12,12 +12,15 @@ public class BoardListService : IBoardListService
 {
     private readonly IBoardListRepository _repository;
     private readonly ActionLogger _actionLogger;
+    private readonly ICardService _cardService;
 
     public BoardListService(IBoardListRepository repository,
-                            ActionLogger actionLogger)
+                            ActionLogger actionLogger, 
+                            ICardService cardService)
     {
         _repository = repository;
         _actionLogger = actionLogger;
+        _cardService = cardService;
     }
 
     public async Task<IEnumerable<BoardList>> GetListsByBoardAsync(Guid boardId, string userId)
@@ -55,7 +58,7 @@ public class BoardListService : IBoardListService
         return list;
     }
 
-    public async Task<bool> DeleteAsync(Guid id, string deletedByUserId)
+    public async Task<bool> DeleteAsync(Guid id, string deletedByUserId, bool notify = true)
     {
         var list = await _repository.GetByIdAsync(id);
         if (list == null) return false;
@@ -64,7 +67,13 @@ public class BoardListService : IBoardListService
         await _repository.DeleteAsync(list);
         await _repository.SaveChangesAsync();
 
-        await _actionLogger.LogAndNotifyAsync(deletedByUserId, list, UserActionType.Delete);
+        foreach (var card in list.Cards)
+        {
+            await _cardService.DeleteAsync(card.Id, deletedByUserId, false);
+        }
+        
+        if(notify) 
+            await _actionLogger.LogAndNotifyAsync(deletedByUserId, list, UserActionType.Delete);
         return true;
     }
 }

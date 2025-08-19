@@ -11,6 +11,7 @@ namespace AspNetFinalProject.Services.Implementations;
 public class WorkSpaceService : IWorkSpaceService
 {
     private readonly IWorkSpaceRepository _workSpaceRepository;
+    private readonly IBoardService _boardService;
     private readonly IWorkSpaceParticipantRepository _participantRepository;
     private readonly ISubscriptionService _subscriptionService;
     private readonly ActionLogger _actionLogger;
@@ -18,12 +19,13 @@ public class WorkSpaceService : IWorkSpaceService
     public WorkSpaceService(IWorkSpaceRepository workSpaceRepository, 
                             IWorkSpaceParticipantRepository participantRepository, 
                             ISubscriptionService subscriptionService,
-                            ActionLogger actionLogger)
+                            ActionLogger actionLogger, IBoardService boardService)
     {
         _workSpaceRepository = workSpaceRepository;
         _participantRepository = participantRepository;
         _subscriptionService = subscriptionService;
         _actionLogger = actionLogger;
+        _boardService = boardService;
     }
 
     
@@ -79,7 +81,7 @@ public class WorkSpaceService : IWorkSpaceService
         return workspace;
     }
 
-    public async Task<bool> DeleteAsync(Guid id, string deletedByUserId)
+    public async Task<bool> DeleteAsync(Guid id, string deletedByUserId, bool notify = true)
     {
         var workspace = await _workSpaceRepository.GetByIdAsync(id);
         if (workspace == null) return false;
@@ -88,7 +90,13 @@ public class WorkSpaceService : IWorkSpaceService
         await _workSpaceRepository.DeleteAsync(workspace);
         await _workSpaceRepository.SaveChangesAsync();
 
-        await _actionLogger.LogAndNotifyAsync(deletedByUserId, workspace, UserActionType.Delete);
+        foreach (var workspaceBoard in workspace.Boards)
+        {
+            await _boardService.DeleteAsync(workspaceBoard.Id, deletedByUserId, false);
+        }
+        
+        if(notify)
+            await _actionLogger.LogAndNotifyAsync(deletedByUserId, workspace, UserActionType.Delete);
         return true;
     }
 

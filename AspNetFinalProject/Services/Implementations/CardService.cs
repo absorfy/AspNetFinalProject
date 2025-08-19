@@ -54,7 +54,7 @@ public class CardService : ICardService
         return card;
     }
 
-    public async Task<bool> DeleteAsync(Guid id, string deletedByUserId)
+    public async Task<bool> DeleteAsync(Guid id, string deletedByUserId, bool notify = true)
     {
         var card = await _repository.GetByIdAsync(id);
         if (card == null) return false;
@@ -62,8 +62,9 @@ public class CardService : ICardService
         card.DeletedByUserId = deletedByUserId;
         await _repository.DeleteAsync(card);
         await _repository.SaveChangesAsync();
-
-        await _actionLogger.LogAndNotifyAsync(deletedByUserId, card, UserActionType.Delete);
+        
+        if(notify)
+            await _actionLogger.LogAndNotifyAsync(deletedByUserId, card, UserActionType.Delete);
         return true;
     }
 

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AspNetFinalProject.Common;
+using AspNetFinalProject.Enums;
 
 namespace AspNetFinalProject.DTOs;
 
@@ -12,6 +13,8 @@ public class CardDto
     public string? Color { get; set; }
     public DateTime? Deadline { get; set; }
 
+    public ParticipantRole? UserBoardRole { get; set; }
+    
     public string AuthorName { get; set; }
     public int ParticipantsCount { get; set; }
     public int CommentsCount { get; set; }

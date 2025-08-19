@@ -15,6 +15,8 @@ public class WorkSpaceDto
     public string AuthorName { get; set; }
     public bool IsSubscribed { get; set; }
     
+    public ParticipantRole? UserRole { get; set; }
+    
     public int BoardsCount { get; set; }
     public int ParticipantsCount { get; set; }
     public List<string> ParticipantIds { get; set; }

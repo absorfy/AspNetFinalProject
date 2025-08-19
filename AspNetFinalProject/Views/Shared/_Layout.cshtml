@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - AspNetFinalProject</title>
+    <title>@ViewData["Title"] - Kanban</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
@@ -17,34 +17,27 @@
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">AspNetFinalProject</a>
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Kanban</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Dashboard">Dashboard</a>
-                    </li>
-                </ul>
-                
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
                 <div class="dropdown">
-                    <button class="btn btn-light position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        Повідомлення
-                        <!-- бейдж з кількістю -->
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifications-count">
-                            3
-                        </span>
-                    </button>
+                    @{
+                        if (CurrentUserService.GetIdentityId() != null)
+                        {
+                            <button class="btn btn-light position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Повідомлення
+                                <!-- бейдж з кількістю -->
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifications-count">
+                                    3
+                                </span>
+                            </button>
+                        }
+                    }
                     <ul class="dropdown-menu dropdown-menu-end" id="notifications-dropdown" aria-labelledby="notificationsDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
-                        
+
                         @* <li> *@
                         @*     <a class="dropdown-item text-center text-primary" href="/notifications">Переглянути всі</a> *@
                         @* </li> *@

@@ -2,8 +2,13 @@
 
 
 // GET /api/workspaces/{workspaceId}/boards
-export async function fetchBoardsAjax(workspaceId, query, signal) {
+export async function fetchBoardsByWorkspaceAjax(workspaceId, query, signal) {
   return await apiClient.get(`/boards/workspace/${workspaceId}`, null, { query, signal });
+}
+
+// GET /api/boards/workspace/none
+export async function fetchBoardsWithoutWorkspaceAjax(query, signal) {
+  return await apiClient.get(`/boards/workspace/none`, null, { query, signal });
 }
 
 // POST /api/boards

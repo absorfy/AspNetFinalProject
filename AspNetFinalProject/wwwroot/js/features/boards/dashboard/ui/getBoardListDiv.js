@@ -1,6 +1,7 @@
 ﻿import {renderCardDiv} from "../../../../shared/ui/cardDivRenderer.js";
 import {initCardsDndForList} from "../../../../shared/ui/cardsDnd.js";
 import {getDeleteButtonConfig} from "../../../../shared/actions/buttonsConfigs.js";
+import {participantRole} from "../../../../shared/data/participantRole.js";
 
 
 export function getBoardListDiv(list) {
@@ -16,12 +17,14 @@ export function getBoardListDiv(list) {
         attrs: {
           "data-action": "open-create-card-modal",
           "data-list-id": list.id,
+          ...([participantRole.Viewer, participantRole.None].includes(list.userBoardRole) ? { hidden: "hidden" } : {}),
         },
       },
       getDeleteButtonConfig({
         targetAction: "delete-list",
         targetId: list.id,
         targetTitle: list.title,
+        hidden: [participantRole.Viewer, participantRole.None].includes(list.userBoardRole),
       }),
     ],
     onCardClick: null,
@@ -38,6 +41,8 @@ export function getBoardListDiv(list) {
   
   card.insertBefore(cardsContainer, card.querySelector(".mt-2")); // перед кнопками
 
-  initCardsDndForList(cardsContainer);
+  if(![participantRole.Viewer, participantRole.None].includes(list.userBoardRole)) {
+    initCardsDndForList(cardsContainer);
+  }
   return card;
 }

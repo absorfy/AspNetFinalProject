@@ -5,6 +5,7 @@ import {
   getSubscribeButtonConfig
 } from "../../../../shared/actions/buttonsConfigs.js";
 import {navigate} from "../../../../shared/utils/navigation.js";
+import {participantRole} from "../../../../shared/data/participantRole.js";
 
 export function getBoardDiv(board) {
   const card = renderCardDiv({
@@ -18,16 +19,21 @@ export function getBoardDiv(board) {
       getSettingsButtonConfig({
         targetAction: "settings-board",
         targetId: board.id,
+        hidden: !([participantRole.Owner, participantRole.Admin].includes(board.userWorkSpaceRole) ||
+          [participantRole.Owner, participantRole.Admin, participantRole.Member].includes(board.userBoardRole)),
       }),
       getDeleteButtonConfig({
         targetAction: "delete-board", 
         targetId: board.id, 
-        targetTitle: board.title
+        targetTitle: board.title,
+        hidden: ![participantRole.Owner, participantRole.Admin].includes(board.userBoardRole),
       }),
       getSubscribeButtonConfig({
         targetAction: "subscribe-board",
         targetId: board.id,
         isSubscribed: board.isSubscribed,
+        hidden: [participantRole.None].includes(board.userBoardRole) &&
+          [participantRole.None].includes(board.userWorkSpaceRole),
       })
     ],
     onCardClick: () => {

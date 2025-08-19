@@ -48,6 +48,18 @@ public class CurrentUserService : ICurrentUserService
         return user != null && user.WorkspacesParticipating.Any(p => p.WorkSpaceId == workspaceId && roles.Contains(p.Role));
     }
 
+    public async Task<ParticipantRole?> GetWorkSpaceRoleAsync(Guid workspaceId)
+    {
+        var user = await GetUserProfileAsync();
+        return user?.WorkspacesParticipating.FirstOrDefault(p => p.WorkSpaceId == workspaceId)?.Role; 
+    }
+    
+    public async Task<ParticipantRole?> GetBoardRoleAsync(Guid boardId)
+    {
+        var user = await GetUserProfileAsync();
+        return user?.BoardParticipants.FirstOrDefault(p => p.BoardId == boardId)?.Role; 
+    }
+
 
     public async Task<bool> HasBoardRoleAsync(Guid boardId, params ParticipantRole[] roles)
     {

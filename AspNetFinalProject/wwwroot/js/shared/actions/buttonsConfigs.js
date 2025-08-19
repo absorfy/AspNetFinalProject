@@ -1,17 +1,18 @@
 ﻿
 
-export function getSettingsButtonConfig({targetAction, targetId}) {
+export function getSettingsButtonConfig({targetAction, targetId, hidden = false}) {
   return {
     text: "Налаштувати",
     className: "btn btn-sm btn-outline-secondary",
     attrs: {
       "data-action": targetAction,
-      "data-id": targetId
+      "data-id": targetId,
+      ...(hidden ? { hidden: "hidden" } : {}),
     }
   }
 }
 
-export function getSubscribeButtonConfig({targetAction, targetId, isSubscribed}) {
+export function getSubscribeButtonConfig({targetAction, targetId, isSubscribed, hidden = false}) {
   return {
     text: isSubscribed ? "Відписатися" : "Підписатися",
     className: isSubscribed
@@ -21,11 +22,12 @@ export function getSubscribeButtonConfig({targetAction, targetId, isSubscribed})
       "data-action": targetAction,
       "data-id": targetId,
       "data-subscribed": isSubscribed,
+      ...(hidden ? { hidden: "hidden" } : {}),
     },
   }
 }
 
-export function getDeleteButtonConfig({targetAction, targetId, targetTitle, disabled = false}) {
+export function getDeleteButtonConfig({targetAction, targetId, targetTitle, hidden = false}) {
   return {
     text: "Видалити",
     className: "btn btn-sm btn-outline-danger",
@@ -33,7 +35,7 @@ export function getDeleteButtonConfig({targetAction, targetId, targetTitle, disa
       "data-action": targetAction,
       "data-id": targetId,
       "data-title": targetTitle,
-      ...(disabled ? { disabled: "disabled" } : {}),
+      ...(hidden ? { hidden: "hidden" } : {}),
     }
   }
 }

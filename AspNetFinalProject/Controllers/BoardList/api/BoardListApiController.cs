@@ -31,7 +31,8 @@ public class BoardListApiController : ControllerBase
 
         var lists = await _service.GetListsByBoardAsync(boardId, userId);
 
-        var result = lists.Select(BoardListMapper.CreateDto);
+        var boardRole = await _currentUserService.GetBoardRoleAsync(boardId);
+        var result = lists.Select(l => BoardListMapper.CreateDto(l, boardRole));
 
         return Ok(result);
     }
@@ -44,13 +45,16 @@ public class BoardListApiController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
 
-        var hasPermission = await _currentUserService.HasBoardRoleAsync(Guid.Parse(dto.BoardId), 
+        var boardId = Guid.Parse(dto.BoardId);
+        
+        var hasPermission = await _currentUserService.HasBoardRoleAsync(boardId, 
             ParticipantRole.Admin, ParticipantRole.Owner, ParticipantRole.Member);
         if(!hasPermission) return Forbid();
         
         var list = await _service.CreateAsync(userId, dto);
 
-        return CreatedAtAction(nameof(GetListsByBoard), new { boardId = dto.BoardId }, BoardListMapper.CreateDto(list));
+        var boardRole = await _currentUserService.GetBoardRoleAsync(boardId);
+        return CreatedAtAction(nameof(GetListsByBoard), new { boardId = dto.BoardId }, BoardListMapper.CreateDto(list, boardRole));
     }
     
     [HttpPut("{id:guid}")]

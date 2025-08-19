@@ -1,12 +1,13 @@
 ﻿using AspNetFinalProject.DTOs;
 using AspNetFinalProject.Entities;
+using AspNetFinalProject.Enums;
 
 namespace AspNetFinalProject.Mappers;
 
 public static class CardMapper
 {
 
-    public static CardDto CreateDto(Card entity)
+    public static CardDto CreateDto(Card entity, ParticipantRole? userBoardRole)
     {
         return new CardDto
         {
@@ -18,7 +19,8 @@ public static class CardMapper
             Deadline = entity.Deadline,
             AuthorName = entity.Author?.Username ?? entity.Author?.IdentityUser.UserName ?? "Unknown",
             ParticipantsCount = entity.Participants.Count,
-            CommentsCount = entity.Comments.Count
+            CommentsCount = entity.Comments.Count,
+            UserBoardRole = userBoardRole,
         };
     }
 

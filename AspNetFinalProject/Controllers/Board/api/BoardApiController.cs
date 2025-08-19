@@ -35,7 +35,22 @@ public class BoardApiController : ControllerBase
             .MapAsync<BoardDto>(async b =>
             {
                 var isSubscribed = await _boardService.IsSubscribedAsync(b.Id, userId);
-                return BoardMapper.CreateDto(b, isSubscribed);
+                return BoardMapper.CreateDto(b, userId, isSubscribed);
+            });
+
+        return Ok(pagedBoards);
+    }
+    
+    [HttpGet("workspace/none")]
+    public async Task<ActionResult<PagedResult<BoardDto>>> GetBoardsWithoutWorkspace([FromQuery] PagedRequest request)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+        var pagedBoards = await (await _boardService.GetAllWithoutWorkSpaceAsync(userId, request))
+            .MapAsync<BoardDto>(async b =>
+            {
+                var isSubscribed = await _boardService.IsSubscribedAsync(b.Id, userId);
+                return BoardMapper.CreateDto(b, userId, isSubscribed);
             });
 
         return Ok(pagedBoards);
@@ -59,7 +74,7 @@ public class BoardApiController : ControllerBase
         return CreatedAtAction(
             nameof(GetBoardsByWorkspace), 
             new { workspaceId = dto.WorkSpaceId }, 
-            BoardMapper.CreateDto(board)
+            BoardMapper.CreateDto(board, userId)
             );
     }
     

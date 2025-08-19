@@ -34,7 +34,11 @@ public class CardApiController : ControllerBase
         if (userId == null) return Unauthorized();
         
         var cards = await _cardService.GetCardsByListAsync(boardListId, userId);
-        var result = cards.Select(CardMapper.CreateDto);
+
+        var list = await _boardListService.GetByIdAsync(boardListId);
+        if (list == null) return NotFound();
+        var userBoardRole = await _currentUserService.GetBoardRoleAsync(list.BoardId);
+        var result = cards.Select(c => CardMapper.CreateDto(c, userBoardRole));
         return Ok(result);
     }
 
@@ -43,6 +47,14 @@ public class CardApiController : ControllerBase
     [HttpPost("{cardId:guid}/move-to-list/{newListId:guid}")]
     public async Task<ActionResult<CardDto>> MoveCard(Guid cardId, Guid newListId, [FromBody] MoveCardRequest request)
     {
+        var list = await _boardListService.GetByIdAsync(newListId);
+        if(list == null) return NotFound();
+
+        if (!await _currentUserService.HasBoardRoleAsync(list.BoardId, ParticipantRole.Admin, ParticipantRole.Owner, ParticipantRole.Member))
+        {
+            return Forbid();
+        }
+        
         await _cardService.MoveCard(cardId, newListId, request.OrderIndex);
         return Ok();
     }
@@ -63,7 +75,8 @@ public class CardApiController : ControllerBase
         
         var card = await _cardService.CreateAsync(userId, dto);
 
-        return CreatedAtAction(nameof(GetCardsByList), new { boardListId = dto.BoardListId }, CardMapper.CreateDto(card));
+        var userBoardRole = await _currentUserService.GetBoardRoleAsync(list.BoardId);
+        return CreatedAtAction(nameof(GetCardsByList), new { boardListId = dto.BoardListId }, CardMapper.CreateDto(card, userBoardRole));
     }
     
     [HttpPut("{id:guid}")]

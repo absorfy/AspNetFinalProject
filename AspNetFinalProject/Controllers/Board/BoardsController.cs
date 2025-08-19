@@ -47,7 +47,7 @@ public class BoardsController : Controller
                                                             } ||
                                                             board.Participants.Any(p => p.UserProfileId == userId)))
         {
-            return View(BoardMapper.CreateDto(board));
+            return View(BoardMapper.CreateDto(board, userId));
         }
         return Forbid();
     }
@@ -74,6 +74,6 @@ public class BoardsController : Controller
 
         var isSubscribed = await _boardService.IsSubscribedAsync(id, userId);
         
-        return View(BoardMapper.CreateDto(board, isSubscribed));
+        return View(BoardMapper.CreateDto(board, userId, isSubscribed));
     }
 }

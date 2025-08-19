@@ -6,7 +6,7 @@ namespace AspNetFinalProject.Mappers;
 
 public static class BoardMapper
 {
-    public static BoardDto CreateDto(Board entity, bool isSubscribed = false)
+    public static BoardDto CreateDto(Board entity, string userId, bool isSubscribed = false)
     {
         return new BoardDto
         {
@@ -19,6 +19,8 @@ public static class BoardMapper
             ParticipantsCount = entity.Participants.Count,
             ListsIds = entity.Lists.Select(l => l.Id.ToString()).ToList(),
             IsSubscribed = isSubscribed,
+            UserBoardRole = entity.Participants.FirstOrDefault(p => p.UserProfileId == userId)?.Role,
+            UserWorkSpaceRole = entity.WorkSpace.Participants.FirstOrDefault(p => p.UserProfileId == userId)?.Role,
         };
     }
 

@@ -60,7 +60,8 @@ public class BoardParticipantApiController : ControllerBase
             
         return result;
     }
-
+    
+    
     [HttpPost("{boardId:guid}/participants/{userProfileId}/role")]
     public async Task<ActionResult> ChangeBoardParticipantRole(Guid boardId, string userProfileId,
         [FromBody] ParticipantRoleRequest request)
@@ -70,17 +71,13 @@ public class BoardParticipantApiController : ControllerBase
         
         var participant = await _boardParticipantRepository.GetAsync(boardId, userProfileId);
         if(participant is null) return NotFound();
-        
-        var notAllowed = await IsNotAllowed(boardId, participant);
-        if(notAllowed is not null) return notAllowed;
-        
+
+        var isNotAllowed = await IsNotAllowed(boardId, participant);
+        if (isNotAllowed != null) return isNotAllowed;
         
         var board = await _boardService.GetByIdAsync(boardId);
         if (board == null) return NotFound();
-        var changerRole = (await _workSpaceParticipantRepository.GetAsync(board.WorkSpaceId, userProfileId))?.Role;
-        if (changerRole == null) return Forbid();
         
-        if(request.Role == ParticipantRole.Owner || request.Role < changerRole) return Forbid();
         participant.Role = request.Role;
         await _boardParticipantRepository.SaveChangesAsync();
         return NoContent();
@@ -103,7 +100,8 @@ public class BoardParticipantApiController : ControllerBase
         }
 
         var pagedParticipants = (await _boardParticipantRepository.GetByBoardIdAsync(boardId, request))
-            .MapAsync<BoardParticipantDto>(async bp => BoardParticipantMapper.CreateDto(bp, await IsNotAllowed(boardId, bp) == null));
+            .MapAsync<BoardParticipantDto>(async bp => BoardParticipantMapper.CreateDto(bp, 
+                await IsNotAllowed(boardId, bp) == null));
 
         return Ok(pagedParticipants);
     }
@@ -119,33 +117,20 @@ public class BoardParticipantApiController : ControllerBase
     private async Task<ActionResult?> IsNotAllowed(Guid boardId, BoardParticipant target)
     {
         var changerId = _currentUserService.GetIdentityId();
-        if(changerId is null) return Unauthorized();
-        var board = await _boardService.GetByIdAsync(boardId);
-        if (board is null) return NotFound();
-
         
-        var boardChanger = await _boardParticipantRepository.GetAsync(boardId, changerId);
-        var workSpaceChanger = await _workSpaceParticipantRepository.GetAsync(board.WorkSpaceId, changerId);
-        if (workSpaceChanger is not null)
+        if (target.UserProfileId == changerId && 
+            await _currentUserService.HasBoardRoleAsync(boardId, ParticipantRole.Owner))
         {
-            if (target.Role == ParticipantRole.Owner ||
-                workSpaceChanger.Role != ParticipantRole.Admin && workSpaceChanger.Role != ParticipantRole.Owner)
-            {
-                return Forbid();
-            }
+            return Forbid();
         }
-        else if (boardChanger is not null)
+
+        if (await _currentUserService.HasBoardRoleAsync(boardId, ParticipantRole.Owner, ParticipantRole.Admin) &&
+            target.Role != ParticipantRole.Owner)
         {
-            if ((boardChanger.UserProfileId == target.UserProfileId && boardChanger.Role == ParticipantRole.Owner) || 
-                (int)target.Role < (int)boardChanger.Role ||
-                (boardChanger.Role != ParticipantRole.Admin && boardChanger.Role != ParticipantRole.Owner))
-            {
-                return Forbid();
-            }
-            
+            return null;
         }
-        else return NotFound();
-        return null;
+
+        return Forbid();
     }
     
     [HttpDelete("{boardId:guid}/participants")]

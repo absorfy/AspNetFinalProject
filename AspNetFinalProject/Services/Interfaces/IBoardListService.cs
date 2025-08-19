@@ -9,5 +9,5 @@ public interface IBoardListService
     Task<BoardList?> GetByIdAsync(Guid id);
     Task<bool> UpdateAsync(Guid id, UpdateBoardListDto dto, string updatedByUserId);
     Task<BoardList> CreateAsync(string authorId, CreateBoardListDto dto);
-    Task<bool> DeleteAsync(Guid id, string deletedByUserId);
+    Task<bool> DeleteAsync(Guid id, string deletedByUserId, bool notify = true);
 }

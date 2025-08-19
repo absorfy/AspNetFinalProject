@@ -20,7 +20,7 @@ export function getWorkspaceParticipantDiv(participant) {
         targetAction: "delete-participant",
         targetId: participant.userProfileId,
         targetTitle: participant.username,
-        disabled: !participant.isChanging,
+        hidden: !participant.isChanging,
       }),
       getRoleSelectConfig({
         targetAction: "select-participant-role",

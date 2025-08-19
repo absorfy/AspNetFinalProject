@@ -36,7 +36,7 @@ public class WorkSpaceApiController : ControllerBase
             .MapAsync<WorkSpaceDto>(async ws => 
             {
                 var isSubscribed = await _workSpaceService.IsSubscribedAsync(ws.Id, user.IdentityId);
-                return WorkSpaceMapper.CreateDto(ws, isSubscribed);
+                return WorkSpaceMapper.CreateDto(ws, user.IdentityId, isSubscribed);
             });
         
         return Ok(pagedWorkspaces);
@@ -49,7 +49,7 @@ public class WorkSpaceApiController : ControllerBase
         var user = await _currentUserService.GetUserProfileAsync();
         if (user == null) return Unauthorized();
         var workspace = await _workSpaceService.CreateAsync(user.IdentityId, dto);
-        return CreatedAtAction(nameof(GetWorkspaces), new { id = workspace.Id }, WorkSpaceMapper.CreateDto(workspace));
+        return CreatedAtAction(nameof(GetWorkspaces), new { id = workspace.Id }, WorkSpaceMapper.CreateDto(workspace, user.IdentityId));
     }
     
     [HttpPut("{id:guid}")]

@@ -18,29 +18,50 @@ public class CardRepository : ICardRepository
     public async Task<IEnumerable<Card>> GetCardsByListAsync(Guid boardListId, string userId)
     {
         var boardList = _context.Lists.FirstOrDefault(l => l.Id == boardListId);
-        var board = _context.Boards.Include(board => board.Participants).FirstOrDefault(b => b.Id == boardList.BoardId);
-        var workspace = _context.WorkSpaces.Include(workSpace => workSpace.Participants).FirstOrDefault(ws => ws.Id == board.WorkSpaceId);
-        var isAdmin = workspace.Participants.Any(p => p.UserProfileId == userId && p.Role is ParticipantRole.Owner or ParticipantRole.Admin);
-        var isWorkSpaceParticipant = workspace.Participants.Any(p => p.UserProfileId == userId);
-        
+        if (boardList == null)
+            return [];
+
+        var board = _context.Boards
+            .Include(b => b.Participants)
+            .FirstOrDefault(b => b.Id == boardList.BoardId);
+        if (board == null)
+            return [];
+
+        var workspace = _context.WorkSpaces
+            .Include(ws => ws.Participants)
+            .FirstOrDefault(ws => ws.Id == board.WorkSpaceId);
+
+        var isBoardParticipant = board.Participants.Any(p => p.UserProfileId == userId);
+        var isWorkSpaceParticipant = false;
+        var isAdmin = false;
+
+        if (workspace != null)
+        {
+            isWorkSpaceParticipant = workspace.Participants.Any(p => p.UserProfileId == userId);
+            isAdmin = workspace.Participants.Any(p =>
+                p.UserProfileId == userId &&
+                p.Role is ParticipantRole.Owner or ParticipantRole.Admin);
+        }
+
         return await _context.Cards
             .Include(c => c.Author)
-            .Include(c => c.Participants)
-                .ThenInclude(p => p.UserProfile)
-            .Include(c => c.TagCards)
-                .ThenInclude(tc => tc.Tag)
+            .Include(c => c.Participants).ThenInclude(p => p.UserProfile)
+            .Include(c => c.TagCards).ThenInclude(tc => tc.Tag)
             .Include(c => c.Comments)
             .Include(c => c.Attachments)
             .Where(c => c.BoardListId == boardListId
                         && c.DeletedAt == null
-                        && (c.AuthorId == userId || 
-                            board.Participants.Any(p => p.UserProfileId == userId) ||
-                            board.Visibility == BoardVisibility.Public ||
-                            board.Visibility == BoardVisibility.Workspace && isWorkSpaceParticipant ||
-                            board.Visibility == BoardVisibility.Private && isAdmin))
+                        && (c.AuthorId == userId
+                            || isBoardParticipant
+                            || board.Visibility == BoardVisibility.Public
+                            || (workspace != null && (
+                                (board.Visibility == BoardVisibility.Workspace && isWorkSpaceParticipant)
+                                || (board.Visibility == BoardVisibility.Private && isAdmin)
+                            ))))
             .OrderBy(c => c.OrderIndex)
             .ToListAsync();
     }
+
 
     public async Task<Card?> GetByIdAsync(Guid id, bool withDeleted = false)
     {

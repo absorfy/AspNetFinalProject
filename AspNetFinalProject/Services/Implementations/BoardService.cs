@@ -14,21 +14,28 @@ public class BoardService : IBoardService
     private readonly IBoardParticipantRepository _participantRepository;
     private readonly ActionLogger _actionLogger;
     private readonly ISubscriptionService _subscriptionService;
+    private readonly IBoardListService _boardListService;
 
     public BoardService(IBoardRepository boardRepository,
                         IBoardParticipantRepository participantRepository,
                         ActionLogger actionLogger,
-                        ISubscriptionService subscriptionService)
+                        ISubscriptionService subscriptionService, IBoardListService boardListService)
     {
         _boardRepository = boardRepository;
         _participantRepository = participantRepository;
         _actionLogger = actionLogger;
         _subscriptionService = subscriptionService;
+        _boardListService = boardListService;
     }
 
     public async Task<IEnumerable<Board>> GetAllByWorkSpaceAsync(Guid workSpaceId, string userId)
     {
         return await _boardRepository.GetBoardsByWorkSpaceAsync(workSpaceId, userId);
+    }
+
+    public async Task<PagedResult<Board>> GetAllWithoutWorkSpaceAsync(string userId, PagedRequest request)
+    {
+        return await _boardRepository.GetBoardsWithoutWorkSpaceAsync(userId, request);
     }
 
     public async Task<PagedResult<Board>> GetAllByWorkSpaceAsync(Guid workSpaceId, string userId, PagedRequest request)
@@ -77,7 +84,7 @@ public class BoardService : IBoardService
         return await _boardRepository.GetByIdAsync(board.Id) ?? board;
     }
 
-    public async Task<bool> DeleteAsync(Guid id, string deletedByUserId)
+    public async Task<bool> DeleteAsync(Guid id, string deletedByUserId, bool notify = true)
     {
         var board = await _boardRepository.GetByIdAsync(id);
         if (board == null) return false;
@@ -86,7 +93,13 @@ public class BoardService : IBoardService
         await _boardRepository.DeleteAsync(board);
         await _boardRepository.SaveChangesAsync();
 
-        await _actionLogger.LogAndNotifyAsync(deletedByUserId, board, UserActionType.Delete);
+        foreach (var boardList in board.Lists)
+        {
+            await _boardListService.DeleteAsync(boardList.BoardId, deletedByUserId, false);
+        }
+        
+        if(notify)
+            await _actionLogger.LogAndNotifyAsync(deletedByUserId, board, UserActionType.Delete);
         return true;
     }
 

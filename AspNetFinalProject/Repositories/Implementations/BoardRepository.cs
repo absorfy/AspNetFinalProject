@@ -21,13 +21,21 @@ public class BoardRepository : IBoardRepository
         return await BaseQueryForWorkSpace(workSpaceId, userId).ToListAsync();
     }
 
+    public async Task<PagedResult<Board>> GetBoardsWithoutWorkSpaceAsync(string userId, PagedRequest request)
+    {
+        return await GetPagedResultFromQuery(BaseQueryWithoutWorkSpace(userId, true), request);
+    }
+    
     public async Task<PagedResult<Board>> GetBoardsByWorkSpaceAsync(
         Guid workSpaceId, 
         string userId, 
         PagedRequest request)
     {
-        var query = BaseQueryForWorkSpace(workSpaceId, userId, asNoTracking: true);
+        return await GetPagedResultFromQuery(BaseQueryForWorkSpace(workSpaceId, userId, asNoTracking: true), request);
+    }
 
+    private async Task<PagedResult<Board>> GetPagedResultFromQuery(IQueryable<Board> query, PagedRequest request)
+    {
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var pattern = $"%{request.Search.Trim()}%";
@@ -71,6 +79,7 @@ public class BoardRepository : IBoardRepository
             .ThenInclude(p => p.UserProfile)
             .Include(b => b.Lists)
             .Include(b => b.WorkSpace)
+                .ThenInclude(w => w.Participants)
             .Where(b => b.WorkSpaceId == workSpaceId
                         && b.DeletedAt == null
                         && (b.AuthorId == userId || 
@@ -81,13 +90,33 @@ public class BoardRepository : IBoardRepository
 
         return asNoTracking ? q.AsNoTracking() : q;
     }
+    
+    private IQueryable<Board> BaseQueryWithoutWorkSpace(string userId, bool asNoTracking = false)
+    {
+        var q = _context.Boards
+            .Include(b => b.Author)
+            .Include(b => b.Participants)
+            .ThenInclude(p => p.UserProfile)
+            .Include(b => b.Lists)
+            .Include(b => b.WorkSpace)
+                .ThenInclude(w => w.Participants)
+            .Where(b => b.WorkSpace.Participants.All(p => p.UserProfileId != userId) 
+                        && b.DeletedAt == null
+                        && (b.AuthorId == userId || 
+                            b.Participants.Any(p => p.UserProfileId == userId) ||
+                            b.Visibility == BoardVisibility.Public));
+
+        return asNoTracking ? q.AsNoTracking() : q;
+    }
 
     public async Task<Board?> GetByIdAsync(Guid id, bool withDeleted = false)
     {
         return await _context.Boards
             .Include(b => b.Author)
             .Include(b => b.Participants)
-            .ThenInclude(p => p.UserProfile)
+                .ThenInclude(p => p.UserProfile)
+            .Include(b => b.WorkSpace)
+                .ThenInclude(w => w.Participants)
             .Include(b => b.Lists)
             .FirstOrDefaultAsync(b => b.Id == id && (withDeleted || b.DeletedAt == null));
     }

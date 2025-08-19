@@ -1,7 +1,7 @@
 ﻿import {loadParticipants} from "../load/loadParticipants.js";
 import {ContainerState, createContainerState} from "../../../../shared/ui/containerState.js";
 import {delegate} from "../../../../shared/utils/eventDelegator.js";
-import {loadBoardsWithWorkspaceId} from "../../shared/load/loadBoards.js";
+import {loadBoards} from "../../shared/load/loadBoards.js";
 import {listSkeleton} from "../../../../shared/ui/skeletons.js";
 import {boardContainer, participantContainer} from "../dom.js";
 
@@ -33,7 +33,7 @@ async function loadTab(tab, { workspaceId }) {
       await loadParticipants(workspaceId, participantContainer);
       break;
     case "boards":
-      await loadBoardsWithWorkspaceId(workspaceId, boardContainer);
+      await loadBoards(workspaceId, boardContainer);
       break;
     case "general":
     default:

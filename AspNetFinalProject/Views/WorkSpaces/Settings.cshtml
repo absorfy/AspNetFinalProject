@@ -4,9 +4,16 @@
 @model AspNetFinalProject.DTOs.WorkSpaceDto
 @{
     ViewData["Title"] = Model.Title;
-    // ViewData["AdminRights"] = await CurrentUserService.HasRoleAsync(
-    //     Guid.Parse(Model.Id), 
-    //     [WorkSpaceRole.Admin, WorkSpaceRole.Owner]);
+    ViewData["AdminRights"] = await CurrentUserService.HasWorkspaceRoleAsync(
+        Guid.Parse(Model.Id), 
+        ParticipantRole.Admin, ParticipantRole.Owner);
+
+    ViewData["MemberRights"] = (bool?)ViewData["AdminRights"] == true || await CurrentUserService.HasWorkspaceRoleAsync(
+        Guid.Parse(Model.Id),
+        ParticipantRole.Member);
+    ViewData["ParticipantRights"] = (bool?)ViewData["MemberRights"] == true || await CurrentUserService.HasWorkspaceRoleAsync(
+        Guid.Parse(Model.Id),
+        ParticipantRole.Viewer);
 }
 
 <h2>Налаштування: @Model.Title</h2>
@@ -28,52 +35,62 @@
         <form data-action="update-workspace-form" id="workspaceSettingsForm">
             <div class="mb-3">
                 <label class="form-label">Назва</label>
-                <input type="text" maxlength="100" minlength="3" class="form-control" name="title" value="@Model.Title">
+                <input @((bool?)ViewData["AdminRights"] == true ? "" : "disabled") type="text" maxlength="100" minlength="3" class="form-control" name="title" value="@Model.Title">
             </div>
             <div class="mb-3">
                 <label class="form-label">Опис</label>
-                <textarea class="form-control" maxlength="1000" name="description">@Model.Description</textarea>
+                <textarea @((bool?)ViewData["AdminRights"] == true ? "" : "disabled") class="form-control" maxlength="1000" name="description">@Model.Description</textarea>
             </div>
             <div class="mb-3">
                 <label class="form-label">Видимість</label>
-                <select class="form-select" name="visibility" asp-for="Visibility"
+                <select disabled="@( (bool?)ViewData["AdminRights"] != true )" class="form-select" name="visibility" asp-for="Visibility"
                         asp-items="Html.GetEnumSelectList<WorkSpaceVisibility>()">
                 </select>
             </div>
-            @* @{ *@
-            @*      if ((bool?)ViewData["AdminRights"] == true) *@
-            @*      { *@
+            @{
+                if ((bool?)ViewData["AdminRights"] == true)
+                {
                     <button type="submit" class="btn btn-primary">
                         Зберегти
                     </button>
-            @*     } *@
-            @* } *@
+                }
+            }
         </form>
         
-        <button class="btn btn-sm @(Model.IsSubscribed ? "btn-danger" : "btn-success")"
-                data-id="@Model.Id"
-                data-action="subscribe-workspace"
-                data-subscribed="@Model.IsSubscribed"
-                id="subscribe-btn">
-            @(Model.IsSubscribed ? "Відписатися" : "Підписатися")
-        </button>
+        @{
+            if ((bool?)ViewData["ParticipantRights"] == true)
+            {
+            <button class="btn btn-sm @(Model.IsSubscribed ? "btn-danger" : "btn-success")"
+                    data-id="@Model.Id"
+                    data-action="subscribe-workspace"
+                    data-subscribed="@Model.IsSubscribed"
+                    id="subscribe-btn">
+                @(Model.IsSubscribed ? "Відписатися" : "Підписатися")
+            </button>
+            }
+        }
         
-        @* @{ *@
-        @*     if ((bool?)ViewData["AdminRights"] == true) *@
-        @*     { *@
+        @{
+            if ((bool?)ViewData["AdminRights"] == true)
+            {
                 <button class="btn btn-sm btn-danger ms-2"
                         id="delete-btn"
                         data-id="@Model.Id"
                         data-action="delete-workspace"
                         data-title="@Model.Title">🗑</button>
-        @*     } *@
-        @* } *@
+            }
+        }
     </div>
 
     <div data-tab-content="boards" id="tab-boards" class="d-none">
-        <button class="btn btn-primary mt-3 w-100" data-bs-toggle="modal" data-bs-target="#createBoardModal">
-            Create Board
-        </button>
+        @{
+            if ((bool?)ViewData["MemberRights"] == true)
+            {
+                <button class="btn btn-primary mt-3 w-100" data-bs-toggle="modal" data-bs-target="#createBoardModal">
+                    Create Board
+                </button>
+            }
+        }
         <div class="col-md-6">
             <h5 class="mb-2">Дошки</h5>
             <div>
@@ -94,15 +111,20 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
-                <h5 class="mb-2">Додати учасника</h5>
-                <div class="mb-2">
-                    <input data-action="search-participant-input" id="participant-search" class="form-control" placeholder="Введи нік або email" autocomplete="off">
-                </div>
-                <div data-participants-search-results id="participant-search-results" class="vstack gap-2">
-                    <!-- тут з’являться результати пошуку -->
-                </div>
-            </div>
+            @{
+                if ((bool?)ViewData["AdminRights"] == true)
+                {
+                    <div class="col-md-6">
+                        <h5 class="mb-2">Додати учасника</h5>
+                        <div class="mb-2">
+                            <input data-action="search-participant-input" id="participant-search" class="form-control" placeholder="Введи нік або email" autocomplete="off">
+                        </div>
+                        <div data-participants-search-results id="participant-search-results" class="vstack gap-2">
+                            <!-- тут з’являться результати пошуку -->
+                        </div>
+                    </div>
+                }
+            }
         </div>
     </div>
 </div>

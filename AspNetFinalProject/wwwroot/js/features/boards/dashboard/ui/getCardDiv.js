@@ -1,5 +1,6 @@
 ﻿import {renderCardDiv} from "../../../../shared/ui/cardDivRenderer.js";
 import {getDeleteButtonConfig} from "../../../../shared/actions/buttonsConfigs.js";
+import {participantRole} from "../../../../shared/data/participantRole.js";
 
 export function getCardDiv(card) {
   const cardEl = renderCardDiv({
@@ -13,6 +14,7 @@ export function getCardDiv(card) {
         targetAction: "delete-card",
         targetId: card.id,
         targetTitle: card.title,
+        hidden: [participantRole.None, participantRole.Viewer].includes(card.userBoardRole),
       }),
     ]
   });

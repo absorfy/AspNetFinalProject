@@ -41,6 +41,6 @@ public class WorkSpacesController : Controller
         
         var isSubscribed = await _workSpaceService.IsSubscribedAsync(id, userId);
         
-        return View(WorkSpaceMapper.CreateDto(workspace, isSubscribed));
+        return View(WorkSpaceMapper.CreateDto(workspace, userId, isSubscribed));
     }
 }

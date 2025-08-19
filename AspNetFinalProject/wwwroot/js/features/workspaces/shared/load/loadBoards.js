@@ -1,24 +1,35 @@
-﻿import {fetchBoardsAjax} from "../../../boards/api/boardApi.js";
+﻿import {fetchBoardsByWorkspaceAjax, fetchBoardsWithoutWorkspaceAjax} from "../../../boards/api/boardApi.js";
 import {getBoardDiv} from "../ui/getBoardDiv.js";
 import {createPaginationController} from "../../../../shared/ui/paginationController.js";
 import {listSkeleton} from "../../../../shared/ui/skeletons.js";
 import {bindDebouncedInput} from "../../../../shared/utils/debounceInputs.js";
 
-export function loadBoardsWithWorkspaceId(workspaceId, container) {
-  if(!container || !workspaceId) return;
-
+export function loadBoards(workspaceId, container) {
+  if(!container) return;
+  
   const ctrl = createPaginationController({
     root: container,
     controlsPosition: "top",
     async fetchPage(state, signal) {
       // state: { page, pageSize, search, sortBy, descending }
-      return await fetchBoardsAjax(workspaceId, {
-        page: state.page,
-        pageSize: state.pageSize,
-        search: state.search,
-        sortBy: state.sortBy,
-        descending: state.descending
-      }, signal);
+      if(workspaceId != null) {
+        return await fetchBoardsByWorkspaceAjax(workspaceId, {
+          page: state.page,
+          pageSize: state.pageSize,
+          search: state.search,
+          sortBy: state.sortBy,
+          descending: state.descending
+        }, signal);
+      }
+      else {
+        return await fetchBoardsWithoutWorkspaceAjax({
+          page: state.page,
+          pageSize: state.pageSize,
+          search: state.search,
+          sortBy: state.sortBy,
+          descending: state.descending
+        }, signal);
+      }
     },
     renderItem: getBoardDiv,
     renderSkeleton: () => listSkeleton,

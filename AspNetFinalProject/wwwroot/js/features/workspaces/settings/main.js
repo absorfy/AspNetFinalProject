@@ -2,14 +2,14 @@
 import {createBoardForm, currentWorkspace} from "./dom.js";
 import {fetchWorkspaceParticipantRoles} from "../api/workspaceApi.js";
 
-let roles;
+let roleValues;
 
 document.addEventListener("DOMContentLoaded", async () => {
-  roles = await fetchWorkspaceParticipantRoles();
+  roleValues = await fetchWorkspaceParticipantRoles();
   createBoardForm.setAttribute("data-workspace-id", currentWorkspace.id);
   initWorkspaceSettingsEvents(currentWorkspace.id);
 });
 
 export function getWorkspaceRoles() {
-  return roles
+  return roleValues
 }
