@@ -32,12 +32,14 @@ public class UserActionLogService : IUserActionLogService
     public async Task<UserActionLog> LogDeleting(string userId, ILogEntity logEntity)
     {
         return await LogAction(userId, logEntity, UserActionType.Delete,
-            $"Видалено {logEntity.GetDescriptionName()} «{logEntity.GetName()}».");
+            $"Видалено {logEntity.GetName()}" + (logEntity.GetParentLogEntity() != null ?
+                $" з {logEntity.GetParentLogEntity()?.GetName()}" : ""));
     }
 
     public async Task<UserActionLog> LogUpdating(string userId, ILogEntity logEntity, params EntityUpdateLog[] updateLogs)
     {
-        var message = new StringBuilder($"Змінено {logEntity.GetDescriptionName()} «{logEntity.GetName()}»:");
+        var message = new StringBuilder($"Змінено {logEntity.GetName()}" + (logEntity.GetParentLogEntity() != null ?
+            $" в {logEntity.GetParentLogEntity()?.GetName()}" : ""));
         foreach (var updateLog in updateLogs)
         {
             message.Append($"\n{updateLog.ValueName}:\n\t{updateLog.OldValue} => {updateLog.NewValue}");
@@ -45,12 +47,20 @@ public class UserActionLogService : IUserActionLogService
         return await LogAction(userId, logEntity, UserActionType.Update, message.ToString());
     }
 
-    
+    public Task<UserActionLog> LogMoving(string userId, ILogEntity logEntity, EntityUpdateLog updateLog)
+    {
+        var message = $"Переміщено {logEntity.GetName()}" + (logEntity.GetParentLogEntity() != null ?
+        $" в {logEntity.GetParentLogEntity()?.GetName()}" : "") +
+                      $" з {updateLog.OldValue} до {updateLog.NewValue}.";
+        return LogAction(userId, logEntity, UserActionType.Move, message);
+    }
+
 
     public async Task<UserActionLog> LogCreating(string userId, ILogEntity logEntity)
     {
         return await LogAction(userId, logEntity, UserActionType.Create,
-            $"Створено {logEntity.GetDescriptionName()} «{logEntity.GetName()}».");
+            $"Створено {logEntity.GetName()}" + (logEntity.GetParentLogEntity() != null ?
+                $" в {logEntity.GetParentLogEntity()?.GetName()}" : ""));
     }
 
     public Task<IEnumerable<UserActionLog>> GetByUserIdAsync(string userId)

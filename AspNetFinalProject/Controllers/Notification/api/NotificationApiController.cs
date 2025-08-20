@@ -24,7 +24,7 @@ public class NotificationApiController : ControllerBase
 
     // GET /api/notifications?onlyUnread=true&take=50
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery] bool onlyUnread = false, [FromQuery] int take = 3)
+    public async Task<IActionResult> Get([FromQuery] bool onlyUnread, [FromQuery] int take)
     {
         var userProfileId = _currentUser.GetIdentityId();
         if (userProfileId == null) return Unauthorized();

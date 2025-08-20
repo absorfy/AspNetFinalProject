@@ -17,6 +17,7 @@ public static class UserActionLogMapper
                 .Replace("\t", " -  ")
                 .Split('\n', StringSplitOptions.RemoveEmptyEntries),
             Timestamp = userActionLog.Timestamp,
+            UserName = userActionLog.UserProfile?.Username ?? "Unknown User",
         };
     }
 }

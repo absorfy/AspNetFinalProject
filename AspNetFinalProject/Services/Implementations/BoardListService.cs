@@ -54,7 +54,9 @@ public class BoardListService : IBoardListService
         await _repository.AddAsync(list);
         await _repository.SaveChangesAsync();
 
-        await _actionLogger.LogAndNotifyAsync(authorId, list, UserActionType.Create);
+        var fullList = await _repository.GetByIdAsync(list.Id);
+        if (fullList == null) return list;
+        await _actionLogger.LogAndNotifyAsync(authorId, fullList, UserActionType.Create);
         return list;
     }
 

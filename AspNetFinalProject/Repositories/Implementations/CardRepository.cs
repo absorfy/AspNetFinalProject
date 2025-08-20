@@ -48,6 +48,8 @@ public class CardRepository : ICardRepository
             .Include(c => c.Participants).ThenInclude(p => p.UserProfile)
             .Include(c => c.TagCards).ThenInclude(tc => tc.Tag)
             .Include(c => c.Comments)
+            .Include(c => c.BoardList)
+                .ThenInclude(b => b.Board)
             .Include(c => c.Attachments)
             .Where(c => c.BoardListId == boardListId
                         && c.DeletedAt == null
@@ -71,6 +73,8 @@ public class CardRepository : ICardRepository
                 .ThenInclude(p => p.UserProfile)
             .Include(c => c.TagCards)
                 .ThenInclude(tc => tc.Tag)
+            .Include(c => c.BoardList)
+                .ThenInclude(b => b.Board)
             .Include(c => c.Comments)
             .Include(c => c.Attachments)
             .FirstOrDefaultAsync(c => c.Id == id && (withDeleted || c.DeletedAt == null));

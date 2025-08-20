@@ -46,6 +46,7 @@ public class BoardListRepository : IBoardListRepository
         return await _context.Lists
             .Include(l => l.Author)
             .Include(l => l.Cards)
+            .Include(l => l.Board)
             .Where(l => l.BoardId == boardId
                         && l.DeletedAt == null
                         && (l.AuthorId == userId
@@ -63,6 +64,7 @@ public class BoardListRepository : IBoardListRepository
         return await _context.Lists
             .Include(l => l.Author)
             .Include(l => l.Cards)
+            .Include(l => l.Board)
             .FirstOrDefaultAsync(l => l.Id == id && (withDeleted || l.DeletedAt == null));
     }
 

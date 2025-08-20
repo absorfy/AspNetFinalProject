@@ -18,7 +18,6 @@ public class BoardParticipantApiController : ControllerBase
     private readonly IBoardService _boardService;
     private readonly ICurrentUserService _currentUserService;
     private readonly IBoardParticipantRepository _boardParticipantRepository;
-    private readonly IWorkSpaceParticipantRepository _workSpaceParticipantRepository;
 
     public record ParticipantActionRequest(string UserProfileId);
 
@@ -26,13 +25,11 @@ public class BoardParticipantApiController : ControllerBase
     
     public BoardParticipantApiController(IBoardService boardService,
         ICurrentUserService currentUserService,
-        IBoardParticipantRepository boardParticipantRepository,
-        IWorkSpaceParticipantRepository workSpaceParticipantRepository)
+        IBoardParticipantRepository boardParticipantRepository)
     {
         _boardService = boardService;
         _currentUserService = currentUserService;
         _boardParticipantRepository = boardParticipantRepository;
-        _workSpaceParticipantRepository = workSpaceParticipantRepository;
     }
     
     
@@ -116,6 +113,9 @@ public class BoardParticipantApiController : ControllerBase
 
     private async Task<ActionResult?> IsNotAllowed(Guid boardId, BoardParticipant target)
     {
+        var board = await _boardService.GetByIdAsync(boardId);
+        if (board == null) return NotFound();
+        
         var changerId = _currentUserService.GetIdentityId();
         
         if (target.UserProfileId == changerId && 
@@ -124,7 +124,8 @@ public class BoardParticipantApiController : ControllerBase
             return Forbid();
         }
 
-        if (await _currentUserService.HasBoardRoleAsync(boardId, ParticipantRole.Owner, ParticipantRole.Admin) &&
+        if ((await _currentUserService.HasBoardRoleAsync(boardId, ParticipantRole.Owner, ParticipantRole.Admin) ||
+             await _currentUserService.HasWorkspaceRoleAsync(board.WorkSpaceId, ParticipantRole.Admin, ParticipantRole.Owner))&&
             target.Role != ParticipantRole.Owner)
         {
             return null;

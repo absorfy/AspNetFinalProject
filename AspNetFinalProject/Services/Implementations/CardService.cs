@@ -40,7 +40,9 @@ public class CardService : ICardService
         CardMapper.UpdateEntity(card, dto);
         await _repository.SaveChangesAsync();
 
-        await _actionLogger.LogAndNotifyAsync(updateByUserId, card, UserActionType.Update, updateLogs);
+        var fullCard = await _repository.GetByIdAsync(card.Id);
+        if(fullCard != null)
+            await _actionLogger.LogAndNotifyAsync(updateByUserId, fullCard, UserActionType.Update, updateLogs);
         return true;
     }
 
@@ -50,7 +52,9 @@ public class CardService : ICardService
         await _repository.AddAsync(card);
         await _repository.SaveChangesAsync();
 
-        await _actionLogger.LogAndNotifyAsync(authorId, card, UserActionType.Create);
+        var fullCard = await _repository.GetByIdAsync(card.Id);
+        if(fullCard != null)
+            await _actionLogger.LogAndNotifyAsync(authorId, fullCard, UserActionType.Create);
         return card;
     }
 
@@ -63,14 +67,29 @@ public class CardService : ICardService
         await _repository.DeleteAsync(card);
         await _repository.SaveChangesAsync();
         
-        if(notify)
-            await _actionLogger.LogAndNotifyAsync(deletedByUserId, card, UserActionType.Delete);
+        var fullCard = await _repository.GetByIdAsync(id);
+        if(notify && fullCard != null)
+            await _actionLogger.LogAndNotifyAsync(deletedByUserId, fullCard, UserActionType.Delete);
         return true;
     }
 
-    public async Task MoveCard(Guid cardId, Guid newListId, int orderIndex)
+    public async Task MoveCard(Guid cardId, Guid newListId, int orderIndex, string movedByUserId)
     {
+        var card = await _repository.GetByIdAsync(cardId);
+        if (card == null) return;
+        var oldDto = CardMapper.CreateUpdateDto(card);
+        
         await _repository.MoveCard(cardId, newListId, orderIndex);
         await _repository.SaveChangesAsync();
+        
+        var fullCard = await _repository.GetByIdAsync(cardId);
+
+        if (fullCard != null)
+        {
+            var newDto = CardMapper.CreateUpdateDto(fullCard);
+            var updateLogs = _actionLogger.CompareUpdateDtos(oldDto, newDto).ToArray();
+            if (updateLogs.Length == 0) return;
+            await _actionLogger.LogAndNotifyAsync(movedByUserId, fullCard, UserActionType.Move, updateLogs[0]);
+        }
     }
 }

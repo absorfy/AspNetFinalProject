@@ -47,6 +47,9 @@ public class CardApiController : ControllerBase
     [HttpPost("{cardId:guid}/move-to-list/{newListId:guid}")]
     public async Task<ActionResult<CardDto>> MoveCard(Guid cardId, Guid newListId, [FromBody] MoveCardRequest request)
     {
+        var userId = _currentUserService.GetIdentityId();
+        if(userId == null) return Unauthorized();
+        
         var list = await _boardListService.GetByIdAsync(newListId);
         if(list == null) return NotFound();
 
@@ -55,7 +58,7 @@ public class CardApiController : ControllerBase
             return Forbid();
         }
         
-        await _cardService.MoveCard(cardId, newListId, request.OrderIndex);
+        await _cardService.MoveCard(cardId, newListId, request.OrderIndex, userId);
         return Ok();
     }
     

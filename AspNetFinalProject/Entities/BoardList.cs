@@ -33,6 +33,13 @@ public class BoardList : ILogEntity
     public UserProfile? DeletedByUser { get; set; }
     
     public ICollection<Card> Cards { get; set; } = new List<Card>();
+
+
+    public ILogEntity? GetParentLogEntity()
+    {
+        return Board;
+    }
+
     public EntityTargetType GetEntityType()
     {
         return EntityTargetType.BoardList;
@@ -40,7 +47,7 @@ public class BoardList : ILogEntity
 
     public string GetName()
     {
-        return Title;
+        return $"список «{Title}»";
     }
 
     public string GetId()
@@ -51,10 +58,5 @@ public class BoardList : ILogEntity
     public string GetSettingsLink()
     {
         return $"Lists/{GetId()}/Settings";
-    }
-
-    public string GetDescriptionName()
-    {
-        return "список";
     }
 }

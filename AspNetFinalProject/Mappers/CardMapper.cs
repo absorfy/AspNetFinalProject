@@ -32,6 +32,7 @@ public static class CardMapper
             Description = entity.Description,
             Deadline = entity.Deadline,
             Title = entity.Title,
+            BoardListTitle = entity.BoardList.Title
         };
     }
 

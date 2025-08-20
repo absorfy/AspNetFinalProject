@@ -42,6 +42,12 @@ public class Board : ILogEntity
     public ICollection<BoardParticipant> Participants { get; set; } = new List<BoardParticipant>();
     
     public ICollection<BoardList> Lists { get; set; } = new List<BoardList>();
+
+    public ILogEntity GetParentLogEntity()
+    {
+        return WorkSpace;
+    }
+
     public EntityTargetType GetEntityType()
     {
         return EntityTargetType.Board;
@@ -49,7 +55,7 @@ public class Board : ILogEntity
 
     public string GetName()
     {
-        return Title;
+        return $"дошка «{Title}»";
     }
 
     public string GetId()
@@ -60,10 +66,5 @@ public class Board : ILogEntity
     public string GetSettingsLink()
     {
         return $"/Boards/{GetId()}/Settings";
-    }
-
-    public string GetDescriptionName()
-    {
-        return "дошку";
     }
 }

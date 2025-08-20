@@ -10,5 +10,5 @@ public interface ICardService
     Task<bool> UpdateAsync(Guid id, UpdateCardDto dto, string updateByUserId);
     Task<Card> CreateAsync(string authorId, CreateCardDto dto);
     Task<bool> DeleteAsync(Guid id, string deletedByUserId, bool notify = true);
-    Task MoveCard(Guid cardId, Guid newListId, int orderIndex);
+    Task MoveCard(Guid cardId, Guid newListId, int orderIndex, string movedByUserId); 
 }

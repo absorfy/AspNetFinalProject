@@ -14,8 +14,9 @@ public class SubscriptionService : ISubscriptionService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<string>> GetSubscribedAsync(EntityTargetType entityTargetType, string entityId)
+    public async Task<IEnumerable<string>> GetSubscribedAsync(EntityTargetType? entityTargetType, string entityId)
     {
+        if (entityTargetType == null) return [];
         return await _repository.GetSubscribedIdsAsync(entityTargetType, entityId);
     }
 

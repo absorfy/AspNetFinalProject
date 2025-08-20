@@ -51,4 +51,8 @@ public class UpdateCardDto : ILogUpdateDto
     public string? Color { get; set; }
 
     public DateTime? Deadline { get; set; }
+    
+    [Required]
+    [MaxLength(100)]
+    public string BoardListTitle { get; set; }
 }

@@ -5,9 +5,10 @@ namespace AspNetFinalProject.Common;
 
 public interface ILogEntity
 {
+    ILogEntity? GetParentLogEntity();
+    
     EntityTargetType GetEntityType();
     string GetName();
     string GetId();
     string GetSettingsLink();
-    string GetDescriptionName();
 }

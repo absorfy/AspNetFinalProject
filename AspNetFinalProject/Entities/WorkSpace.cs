@@ -31,6 +31,13 @@ public class WorkSpace : ILogEntity
     
     public ICollection<WorkSpaceParticipant> Participants { get; set; } = new List<WorkSpaceParticipant>();
     public ICollection<Board> Boards { get; set; } = new List<Board>();
+
+
+    public ILogEntity? GetParentLogEntity()
+    {
+        return null;
+    }
+
     public EntityTargetType GetEntityType()
     {
         return EntityTargetType.Workspace;
@@ -38,7 +45,7 @@ public class WorkSpace : ILogEntity
 
     public string GetName()
     {
-        return Title;
+        return $"робочий простір «{Title}»";
     }
 
     public string GetId()
@@ -49,10 +56,5 @@ public class WorkSpace : ILogEntity
     public string GetSettingsLink()
     {
         return $"/Workspaces/{GetId()}/Settings";
-    }
-
-    public string GetDescriptionName()
-    {
-        return "робочий простір";
     }
 }

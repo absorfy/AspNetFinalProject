@@ -53,6 +53,12 @@ public class Card : ILogEntity
     
     public ICollection<CardAttachment> Attachments { get; set; } = new List<CardAttachment>();
 
+
+    public ILogEntity GetParentLogEntity()
+    {
+        return BoardList.Board;
+    }
+
     public EntityTargetType GetEntityType()
     {
         return EntityTargetType.Card;
@@ -60,7 +66,7 @@ public class Card : ILogEntity
 
     public string GetName()
     {
-        return Title;
+        return $"картка «{Title}»";
     }
 
     public string GetId()
@@ -72,10 +78,4 @@ public class Card : ILogEntity
     {
         return $"Cards/{GetId()}/Settings";
     }
-
-    public string GetDescriptionName()
-    {
-        return "картку";
-    }
-    
 }

@@ -1,6 +1,6 @@
 ﻿import {delegate} from "../../../shared/utils/eventDelegator.js";
-import {markAsReadNotification} from "../api/notificationApi.js";
 import {toggleAction} from "../../../shared/actions/toggleAction.js";
+import {markAsRead} from "../notificationHub.js";
 
 export function initMarkAsReadHandler() {
   delegate("click", {
@@ -9,7 +9,7 @@ export function initMarkAsReadHandler() {
         btn: li,
         getState: () => false, // завжди read після кліку
         setState: () => li.remove(),
-        doAjax: () => markAsReadNotification(li.dataset.id),
+        doAjax: () => markAsRead(li.dataset.id),
       });
     },
   });

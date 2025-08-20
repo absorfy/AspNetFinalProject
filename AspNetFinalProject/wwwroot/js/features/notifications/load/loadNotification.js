@@ -1,13 +1,13 @@
 ﻿import {notificationsContainer} from "../dom.js";
-import {showNotification} from "../ui/showNotification.js";
 import {fetchNotifications} from "../api/notificationApi.js";
+import {showNotification} from "../notificationHub.js";
 
 
 export async function loadNotifications() {
   notificationsContainer.innerHTML = "Завантаження...";
 
   try {
-    const notifications = await fetchNotifications(true, 3);
+    const notifications = await fetchNotifications(true);
     if (notifications.length === 0) {
       notificationsContainer.innerHTML = "<p>Пусто..</p>";
       return;
@@ -15,6 +15,7 @@ export async function loadNotifications() {
 
     notificationsContainer.innerHTML = "";
     notifications.forEach(n => {
+      console.log(n);
       showNotification(n);
     });
   } catch (err) {
