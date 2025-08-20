@@ -14,17 +14,6 @@
 
 ---
 
-## 📖 Table of Contents
-- [Overview](#overview)
-- [Features](#features)
-- [Technologies](#technologies)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Repository Structure](#repository-structure)
-- [Author](#author)
-
----
-
 ## 📌 Overview
 **Kanban** is a project management application inspired by Trello.  
 It provides functionality for workspaces, boards, lists, and cards, with customizable roles, notifications, and drag-and-drop interaction. The system is designed for collaboration and personal productivity, featuring pagination, action logs, and real-time updates.
