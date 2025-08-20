@@ -4,4 +4,4 @@
   Member: 2,
   Viewer: 3,
   None: null
-}
+};

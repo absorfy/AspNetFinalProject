@@ -8,7 +8,10 @@ export function initMarkAsReadHandler() {
       toggleAction({
         btn: li,
         getState: () => false, // завжди read після кліку
-        setState: () => li.remove(),
+        setState: () => {
+          document.querySelector(`[data-dividerid="${li.dataset.id}"]`)?.remove();
+          li.remove();
+        },
         doAjax: () => markAsRead(li.dataset.id),
       });
     },

@@ -4,6 +4,7 @@ import {fetchListsByBoard} from "../../../boardLists/api/boardListApi.js";
 import {getBoardListDiv} from "../ui/getBoardListDiv.js";
 import {loadCardsForList} from "./loadCard.js";
 
+
 export async function loadBoardLists(boardId, container) {
   const controller = new AbortController();
   const view = createContainerState(container, { skeleton: listSkeleton});
@@ -14,7 +15,7 @@ export async function loadBoardLists(boardId, container) {
     const data = await fetchListsByBoard(boardId, controller.signal);
 
     if(!data || data.length === 0 || data.items?.length === 0) {
-      view.setState(ContainerState.EMPTY, { message: "Ще немає дошок"});
+      view.setState(ContainerState.EMPTY);
       return;
     }
 

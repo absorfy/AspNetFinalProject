@@ -67,9 +67,8 @@ public class CardService : ICardService
         await _repository.DeleteAsync(card);
         await _repository.SaveChangesAsync();
         
-        var fullCard = await _repository.GetByIdAsync(id);
-        if(notify && fullCard != null)
-            await _actionLogger.LogAndNotifyAsync(deletedByUserId, fullCard, UserActionType.Delete);
+        if(notify)
+            await _actionLogger.LogAndNotifyAsync(deletedByUserId, card, UserActionType.Delete);
         return true;
     }
 

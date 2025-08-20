@@ -6,13 +6,14 @@ import {delegate} from "../../../../shared/utils/eventDelegator.js";
 import {subscribeToWorkspaceAjax, unsubscribeFromWorkspaceAjax, updateWorkspaceAjax} from "../../api/workspaceApi.js";
 import {initAddNewParticipantHandler} from "./addNewParicipantHandler.js";
 import {navigate} from "../../../../shared/utils/navigation.js";
-import {getWorkspaceParticipantDiv} from "../ui/getWorkspaceParticipantDiv.js";
-import {boardContainer, participantContainer} from "../dom.js";
+import {boardContainer} from "../dom.js";
 import {initDeleteBoardHandler} from "../../shared/events/deleteBoardHandler.js";
 import {initCreateBoardSubmitHandler} from "../../shared/events/createBoardHandler.js";
 import {initBoardSettingsHandler} from "../../shared/events/boardSettingsHandler.js";
 import {initSubscribeHandler} from "../../../shared/events/subscribeHandler.js";
 import {subscribeToBoardAjax, unsubscribeFromBoardAjax} from "../../../boards/api/boardApi.js";
+import {getBoardPaginationController} from "../../shared/load/loadBoards.js";
+import {getParticipantPaginationController} from "../load/loadParticipants.js";
 
 
 export function initWorkspaceSettingsEvents(workspaceId) {
@@ -20,23 +21,20 @@ export function initWorkspaceSettingsEvents(workspaceId) {
     navigate.toDashboard();
   });
   initDeleteWorkspaceParticipantHandler(workspaceId, (participantId) => {
-    const div = document.querySelector(`[data-participant-id="${participantId}"]`)
-    if(div) div.remove();
+    getParticipantPaginationController().refresh();
     triggerParticipantsSearch();
   });
   initWorkspaceTabsHandler({workspaceId});
   initWorkspaceParticipantsSearchHandler(workspaceId);
   initAddNewParticipantHandler(workspaceId, async (newParticipant) => {
-    const div = await getWorkspaceParticipantDiv(newParticipant);
-    participantContainer.appendChild(div);
+    getParticipantPaginationController().refresh();
     triggerParticipantsSearch();
   });
   initSubscribeHandler("workspace", subscribeToWorkspaceAjax, unsubscribeFromWorkspaceAjax);
   initSubscribeHandler("board", subscribeToBoardAjax, unsubscribeFromBoardAjax)
   initCreateBoardSubmitHandler(boardContainer);
   initDeleteBoardHandler((boardId) => {
-    const card = document.querySelector(`[data-board-id="${boardId}"]`);
-    if(card) card.remove();
+    getBoardPaginationController().refresh();
   });
   initBoardSettingsHandler();
   

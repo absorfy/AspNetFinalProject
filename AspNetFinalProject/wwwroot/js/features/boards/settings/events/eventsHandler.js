@@ -3,12 +3,11 @@ import {navigate} from "../../../../shared/utils/navigation.js";
 import {initBoardTabsHandler} from "./boardTabsHandler.js";
 import {initDeleteBoardParticipantHandler} from "./deleteBoardParticipantHandler.js";
 import {initBoardParticipantsSearchHandler, triggerParticipantsSearch} from "./participantsSearchHandler.js";
-import {getBoardParticipantDiv} from "../ui/getBoardParticipantDiv.js";
-import {participantContainer} from "../dom.js";
 import {initAddNewParticipantHandler} from "./addNewParticipantHandler.js";
 import {initSubscribeHandler} from "../../../shared/events/subscribeHandler.js";
 import {subscribeToBoardAjax, unsubscribeFromBoardAjax, updateBoardAjax} from "../../api/boardApi.js";
 import {delegate} from "../../../../shared/utils/eventDelegator.js";
+import {getParticipantPaginationController} from "../load/loadParticipants.js";
 
 
 export function initBoardSettingsEvents(boardId) {
@@ -17,15 +16,13 @@ export function initBoardSettingsEvents(boardId) {
   })
   
   initDeleteBoardParticipantHandler(boardId, (participantId) => {
-    const div = document.querySelector(`[data-participant-id="${participantId}"]`)
-    if(div) div.remove();
+    getParticipantPaginationController().refresh();
     triggerParticipantsSearch();
   })
   initBoardTabsHandler({boardId});
   initBoardParticipantsSearchHandler(boardId);
   initAddNewParticipantHandler(boardId, async (newParticipant) => {
-    const div = await getBoardParticipantDiv(newParticipant);
-    participantContainer.appendChild(div);
+    getParticipantPaginationController().refresh();
     triggerParticipantsSearch();
   })
   initSubscribeHandler("board", subscribeToBoardAjax, unsubscribeFromBoardAjax);

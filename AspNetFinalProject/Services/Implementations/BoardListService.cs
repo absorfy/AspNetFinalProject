@@ -43,7 +43,7 @@ public class BoardListService : IBoardListService
         
         BoardListMapper.UpdateEntity(list, dto);
         await _repository.SaveChangesAsync();
-
+        
         await _actionLogger.LogAndNotifyAsync(updatedByUserId, list, UserActionType.Update, updateLogs);
         return true;
     }

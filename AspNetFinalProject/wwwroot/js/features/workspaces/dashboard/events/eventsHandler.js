@@ -2,23 +2,21 @@
 import {createWorkspaceAjax, subscribeToWorkspaceAjax, unsubscribeFromWorkspaceAjax} from "../../api/workspaceApi.js";
 import {initDeleteWorkspaceHandler} from "../../shared/events/deleteWorkspaceHandler.js";
 import {initDeleteBoardHandler} from "../../shared/events/deleteBoardHandler.js";
-import {getWorkspaceDiv} from "../ui/getWorkspaceDiv.js";
-import {boardListContainer, workspaceListContainer} from "../dom.js";
+import {boardListContainer} from "../dom.js";
 import {navigate} from "../../../../shared/utils/navigation.js";
 import {initCreateBoardSubmitHandler} from "../../shared/events/createBoardHandler.js";
 import {initBoardSettingsHandler} from "../../shared/events/boardSettingsHandler.js";
 import {initSubscribeHandler} from "../../../shared/events/subscribeHandler.js";
 import {subscribeToBoardAjax, unsubscribeFromBoardAjax} from "../../../boards/api/boardApi.js";
+import {getWorkSpacePaginationController} from "../load/loadWorkspaces.js";
+import {getBoardPaginationController} from "../../shared/load/loadBoards.js";
 
 export function initWorkspaceDashboardEvents() {
   initDeleteWorkspaceHandler((workspaceId) => {
-    const card = document.querySelector(`[data-workspace-id="${workspaceId}"]`)
-    if(!card) return;
-    card.remove();
+    getWorkSpacePaginationController().refresh();
   });
   initDeleteBoardHandler((boardId) => {
-    const card = document.querySelector(`[data-board-id="${boardId}"]`);
-    if(card) card.remove();
+    getBoardPaginationController().refresh();
   });
   initSubscribeHandler("workspace", subscribeToWorkspaceAjax, unsubscribeFromWorkspaceAjax);
   initSubscribeHandler("board", subscribeToBoardAjax, unsubscribeFromBoardAjax);
@@ -35,10 +33,10 @@ export function initWorkspaceDashboardEvents() {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
       try {
-        const newWorkspace = await createWorkspaceAjax(data);
+        await createWorkspaceAjax(data);
         form.reset();
         bootstrap.Modal.getInstance(form.closest(".modal"))?.hide();
-        workspaceListContainer.appendChild(getWorkspaceDiv(newWorkspace));
+        getWorkSpacePaginationController().refresh();
       } catch (err) {
         alert(`Не вдалося створити робочу область: ${err.message}`);
       }

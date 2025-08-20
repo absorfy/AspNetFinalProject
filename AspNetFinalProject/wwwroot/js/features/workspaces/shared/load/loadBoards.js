@@ -4,10 +4,16 @@ import {createPaginationController} from "../../../../shared/ui/paginationContro
 import {listSkeleton} from "../../../../shared/ui/skeletons.js";
 import {bindDebouncedInput} from "../../../../shared/utils/debounceInputs.js";
 
+let ctrl = null;
+
+export function getBoardPaginationController() {
+  return ctrl;
+}
+
 export function loadBoards(workspaceId, container) {
   if(!container) return;
   
-  const ctrl = createPaginationController({
+  ctrl = createPaginationController({
     root: container,
     controlsPosition: "top",
     async fetchPage(state, signal) {

@@ -1,6 +1,6 @@
 ﻿import {delegate} from "../../../../shared/utils/eventDelegator.js";
 import {createBoardAjax} from "../../../boards/api/boardApi.js";
-import {getBoardDiv} from "../ui/getBoardDiv.js";
+import {getBoardPaginationController} from "../load/loadBoards.js";
 
 
 export function initCreateBoardSubmitHandler(container) {
@@ -9,10 +9,10 @@ export function initCreateBoardSubmitHandler(container) {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
       try {
-        const newBoard = await createBoardAjax({...data, workspaceId: form.getAttribute("data-workspace-id")});
+        await createBoardAjax({...data, workspaceId: form.getAttribute("data-workspace-id")});
         form.reset();
         bootstrap.Modal.getInstance(form.closest(".modal"))?.hide();
-        container.appendChild(getBoardDiv(newBoard));
+        getBoardPaginationController().refresh();
       } catch (err) {
         alert(`Не вдалося створити дошку: ${err.message}`);
       }

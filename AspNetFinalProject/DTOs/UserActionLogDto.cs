@@ -11,4 +11,5 @@ public class UserActionLogDto
     public UserActionType ActionType { get; set; }
     public IEnumerable<string> Messages { get; set; }
     public DateTime Timestamp { get; set; }
+    
 }

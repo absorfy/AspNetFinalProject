@@ -38,7 +38,10 @@ public class UserActionLogRepository : IUserActionLogRepository
 
     private IQueryable<UserActionLog> BaseQueryForUserId(string userId, bool asNoTracking = false)
     {
-        var q = _context.UserActionLogs.Where(l => l.UserProfileId == userId);
+        var q = _context.UserActionLogs
+            .Include(l => l.UserProfile)
+            .Where(l => l.UserProfileId == userId)
+            .OrderByDescending(l => l.Timestamp);
         return asNoTracking ? q.AsNoTracking() : q;
     }
 }

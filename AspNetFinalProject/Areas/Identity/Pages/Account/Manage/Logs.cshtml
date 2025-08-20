@@ -1,5 +1,6 @@
 ﻿@page
 @inject IUserActionLogService UserActionLogService
+@using AspNetFinalProject.Enums
 @using AspNetFinalProject.Mappers
 @using AspNetFinalProject.Services.Interfaces
 @model AspNetFinalProject.Areas.Identity.Pages.Account.Manage.Logs
@@ -73,14 +74,26 @@
                         .Select(m => (m ?? string.Empty).Replace("\t", "    ").Trim())
                         .Where(m => !string.IsNullOrWhiteSpace(m))
                         .ToList();
-                    var joined = string.Join(" · ", msgs);
                     
                     var et = log.EntityType;
                     var url = await UserActionLogService.GetEntityLink(et, Guid.Parse(log.EntityId));
-                    var etText = EntityTargetTypeMapper.CreateDto(et).Text;
                 }
 
-                <span class="text-muted">@ts</span> — @joined — <a href="@url" class="link-primary">@etText</a>
+                <span class="text-muted">@ts</span>
+                @{ 
+                    @foreach (var msg in msgs)
+                    {
+                        <span class="badge bg-secondary mb-1">@msg</span>
+                    }
+                }
+                @{
+                    if (log.ActionType != UserActionType.Delete && 
+                        log.EntityType != EntityTargetType.Card && 
+                        log.EntityType != EntityTargetType.BoardList)
+                    {
+                        <a href="@url" class="link-primary">Налаштувати</a>
+                    }
+                }
             </li>
         }
     </ul>

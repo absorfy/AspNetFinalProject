@@ -2,7 +2,6 @@
 import {createBoardListAjax} from "../../../boardLists/api/boardListApi.js";
 import {getBoardListDiv} from "../ui/getBoardListDiv.js";
 import {boardListsContainer} from "../dom.js";
-import {initCardsDndForList} from "../../../../shared/ui/cardsDnd.js";
 
 
 export function initCreateBoardListHandler(currentBoardId) {
@@ -14,7 +13,7 @@ export function initCreateBoardListHandler(currentBoardId) {
         const newList = await createBoardListAjax({ ...data, boardId: currentBoardId });
         form.reset();
         bootstrap.Modal.getInstance(form.closest(".modal")).hide();
-        const div = getBoardListDiv(newList)
+        const div = getBoardListDiv(newList);
         boardListsContainer.appendChild(div);
       } catch (err) {
         alert(`Не вдалося створити список: ${err.message}`);

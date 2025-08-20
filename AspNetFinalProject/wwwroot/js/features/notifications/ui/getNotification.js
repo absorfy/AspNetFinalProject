@@ -15,7 +15,7 @@ export function getNotification(notification) {
   `;
   const liDivider = document.createElement("li");
   liDivider.innerHTML = `
-    <hr class="dropdown-divider">
+    <hr class="dropdown-divider" data-dividerid="${notification.id}">
   `;
   
   return { liNotification, liDivider };

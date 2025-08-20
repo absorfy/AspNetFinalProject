@@ -4,11 +4,16 @@ import {fetchBoardParticipantsAjax} from "../../api/boardApi.js";
 import {getBoardParticipantDiv} from "../ui/getBoardParticipantDiv.js";
 import {bindDebouncedInput} from "../../../../shared/utils/debounceInputs.js";
 
+let ctrl = null;
+
+export function getParticipantPaginationController() {
+  return ctrl;
+}
 
 export async function loadParticipants(boardId, container) {
   if(!container || !boardId) return;
 
-  const ctrl = createPaginationController({
+  ctrl = createPaginationController({
     root: container,
     controlsPosition: "top",
     async fetchPage(state, signal) {

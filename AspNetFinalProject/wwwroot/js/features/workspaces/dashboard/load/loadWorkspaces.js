@@ -4,10 +4,16 @@ import { getWorkspaceDiv } from "../ui/getWorkspaceDiv.js";
 import { listSkeleton } from "../../../../shared/ui/skeletons.js";
 import { fetchWorkspacesAjax } from "../../api/workspaceApi.js";
 
+let ctrl = null;
+
+export function getWorkSpacePaginationController() {
+  return ctrl;
+}
+
 export function loadWorkspaces(container) {
   if (!container) return;
 
-  const ctrl = createPaginationController({
+  ctrl = createPaginationController({
     root: container,
     controlsPosition: "top",
     async fetchPage(state, signal) {
