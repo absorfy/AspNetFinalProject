@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetFinalProject", "AspNetFinalProject\AspNetFinalProject.csproj", "{D21276F9-6699-44A9-8524-79C9C2939ECB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetFinalProject", "src\AspNetFinalProject.csproj", "{D21276F9-6699-44A9-8524-79C9C2939ECB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

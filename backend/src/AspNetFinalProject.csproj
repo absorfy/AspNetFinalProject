@@ -10,15 +10,16 @@
     <ItemGroup>
         <PackageReference Include="CompareNETObjects" Version="4.84.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.8" />
-        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.0-preview.6.25358.103" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="10.0.0-preview.6.25358.103" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.7" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0" />
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
         <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.3" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.3" />

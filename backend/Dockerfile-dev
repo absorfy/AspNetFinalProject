@@ -1,0 +1,16 @@
+﻿FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+
+WORKDIR /app
+
+COPY *.sln ./
+COPY src/*.csproj ./src/
+
+RUN dotnet restore ./backend.sln
+
+COPY src/. ./src/
+
+WORKDIR /app/src
+
+EXPOSE 5134
+
+CMD ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5134"]
