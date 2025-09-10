@@ -1,0 +1,22 @@
+﻿# Node modules та логи
+node_modules
+npm-debug.log
+yarn-error.log
+
+# IDE / OS
+.vscode
+.DS_Store
+
+# Next.js збірки (для dev і prod окремо обробляються)
+.next
+out
+
+# Середовища та секрети
+.env
+.env.local
+.env.development
+.env.production
+
+# Docker
+Dockerfile-dev
+Dockerfile-prod
