@@ -1,40 +1,52 @@
 ﻿version: "3.9"
 services:
-#  frontend:
-#    build:
-#      context: ./frontend
-#      dockerfile: Dockerfile-dev
-#    ports:
-#      - "3000:3000"
-#    volumes:
-#      - ./frontend:/app
-#      - /app/node_modules
-#    depends_on:
-#      - backend
-#      
-#  backend:
-#    build:
-#      context: ./backend
-#      dockerfile: Dockerfile-dev
-#    ports:
-#      - "5134:5134"
-#    volumes:
-#      - ./backend/src:/app/src
-#    env_file:
-#      - ./backend/.env
-#    environment:
-#      DOTNET_USE_POLLING_FILE_WATCHER: "1"
-#      DOTNET_HOST_PATH: "/usr/bin/dotnet"
-#    depends_on:
-#      - db
-        
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile-dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    expose:
+      - "3000"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-dev
+    ports:
+      - "5134:5134"
+    volumes:
+      - ./backend/src:/app/src
+    env_file:
+      - ./backend/.env
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "1"
+      DOTNET_HOST_PATH: "/usr/bin/dotnet"
+    depends_on:
+      - db
+
   db:
     image: postgres:15
+    restart: unless-stopped
     container_name: mydb
     environment:
       POSTGRES_DB: mydb
       POSTGRES_USER: appuser
       POSTGRES_PASSWORD: apppassword
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+        
+  nginx:
+    image: nginx:alpine
     ports:
-      - "5432:5432"
-  
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+      - backend

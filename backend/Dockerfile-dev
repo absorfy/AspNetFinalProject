@@ -7,10 +7,16 @@ COPY src/*.csproj ./src/
 
 RUN dotnet restore ./backend.sln
 
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="$PATH:/root/.dotnet/tools"
+
 COPY src/. ./src/
+
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 WORKDIR /app/src
 
 EXPOSE 5134
 
-CMD ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5134"]
+CMD ["/app/entrypoint.sh"]
