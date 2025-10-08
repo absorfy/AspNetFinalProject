@@ -9,6 +9,12 @@ on:
       - pure-asp-net
   workflow_dispatch:
 
+env:
+  SOLUTION_FILE: AspNetFinalProject.sln
+  PROJECT_FILE: AspNetFinalProject/AspNetFinalProject.csproj
+  PUBLISH_DIR: publish
+  DOTNET_VERSION: 9.x
+
 jobs:
   build:
     runs-on: windows-latest
@@ -21,19 +27,22 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
 
-      - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_FILE }} -c Release --no-restore
 
-      - name: Upload artifact for deployment job
+      - name: Publish Web
+        run: dotnet publish ${{ env.PROJECT_FILE }} -c Release -o ${{ env.PUBLISH_DIR }} --no-build
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          name: web-publish
+          path: ${{ env.PUBLISH_DIR }}
 
   deploy:
     runs-on: windows-latest
@@ -46,7 +55,8 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
+          name: web-publish
+          path: ./publish
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -56,10 +66,9 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_368CDB45D15B445BBAEEEC2CD9805291 }}
 
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'kanban'
-          slot-name: 'Production'
-          package: .
+          app-name: kanban
+          slot-name: Production
+          package: ./publish
           
